@@ -286,6 +286,10 @@ public class SwerveDrive implements PeriodicSubsystem {
         return this.kinematics.toChassisSpeeds(getModuleStates());
     }
 
+    public ChassisSpeeds getFieldRelativeChassisSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getOdoRot());
+    }
+
     public void addVisionData(VisionMeasurement data) {
         periodicIO.visionPose = data.pose;
         SmartDashboard.putNumber("timestamped viison", data.timestamp);

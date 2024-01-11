@@ -24,6 +24,7 @@ public class AutoDrive extends VirtualSubsystem {
     private TargetingUtil targeting;
     private Pose2d targetPose = new Pose2d();
     private DriveMode mode = DriveMode.NONE;
+    private double targetRot = 0;
 
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
@@ -33,6 +34,9 @@ public class AutoDrive extends VirtualSubsystem {
                     new TrapezoidProfile.Constraints(1, 2)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
+            new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
+
+    private final PIDController quickerRotController =
             new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final ProfiledPIDController xController =
@@ -56,6 +60,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        targetRot = targeting.angleToSpeakerOnTheMove();
         var bill = detector.pieceCoordinate(swerve::getOdoPose);
         if (bill.isPresent()) {
             targetPose = bill.get();
@@ -89,7 +94,7 @@ public class AutoDrive extends VirtualSubsystem {
         rotController.setGoal(targetPose.getRotation().getRadians());
         double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
         if (this.mode == DriveMode.SHOOT_STATIONARY) {
-            k = quickRotController.calculate(targeting.angleToSpeaker(), 0);
+            k = quickRotController.calculate(targetRot, 0);
         }
         double setpoint = Math.abs(k) < 0.03 ? 0 : k;
         return setpoint;

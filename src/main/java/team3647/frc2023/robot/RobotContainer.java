@@ -19,6 +19,7 @@ import team3647.frc2023.constants.FieldConstants;
 // // import team3647.frc2023.auto.AutoCommands;
 // import team3647.frc2023.auto.AutonomousMode;
 import team3647.frc2023.constants.GlobalConstants;
+import team3647.frc2023.constants.ShooterConstants;
 import team3647.frc2023.constants.SwerveDriveConstants;
 import team3647.frc2023.constants.VisionConstants;
 import team3647.frc2023.subsystems.SwerveDrive;
@@ -169,7 +170,12 @@ public class RobotContainer {
             new AutoDrive(
                     swerve,
                     detector,
-                    new TargetingUtil(FieldConstants.kBlueSpeaker, swerve::getOdoPose));
+                    new TargetingUtil(
+                            FieldConstants.kBlueSpeaker,
+                            FieldConstants.kSpeakerHeight,
+                            swerve::getOdoPose,
+                            swerve::getFieldRelativeChassisSpeeds,
+                            ShooterConstants.robotToShooter));
 
     //     public final AutoCommands autoCommands =
     //             new AutoCommands(swerve, SwerveDriveConstants.kDriveKinematics, superstructure);

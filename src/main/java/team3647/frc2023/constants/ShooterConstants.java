@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Transform3d;
 
 public class ShooterConstants {
     public static final TalonFX kTopRoller = new TalonFX(GlobalConstants.ShooterIds.kShooterTopId);
@@ -21,6 +22,8 @@ public class ShooterConstants {
     public static final double kNominalVoltage = 11.0;
     public static final double kStallCurrent = 25.0;
     public static final double kMaxCurrent = 20.0;
+
+    public static final Transform3d robotToShooter = new Transform3d();
 
     static {
         MotorOutputConfigs kTopMotor = new MotorOutputConfigs();

@@ -23,6 +23,8 @@ public class FieldConstants {
 
     public static final Pose2d kBlueSpeaker = new Pose2d(0.47, 5.54, new Rotation2d());
 
+    public static final double kSpeakerHeight = 6.25;
+
     public static Translation2d flipTranslation(Translation2d translation) {
         return new Translation2d(
                 FieldConstants.kFieldLength - translation.getX(), translation.getY());
