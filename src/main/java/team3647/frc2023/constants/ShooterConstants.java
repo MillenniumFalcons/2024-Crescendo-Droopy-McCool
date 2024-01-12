@@ -15,9 +15,6 @@ public class ShooterConstants {
             new TalonFX(GlobalConstants.ShooterIds.kShooterBottomId);
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
-    public static final boolean kTopMotorInvert = false;
-    public static final boolean kBottomMotorInvert = false;
-
     // kG at max extension
     public static final double kNominalVoltage = 11.0;
     public static final double kStallCurrent = 25.0;
@@ -42,8 +39,8 @@ public class ShooterConstants {
 
         kTopMotor.NeutralMode = NeutralModeValue.Brake;
         kBottomMotor.NeutralMode = NeutralModeValue.Brake;
-        kTopMotor.Inverted = InvertedValue.Clockwise_Positive;
-        kBottomMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kTopMotor.Inverted = InvertedValue.CounterClockwise_Positive;
+        kBottomMotor.Inverted = InvertedValue.CounterClockwise_Positive;
 
         kTopCurrent.StatorCurrentLimitEnable = false;
         kBottomCurrent.StatorCurrentLimitEnable = false;

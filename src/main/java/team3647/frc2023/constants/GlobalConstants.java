@@ -43,9 +43,21 @@ public final class GlobalConstants {
         private SwerveDriveIds() {}
     }
 
+    public static final class PivotIds {
+        public static final int kMasterId = 0;
+    }
+
     public static final class ShooterIds {
-        public static final int kShooterTopId = 31;
-        public static final int kShooterBottomId = 33;
+        public static final int kShooterTopId = 28;
+        public static final int kShooterBottomId = 31;
+    }
+
+    public static final class KickerIds {
+        public static final int kMasterId = 0;
+    }
+
+    public static final class IntakeIds {
+        public static final int kMasterId = 0;
     }
 
     private GlobalConstants() {}

@@ -133,7 +133,7 @@ public class TargetingUtil {
     }
 
     public double exitVelocity() {
-        return 10;
+        return 12;
     }
 
     public double getPivotAngleByDistance() {

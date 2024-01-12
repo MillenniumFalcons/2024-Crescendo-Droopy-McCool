@@ -43,11 +43,13 @@ public class DrivetrainCommands {
             // BooleanSupplier enableAutoSteer,
             BooleanSupplier getIsFieldOriented,
             Supplier<DriveMode> autoDriveMode,
+            BooleanSupplier autoDriveEnabled,
             Supplier<Twist2d> autoDriveVelocities
             // Supplier<Twist2d> autoSteerVelocitiesSupplier
             ) {
         return Commands.run(
                 () -> {
+                    boolean enabeld = autoDriveEnabled.getAsBoolean();
                     DriveMode mode = autoDriveMode.get();
                     Twist2d autoDriveTwist2d = autoDriveVelocities.get();
                     double triggerSlow = slowTriggerFunction.getAsBoolean() ? 0.6 : 1;
@@ -63,7 +65,13 @@ public class DrivetrainCommands {
 
                     // var translation = new Translation2d(motionXComponent, motionYComponent);
 
-                    if (mode == DriveMode.SHOOT_STATIONARY) {
+                    if (mode == DriveMode.SHOOT_STATIONARY && enabeld) {
+                        motionTurnComponent = autoDriveTwist2d.dtheta;
+                        motionXComponent = 0;
+                        motionYComponent = 0;
+                    }
+
+                    if (mode == DriveMode.SHOOT_ON_THE_MOVE && enabeld) {
                         motionTurnComponent = autoDriveTwist2d.dtheta;
                     }
 

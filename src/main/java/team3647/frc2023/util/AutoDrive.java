@@ -9,6 +9,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +26,7 @@ public class AutoDrive extends VirtualSubsystem {
     private Pose2d targetPose = new Pose2d();
     private DriveMode mode = DriveMode.NONE;
     private double targetRot = 0;
+    private boolean enabled = true;
 
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
@@ -34,7 +36,7 @@ public class AutoDrive extends VirtualSubsystem {
                     new TrapezoidProfile.Constraints(1, 2)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
-            new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
+            new PIDController(4, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
             new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
@@ -60,12 +62,28 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        targetRot = targeting.angleToSpeakerOnTheMove();
+        if (this.mode == DriveMode.SHOOT_STATIONARY) {
+            targetRot = targeting.angleToSpeaker();
+        } else if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
+            targetRot = targeting.angleToSpeakerOnTheMove();
+        }
         var bill = detector.pieceCoordinate(swerve::getOdoPose);
         if (bill.isPresent()) {
             targetPose = bill.get();
             swerve.field.getObject("piece location").setPose(targetPose);
         }
+    }
+
+    public Command enable() {
+        return Commands.runOnce(() -> this.enabled = true);
+    }
+
+    public Command disable() {
+        return Commands.runOnce(() -> this.enabled = false);
+    }
+
+    public boolean getEnabled() {
+        return this.enabled;
     }
 
     public Command setMode(DriveMode mode) {
@@ -74,6 +92,17 @@ public class AutoDrive extends VirtualSubsystem {
 
     public DriveMode getMode() {
         return this.mode;
+    }
+
+    public double getPivotAngle() {
+        switch (mode) {
+            case SHOOT_ON_THE_MOVE:
+                return targeting.getPivotAngleByDistanceOnTheMove();
+            case SHOOT_STATIONARY:
+                return targeting.getPivotAngleByDistance();
+            default:
+                return 90;
+        }
     }
 
     public double getX() {
@@ -93,9 +122,7 @@ public class AutoDrive extends VirtualSubsystem {
     public double getRot() {
         rotController.setGoal(targetPose.getRotation().getRadians());
         double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
-        if (this.mode == DriveMode.SHOOT_STATIONARY) {
-            k = quickRotController.calculate(targetRot, 0);
-        }
+        k = quickRotController.calculate(targetRot, 0);
         double setpoint = Math.abs(k) < 0.03 ? 0 : k;
         return setpoint;
     }
@@ -106,12 +133,16 @@ public class AutoDrive extends VirtualSubsystem {
 
     public PathPlannerPath getPathToAmp() {
         return new PathPlannerPath(
-                null, AutoConstants.defaultConstraints, new GoalEndState(0, null));
+                null,
+                AutoConstants.defaultConstraints,
+                new GoalEndState(0, new Rotation2d(-Math.PI / 2)));
     }
 
     public PathPlannerPath getPathToClosestPiece() {
         return new PathPlannerPath(
-                null, AutoConstants.defaultConstraints, new GoalEndState(0, null));
+                null,
+                AutoConstants.defaultConstraints,
+                new GoalEndState(0, new Rotation2d(-Math.PI / 2)));
     }
 
     public Command followPathCommand(PathPlannerPath path) {
@@ -124,7 +155,7 @@ public class AutoDrive extends VirtualSubsystem {
                         new HolonomicPathFollowerConfig(
                                 AutoConstants.kTranslationConstants,
                                 AutoConstants.kRotationConstants,
-                                5,
+                                6,
                                 SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
                                 new ReplanningConfig()),
                         swerve),
