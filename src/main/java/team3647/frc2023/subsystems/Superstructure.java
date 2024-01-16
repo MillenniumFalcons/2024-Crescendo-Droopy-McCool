@@ -11,6 +11,8 @@ import team3647.frc2023.commands.ShooterCommands;
 public class Superstructure {
 
     private final DoubleSupplier pivotAngleSupplier;
+    private final double stowAngle = 30;
+    private boolean hasPiece = false;
 
     public Command feed() {
         return kickerCommands.kick();
@@ -20,27 +22,42 @@ public class Superstructure {
         return shooterCommands.shoot(() -> 1);
     }
 
+    public boolean getPiece() {
+        return hasPiece;
+    }
+
+    public Command setPiece() {
+        return Commands.runOnce(() -> this.hasPiece = true);
+    }
+
+    public Command ejectPiece() {
+        return Commands.runOnce(() -> this.hasPiece = false);
+    }
+
     public Command shoot() {
         return Commands.parallel(
-                pivotCommands.setAngle(pivotAngleSupplier),
-                spinUp(),
-                Commands.sequence(Commands.waitSeconds(1), feed()));
+                        ejectPiece(),
+                        prep(),
+                        spinUp(),
+                        Commands.sequence(Commands.waitSeconds(1), feed()))
+                .andThen(Commands.waitSeconds(0.5))
+                .andThen(stowShoot());
     }
 
     public Command prep() {
         return pivotCommands.setAngle(pivotAngleSupplier);
     }
 
-    public Command stow() {
-        return Commands.parallel(
-                pivotCommands.setAngle(() -> 90),
-                kickerCommands.kill(),
-                intakeCommands.kill(),
-                shooterCommands.kill());
+    public Command stowShoot() {
+        return Commands.parallel(pivotCommands.setAngle(() -> stowAngle), shooterCommands.kill());
     }
 
     public Command intake() {
         return intakeCommands.intake();
+    }
+
+    public Command stowIntake() {
+        return Commands.parallel(intakeCommands.kill(), kickerCommands.kill());
     }
 
     public Superstructure(

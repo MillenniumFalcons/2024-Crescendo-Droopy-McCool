@@ -15,7 +15,7 @@ public class VisionMeasurement {
     public final Matrix<N3, N1> stdDevs;
 
     public VisionMeasurement(Pose2d pose, double timestamp) {
-        this(pose, timestamp, VecBuilder.fill(0.01, 0.01, 0.01));
+        this(pose, timestamp, VecBuilder.fill(0.05, 0.05, 0.05));
     }
 
     public VisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {

@@ -1,7 +1,5 @@
 package team3647.frc2023.constants;
 
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -13,7 +11,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public final class GlobalConstants {
     public static final double kFalconTicksPerRotation = 1;
     public static final double kFalcon5TicksPerRotation = 2048;
-    public static final PneumaticsModuleType kPCMType = PneumaticsModuleType.CTREPCM;
     public static final double kDt = 0.02;
     public static final int kTimeoutMS = 255;
 

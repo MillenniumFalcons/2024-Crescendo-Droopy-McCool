@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import team3647.frc2023.auto.AutoCommands;
 import team3647.frc2023.auto.AutonomousMode;
 import team3647.frc2023.commands.DrivetrainCommands;
@@ -46,80 +47,39 @@ import team3647.lib.inputs.Joysticks;
 public class RobotContainer {
 
     private AutonomousMode runningMode;
-    // private final Shooter shooter;
-
-    //     private Twist2d twist = new Twist2d();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
 
-        // if driving is bill, revert drivetraincommands, swervedrive, swervedriveconstants, and
-        // robotcontainer
         pdh.clearStickyFaults();
         scheduler.registerSubsystem(swerve, shooter, intake, kicker, pivot);
-
-        // shooter =
-        //         new Shooter(
-        //                 ShooterConstants.kBottomRoller,
-        //                 ShooterConstants.kTopRoller,
-        //                 1,
-        //                 1,
-        //                 12,
-        //                 0.02);
 
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1N1N2N3; // currently using this, not the auto chooser
+        runningMode = autoCommands.blueFour_S1N1N2N3;
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
-        // add the robot to cam transforms
     }
 
     private void configureButtonBindings() {
 
         mainController.buttonX.whileTrue(drivetrainCommands.characterize());
-
-        // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.ALIGN_TO_AMP));
         mainController.leftBumper.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         mainController.rightBumper.whileTrue(autoDrive.setMode(DriveMode.SHOOT_STATIONARY));
         mainController.rightBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.leftBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
-        // mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.leftBumper.onTrue(superstructure.shoot());
         mainController.rightBumper.onTrue(superstructure.shoot());
 
-        mainController.leftBumper.onFalse(superstructure.stow());
-        mainController.rightBumper.onFalse(superstructure.stow());
-
-        // mainController
-        //         .leftTrigger
-        //         .whileTrue(superstructure.intake())
-        //         .onFalse(superstructure.stow());
+        piece.whileTrue(superstructure.stowIntake());
 
         mainController.buttonA.whileTrue(
                 superstructure.shooterCommands.shoot(mainController::getLeftTriggerValue));
         mainController.buttonA.onFalse(superstructure.shooterCommands.kill());
-
-        // need to change this to a conditional command so it doesn't start auto aiming
-        // when doing
-        // cubes from cube shooter
-
-        // mainController.buttonY.onTrue(new InstantCommand(() ->
-        // swerve.resetModuleAngle()));
-        // mainController.leftBumper.whileTrue(autoDrive.driveToPose());
-
-        // mainController
-        //         .leftBumper
-        //         .and(() -> autoDrive.getIsGoodToIntake())
-        //         .whileTrue(superstructure.cubeShooterIntake())
-        //         .onFalse(superstructure.cubeShooterCommands.stow());
-
-        // mainController.leftTrigger.whileTrue(superstructure.cubeShooterIntake());
-        // mainController.leftTrigger.onFalse(superstructure.cubeShooterCommands.stow());
     }
 
     private void configureDefaultCommands() {
@@ -130,16 +90,11 @@ public class RobotContainer {
                         mainController::getRightStickX,
                         () -> false,
                         () -> true,
-                        // enable autosteer if going to actual station (bumper), or scoring
-                        // (trigger)
-                        // () -> false,
                         autoDrive::getMode,
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
         pivot.setDefaultCommand(superstructure.pivotCommands.holdPositionAtCall());
-        // shooter.setDefaultCommand(shooterCommands.shoot(mainController::getLeftTriggerValue));
-
-        // wrist.setDefaultCommand(superstructure.wristCommands.holdPositionAtCall());
+        intake.setDefaultCommand(superstructure.intakeCommands.intake());
     }
 
     public void teleopInit() {}
@@ -150,14 +105,11 @@ public class RobotContainer {
         SmartDashboard.putNumber("pivot characterization voltage", 0);
     }
 
-    // counted relative to what driver sees
     public Command getAutonomousCommand() {
         return runningMode.getAutoCommand();
-        // return autoChooser.getSelected();
     }
 
     private final Joysticks mainController = new Joysticks(0);
-    // private final Joysticks coController = new Joysticks(1);
     public final SwerveDrive swerve =
             new SwerveDrive(
                     SwerveDriveConstants.kFrontLeftModule,
@@ -210,7 +162,6 @@ public class RobotContainer {
 
     private VisionController visionController =
             new VisionController(swerve::addVisionData, swerve, ar_doo_cam);
-    // () -> twist);
 
     public final NeuralDetector detector = new NeuralDetector(VisionConstants.limelightName);
 
@@ -232,4 +183,6 @@ public class RobotContainer {
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
     final GroupPrinter printer = GroupPrinter.getInstance();
+
+    Trigger piece = new Trigger(() -> superstructure.getPiece());
 }

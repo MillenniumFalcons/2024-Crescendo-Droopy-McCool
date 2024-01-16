@@ -7,8 +7,6 @@ import com.ctre.phoenix6.signals.*;
 public class IntakeConstants {
     public static final TalonFX kMaster = new TalonFX(GlobalConstants.IntakeIds.kMasterId);
 
-    // public static final TalonFXInvertType kMasterInvert = TalonFXInvertType.CounterClockwise;
-
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
     public static final double kNominalVoltage = 11.0;
@@ -16,20 +14,14 @@ public class IntakeConstants {
     public static final double kMaxCurrent = 20.0;
 
     static {
-        // VoltageConfigs kMasterVoltage = new VoltageConfigs();
         CurrentLimitsConfigs kMasterCurrent = new CurrentLimitsConfigs();
         MotorOutputConfigs kMasterMotorOutput = new MotorOutputConfigs();
         TalonFXConfigurator kMasterConfigurator = kMaster.getConfigurator();
         kMasterConfigurator.apply(kMasterConfig);
-
-        // kMasterVoltage.PeakForwardVoltage = kNominalVoltage;
-        // kMasterVoltage.PeakReverseVoltage = kNominalVoltage;
         kMasterCurrent.StatorCurrentLimitEnable = true;
         kMasterCurrent.StatorCurrentLimit = kMaxCurrent;
         kMasterMotorOutput.NeutralMode = NeutralModeValue.Brake;
         kMasterMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-        // kMasterConfigurator.apply(kMasterVoltage);
         kMasterConfigurator.apply(kMasterMotorOutput);
     }
 

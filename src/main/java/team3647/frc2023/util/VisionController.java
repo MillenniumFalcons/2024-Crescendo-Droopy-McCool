@@ -15,11 +15,9 @@ public class VisionController extends VirtualSubsystem {
     public VisionController(
             Consumer<VisionMeasurement> visionAcceptor,
             SwerveDrive swerve,
-            // Supplier<Twist2d> driveData,
             AprilTagCamera... cameras) {
         this.cameras = cameras;
         this.swerve = swerve;
-        // this.driveData = driveData;
         this.botPoseAcceptor = visionAcceptor;
     }
 

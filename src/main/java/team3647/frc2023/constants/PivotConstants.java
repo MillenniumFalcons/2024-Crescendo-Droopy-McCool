@@ -42,7 +42,6 @@ public class PivotConstants {
 
     static {
         Slot0Configs kMasterSlot0 = new Slot0Configs();
-        // VoltageConfigs kMasterVoltage = new VoltageConfigs();
         CurrentLimitsConfigs kMasterCurrent = new CurrentLimitsConfigs();
         MotionMagicConfigs kMasterMotionMagic = new MotionMagicConfigs();
         MotorOutputConfigs kMasterMotorOutput = new MotorOutputConfigs();
@@ -53,8 +52,6 @@ public class PivotConstants {
         kMasterSlot0.kP = masterKP;
         kMasterSlot0.kI = masterKI;
         kMasterSlot0.kD = masterKD;
-        // kMasterVoltage.PeakForwardVoltage = nominalVoltage;
-        // kMasterVoltage.PeakReverseVoltage = nominalVoltage;
         kMasterCurrent.StatorCurrentLimitEnable = true;
         kMasterCurrent.StatorCurrentLimit = kMaxCurrent;
         kMasterMotionMagic.MotionMagicAcceleration = kMaxVelocityTicks * 1.8;
@@ -68,7 +65,6 @@ public class PivotConstants {
         kMasterSoftLimit.ReverseSoftLimitThreshold = kMinDegree / kNativePosToDegrees;
 
         kMasterConfigurator.apply(kMasterSlot0);
-        // kMasterConfigurator.apply(kMasterVoltage);
         kMasterConfigurator.apply(kMasterMotionMagic);
         kMasterConfigurator.apply(kMasterMotorOutput);
         kMasterConfigurator.apply(kMasterSoftLimit);

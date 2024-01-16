@@ -20,9 +20,9 @@ import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class AutoDrive extends VirtualSubsystem {
-    private SwerveDrive swerve;
-    private NeuralDetector detector;
-    private TargetingUtil targeting;
+    private final SwerveDrive swerve;
+    private final NeuralDetector detector;
+    private final TargetingUtil targeting;
     private Pose2d targetPose = new Pose2d();
     private DriveMode mode = DriveMode.NONE;
     private double targetRot = 0;

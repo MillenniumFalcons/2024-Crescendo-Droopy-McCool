@@ -26,9 +26,6 @@ public class ShooterConstants {
         MotorOutputConfigs kTopMotor = new MotorOutputConfigs();
         MotorOutputConfigs kBottomMotor = new MotorOutputConfigs();
 
-        // VoltageConfigs kTopVoltage = new VoltageConfigs();
-        // VoltageConfigs kBottomVoltage = new VoltageConfigs();
-
         CurrentLimitsConfigs kTopCurrent = new CurrentLimitsConfigs();
         CurrentLimitsConfigs kBottomCurrent = new CurrentLimitsConfigs();
 
@@ -44,14 +41,11 @@ public class ShooterConstants {
 
         kTopCurrent.StatorCurrentLimitEnable = false;
         kBottomCurrent.StatorCurrentLimitEnable = false;
-        // kTopCurrent.StatorCurrentLimit = kMaxCurrent;
-        // kBottomCurrent.StatorCurrentLimit = kMaxCurrent;
 
         kTopRollerConfigurator.apply(kTopMotor);
         kTopRollerConfigurator.apply(kTopCurrent);
 
         kBottomRollerConfigurator.apply(kTopMotor);
-        // kBottomRollerConfigurator.apply(kTopVoltage);
         kBottomRollerConfigurator.apply(kBottomCurrent);
     }
 }

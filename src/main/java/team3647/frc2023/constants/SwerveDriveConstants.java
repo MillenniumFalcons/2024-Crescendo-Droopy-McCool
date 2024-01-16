@@ -15,14 +15,10 @@ import com.ctre.phoenix6.StatusCode;
 // import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 // import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveControlRequestParameters;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -135,23 +131,11 @@ public class SwerveDriveConstants {
     public static final double kStallCurrent = 35;
     public static final double kMaxCurrent = 60;
 
-    // prac bot
-    // public static final double kAbsFrontLeftEncoderOffsetDeg = 302.52;
-    // public static final double kAbsFrontRightEncoderOffsetDeg = 244.77;
-    // public static final double kAbsBackLeftEncoderOffsetDeg = 121.9;
-    // public static final double kAbsBackRightEncoderOffsetDeg = 240.3;
-
     // comp bot
-    // public static final double kAbsFrontLeftEncoderOffsetDeg = 37.01;
-    // public static final double kAbsFrontRightEncoderOffsetDeg = 184.48;
-    // public static final double kAbsBackLeftEncoderOffsetDeg = 348.13;
-    // public static final double kAbsBackRightEncoderOffsetDeg = 246.88;
-
-    // comp bot
-    public static final double kAbsFrontLeftEncoderOffsetDeg = 84.2; // 215.77; //35.595;
-    public static final double kAbsFrontRightEncoderOffsetDeg = 64.1; // 183.51; //182.724;
-    public static final double kAbsBackLeftEncoderOffsetDeg = 42.3; // 347.34; //348.222;
-    public static final double kAbsBackRightEncoderOffsetDeg = 124.3; // 67.23; //247.851;
+    public static final double kAbsFrontLeftEncoderOffsetDeg = 84.2;
+    public static final double kAbsFrontRightEncoderOffsetDeg = 64.1;
+    public static final double kAbsBackLeftEncoderOffsetDeg = 42.3;
+    public static final double kAbsBackRightEncoderOffsetDeg = 124.3;
 
     // max speed limits that we want
     public static final double kTeleopDriveMaxAccelUnitsPerSec = kDrivePossibleMaxSpeedMPS / 2;
@@ -272,59 +256,6 @@ public class SwerveDriveConstants {
     public static final SwerveModuleConstants kBackLeftConstants = new SwerveModuleConstants();
     public static final SwerveModuleConstants kBackRightConstants = new SwerveModuleConstants();
 
-    public class CharacterizationRequest implements SwerveRequest {
-        private final PositionVoltage steerCommand = new PositionVoltage(0);
-        private VoltageOut voltageToApply = new VoltageOut(0);
-
-        @Override
-        public StatusCode apply(
-                SwerveControlRequestParameters parameters,
-                com.ctre.phoenix6.mechanisms.swerve.SwerveModule... modulesToApply) {
-            for (com.ctre.phoenix6.mechanisms.swerve.SwerveModule module : modulesToApply) {
-                module.getSteerMotor().setControl(steerCommand);
-                module.getDriveMotor().setControl(voltageToApply);
-            }
-            return StatusCode.OK;
-        }
-
-        public CharacterizationRequest withVoltage(double voltage) {
-            voltageToApply = new VoltageOut(voltage);
-            return this;
-        }
-    }
-
-    private static final void setModuleConstants(
-            SwerveModuleConstants acceptor,
-            int CANcoderID,
-            double CANcoderOffset,
-            Slot0Configs driveMotorGains,
-            double driveMotorGearRatio,
-            int driveMotorID,
-            boolean driveMotorInverted,
-            double locationX,
-            double locationY,
-            double MaxSpeed,
-            Slot0Configs steerMotorGains,
-            double steerMotorGearRatio,
-            int steerMotorID,
-            boolean steerMotorInverted,
-            double wheelRadius) {
-        acceptor.withCANcoderId(CANcoderID);
-        acceptor.withCANcoderOffset(CANcoderOffset);
-        acceptor.withDriveMotorGains(driveMotorGains);
-        acceptor.withDriveMotorGearRatio(driveMotorGearRatio);
-        acceptor.withDriveMotorId(driveMotorID);
-        acceptor.withDriveMotorInverted(driveMotorInverted);
-        acceptor.withLocationX(locationX);
-        acceptor.withLocationY(locationY);
-        acceptor.withSpeedAt12VoltsMps(MaxSpeed);
-        acceptor.withSteerMotorGains(steerMotorGains);
-        acceptor.withSteerMotorGearRatio(steerMotorGearRatio);
-        acceptor.withSteerMotorId(steerMotorID);
-        acceptor.withSteerMotorInverted(steerMotorInverted);
-        acceptor.withWheelRadius(wheelRadius);
-    }
-
     private static void setTurnMotorConfig(
             TalonFXConfigurator configurator,
             Slot0Configs slot0,
@@ -341,8 +272,6 @@ public class SwerveDriveConstants {
         configurator.apply(slot0);
         configurator.apply(supplyCurrLimit);
         configurator.apply(motorConfigs);
-        // config.voltageCompSaturation = kNominalVoltage;
-        // config.initializationStrategy = SensorInitializationStrategy.BootToZero;
     }
 
     private static void setDriveMotorConfig(
@@ -361,8 +290,6 @@ public class SwerveDriveConstants {
         configurator.apply(slot0);
         configurator.apply(supplyCurrLimit);
         configurator.apply(motorConfigs);
-        // config.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        // config.voltageCompSaturation = kNominalVoltage;
     }
 
     private static void setAbsConfig(
@@ -401,78 +328,6 @@ public class SwerveDriveConstants {
         kTurnGains.kP = kTurnP;
         kTurnGains.kI = kTurnP;
         kTurnGains.kD = kTurnP;
-        // kGyroConfig.ZAxisGyroError = 0.3;
-        // // remove later
-        // kGyroConfig.MountPoseYaw = 90;
-        // printError(kGyro.configAllSettings(kGyroConfig, GlobalConstants.kTimeoutMS));f
-
-        setModuleConstants(
-                kFrontLeftConstants,
-                kFrontLeftAbsEncoder.getDeviceID(),
-                kAbsFrontLeftEncoderOffsetDeg,
-                kDriveGains,
-                kDriveMotorGearRatio,
-                kFrontLeftDrive.getDeviceID(),
-                kDriveMotorInvertedBoolean,
-                kWheelBase / 2.0,
-                kTrackWidth / 2.0,
-                kDrivePossibleMaxSpeedMPS,
-                kTurnGains,
-                kTurnMotorGearRatio,
-                kFrontLeftTurn.getDeviceID(),
-                kTurnMotorInvertedBoolean,
-                kWheelDiameterMeters / 2.0);
-
-        setModuleConstants(
-                kFrontRightConstants,
-                kFrontRightAbsEncoder.getDeviceID(),
-                kAbsFrontRightEncoderOffsetDeg,
-                kDriveGains,
-                kDriveMotorGearRatio,
-                kFrontRightDrive.getDeviceID(),
-                kDriveMotorInvertedBoolean,
-                kWheelBase / 2.0,
-                -kTrackWidth / 2.0,
-                kDrivePossibleMaxSpeedMPS,
-                kTurnGains,
-                kTurnMotorGearRatio,
-                kFrontRightTurn.getDeviceID(),
-                kTurnMotorInvertedBoolean,
-                kWheelDiameterMeters / 2.0);
-
-        setModuleConstants(
-                kBackLeftConstants,
-                kBackLeftAbsEncoder.getDeviceID(),
-                kAbsBackLeftEncoderOffsetDeg,
-                kDriveGains,
-                kDriveMotorGearRatio,
-                kBackLeftDrive.getDeviceID(),
-                kDriveMotorInvertedBoolean,
-                -kWheelBase / 2.0,
-                kTrackWidth / 2.0,
-                kDrivePossibleMaxSpeedMPS,
-                kTurnGains,
-                kTurnMotorGearRatio,
-                kBackLeftTurn.getDeviceID(),
-                kTurnMotorInvertedBoolean,
-                kWheelDiameterMeters / 2.0);
-
-        setModuleConstants(
-                kBackRightConstants,
-                kBackRightAbsEncoder.getDeviceID(),
-                kAbsBackRightEncoderOffsetDeg,
-                kDriveGains,
-                kDriveMotorGearRatio,
-                kBackRightDrive.getDeviceID(),
-                kDriveMotorInvertedBoolean,
-                -kWheelBase / 2.0,
-                -kTrackWidth / 2.0,
-                kDrivePossibleMaxSpeedMPS,
-                kTurnGains,
-                kTurnMotorGearRatio,
-                kBackRightTurn.getDeviceID(),
-                kTurnMotorInvertedBoolean,
-                kWheelDiameterMeters / 2.0);
 
         setTurnMotorConfig(
                 kFrontLeftTurnConfig,

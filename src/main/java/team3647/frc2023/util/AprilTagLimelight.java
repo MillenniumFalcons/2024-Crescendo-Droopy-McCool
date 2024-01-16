@@ -52,32 +52,6 @@ public class AprilTagLimelight implements AprilTagCamera {
         return botToTargetSubscriber;
     }
 
-    // public Pose2d getLatestPose() {
-    //     var botPose = botPoseEntry.getDoubleArray(new double[] {});
-    //     return new Pose3d(
-    //                     botPose[0],
-    //                     botPose[1],
-    //                     botPose[2],
-    //                     new Rotation3d(botPose[3], botPose[4], botPose[5]))
-    //             .toPose2d();
-    // }
-
-    // public VisionMeasurement getMeasurementByClosestTimestamp(double timestamp) {
-    //     // var botPoseQueue = this.getBotPoseSubscriber().readQueue();
-    //     // var timestampArray = new double[botPoseQueue.length];
-    //     // for (int i = 0; i < botPoseQueue.length; i++) {
-    //     //     timestampArray[i] = botPoseQueue[i].timestamp;
-    //     // }
-    //     // List<Double> timelist =
-    // Arrays.stream(timestampArray).boxed().collect(Collectors.toList());
-    //     // Optional<Double> timestampFound =
-    //     //         timelist.stream().min(Comparator.comparingDouble(i -> (Math.abs(i -
-    // timestamp))));
-    //     // if (timestampFound.isPresent()) {
-    //     //     return null;
-    //     // }
-    // }
-
     public IntegerSubscriber getTagNumSubscriber() {
         return tagNumberSubscriber;
     }

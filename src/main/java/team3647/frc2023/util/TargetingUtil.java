@@ -13,11 +13,11 @@ import team3647.lib.GeomUtil;
 
 public class TargetingUtil {
 
-    final Pose2d speakerPose;
-    final double speakerHeight;
-    final Supplier<Pose2d> drivePose;
-    final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
-    final Transform3d robotToShooter;
+    private final Pose2d speakerPose;
+    private final double speakerHeight;
+    private final Supplier<Pose2d> drivePose;
+    private final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
+    private final Transform3d robotToShooter;
     double kDt = 0.02;
 
     public TargetingUtil(

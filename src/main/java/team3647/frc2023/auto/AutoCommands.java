@@ -62,7 +62,6 @@ public class AutoCommands {
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
-        // Test = new AutonomousMode(drive(), Trajectories.Blue.Test.kStar
     }
 
     public void registerCommands() {}

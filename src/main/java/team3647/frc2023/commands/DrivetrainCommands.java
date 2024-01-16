@@ -105,12 +105,6 @@ public class DrivetrainCommands {
                 });
     }
 
-    public Command robotRelativeDrive(Translation2d t, Rotation2d rotation, double seconds) {
-        return Commands.run(() -> swerve.drive(t, rotation.getDegrees(), false, true), swerve)
-                .finallyDo(interupted -> swerve.end())
-                .withTimeout(seconds);
-    }
-
     private final SwerveDrive swerve;
     private static final Rotation2d OneEightyRotation = FieldConstants.kOneEighty;
     private final double maxSpeed;
