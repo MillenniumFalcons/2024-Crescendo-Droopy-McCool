@@ -1,6 +1,7 @@
 package team3647.frc2023.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class Kicker extends TalonFXSubsystem {
@@ -15,6 +16,7 @@ public class Kicker extends TalonFXSubsystem {
 
     public void openLoop(double demand) {
         super.setOpenloop(demand);
+        Logger.recordOutput(getName() + "/demand", demand);
     }
 
     @Override

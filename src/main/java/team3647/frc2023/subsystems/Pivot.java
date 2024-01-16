@@ -2,6 +2,7 @@ package team3647.frc2023.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class Pivot extends TalonFXSubsystem {
@@ -13,7 +14,6 @@ public class Pivot extends TalonFXSubsystem {
 
     public Pivot(
             TalonFX master,
-            TalonFX slave,
             double ticksToMetersPerSec,
             double ticksToMeters,
             double minAngle,
@@ -22,7 +22,6 @@ public class Pivot extends TalonFXSubsystem {
             double maxKG,
             double kDt) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
-        super.addFollower(slave, true);
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
         this.maxKG = maxKG;
@@ -35,6 +34,7 @@ public class Pivot extends TalonFXSubsystem {
 
     public void openLoop(double demand) {
         super.setOpenloop(demand);
+        Logger.recordOutput(getName() + "/demand", demand);
     }
 
     public void setVoltage(double voltage) {
@@ -49,6 +49,7 @@ public class Pivot extends TalonFXSubsystem {
         double desiredAngle = MathUtil.clamp(angle, minAngle, maxAngle);
         var ffvolts = maxKG * Math.cos(desiredAngle);
         super.setPositionMotionMagic(desiredAngle, ffvolts);
+        Logger.recordOutput(getName() + "/angle", angle);
     }
 
     public boolean angleReached(double targetAngle, double threshold) {

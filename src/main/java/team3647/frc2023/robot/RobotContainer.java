@@ -188,7 +188,6 @@ public class RobotContainer {
     public final Pivot pivot =
             new Pivot(
                     PivotConstants.kMaster,
-                    PivotConstants.kSlave,
                     PivotConstants.kNativeVelToDPS,
                     PivotConstants.kNativePosToDegrees,
                     PivotConstants.kMinDegree,

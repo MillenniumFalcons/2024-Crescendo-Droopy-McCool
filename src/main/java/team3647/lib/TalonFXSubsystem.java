@@ -15,6 +15,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.List;
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 public abstract class TalonFXSubsystem implements PeriodicSubsystem {
 
@@ -25,6 +27,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     private final MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0);
     private final VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(0);
     private final VoltageOut voltageOut = new VoltageOut(0);
+    public ControlRequest controlMode = new EmptyControl();
     private Follower masterOutput;
     private final double positionConversion;
     private final double velocityConversion;
@@ -34,6 +37,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     public static final int kTimeoutMS = 100;
 
     private PeriodicIO periodicIO = new PeriodicIO();
+    private PeriodicIOAutoLogged ioAutoLogged = new PeriodicIOAutoLogged();
 
     protected TalonFXSubsystem(
             TalonFX master,
@@ -49,6 +53,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
         this.master.clearStickyFaults(kLongStatusTimeMS);
     }
 
+    @AutoLog
     public static class PeriodicIO {
         // Inputs
         public double position = 0;
@@ -59,7 +64,6 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
         public double nativePosition = 0;
 
         // Outputs
-        public ControlRequest controlMode = new EmptyControl();
         public double demand = 0;
         public double feedforward = 0;
     }
@@ -72,12 +76,13 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
         periodicIO.current = master.getStatorCurrent().getValue();
         periodicIO.timestamp = Timer.getFPGATimestamp();
         periodicIO.masterCurrent = master.getSupplyCurrent().getValue();
+        Logger.processInputs(getName(), ioAutoLogged);
     }
 
     @Override
     public void writePeriodicOutputs() {
-        master.setControl(periodicIO.controlMode);
-        master.setControl(periodicIO.controlMode);
+        master.setControl(controlMode);
+        master.setControl(controlMode);
         for (var follower : followers) {
             follower.setControl(masterOutput);
         }
@@ -89,13 +94,13 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     }
 
     public void setOpenloop(double output) {
-        periodicIO.controlMode = dutyCycle;
+        controlMode = dutyCycle;
         periodicIO.feedforward = 0;
         dutyCycle.Output = output;
     }
 
     public void setVoltage(double voltage) {
-        periodicIO.controlMode = voltageOut;
+        controlMode = voltageOut;
         periodicIO.feedforward = 0;
         voltageOut.Output = voltage;
     }
@@ -107,13 +112,13 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
      * @param feedforward in volts
      */
     protected void setPosition(double position, double feedforward) {
-        periodicIO.controlMode = positionDutyCycle;
+        controlMode = positionDutyCycle;
         positionDutyCycle.FeedForward = feedforward / nominalVoltage;
         positionDutyCycle.Position = position / positionConversion;
     }
 
     protected void setPositionNative(double position, double feedforward) {
-        periodicIO.controlMode = positionDutyCycle;
+        controlMode = positionDutyCycle;
         positionDutyCycle.FeedForward = feedforward / nominalVoltage;
         periodicIO.feedforward = feedforward;
         positionDutyCycle.Position = position;
@@ -126,7 +131,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
      * @param feedforward in volts
      */
     protected void setPositionMotionMagic(double position, double feedforward) {
-        periodicIO.controlMode = motionMagicDutyCycle;
+        controlMode = motionMagicDutyCycle;
         motionMagicDutyCycle.Slot = 0;
         motionMagicDutyCycle.FeedForward = feedforward / nominalVoltage;
         motionMagicDutyCycle.Position = position / positionConversion;
@@ -137,7 +142,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
      * @param feedforward in volts
      */
     protected void setVelocity(double velocity, double feedforward) {
-        periodicIO.controlMode = velocityDutyCycle;
+        controlMode = velocityDutyCycle;
         velocityDutyCycle.FeedForward = feedforward / nominalVoltage;
         velocityDutyCycle.Velocity = velocity / velocityConversion;
     }
