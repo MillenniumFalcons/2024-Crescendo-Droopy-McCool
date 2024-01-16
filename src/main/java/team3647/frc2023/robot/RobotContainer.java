@@ -1,7 +1,12 @@
 package team3647.frc2023.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import team3647.frc2023.auto.AutoCommands;
@@ -23,6 +28,7 @@ import team3647.frc2023.subsystems.Pivot;
 import team3647.frc2023.subsystems.Shooter;
 import team3647.frc2023.subsystems.Superstructure;
 import team3647.frc2023.subsystems.SwerveDrive;
+import team3647.frc2023.util.AprilTagPhotonVision;
 import team3647.frc2023.util.AutoDrive;
 import team3647.frc2023.util.AutoDrive.DriveMode;
 import team3647.frc2023.util.NeuralDetector;
@@ -72,13 +78,15 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
-        mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
+        mainController.buttonX.whileTrue(drivetrainCommands.characterize());
+
+        // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.ALIGN_TO_AMP));
         mainController.leftBumper.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         mainController.rightBumper.whileTrue(autoDrive.setMode(DriveMode.SHOOT_STATIONARY));
         mainController.rightBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.leftBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
-        mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
+        // mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.leftBumper.onTrue(superstructure.shoot());
@@ -87,10 +95,14 @@ public class RobotContainer {
         mainController.leftBumper.onFalse(superstructure.stow());
         mainController.rightBumper.onFalse(superstructure.stow());
 
-        mainController
-                .leftTrigger
-                .whileTrue(superstructure.intake())
-                .onFalse(superstructure.stow());
+        // mainController
+        //         .leftTrigger
+        //         .whileTrue(superstructure.intake())
+        //         .onFalse(superstructure.stow());
+
+        mainController.buttonA.whileTrue(
+                superstructure.shooterCommands.shoot(mainController::getLeftTriggerValue));
+        mainController.buttonA.onFalse(superstructure.shooterCommands.kill());
 
         // need to change this to a conditional command so it doesn't start auto aiming
         // when doing
@@ -134,7 +146,9 @@ public class RobotContainer {
 
     void configTestCommands() {}
 
-    public void configureSmartDashboardLogging() {}
+    public void configureSmartDashboardLogging() {
+        SmartDashboard.putNumber("pivot characterization voltage", 0);
+    }
 
     // counted relative to what driver sees
     public Command getAutonomousCommand() {
@@ -174,22 +188,30 @@ public class RobotContainer {
     public final Pivot pivot =
             new Pivot(
                     PivotConstants.kMaster,
+                    PivotConstants.kSlave,
                     PivotConstants.kNativeVelToDPS,
                     PivotConstants.kNativePosToDegrees,
                     PivotConstants.kMinDegree,
                     PivotConstants.kMaxDegree,
                     PivotConstants.nominalVoltage,
+                    PivotConstants.maxKG,
                     0.02);
 
     private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
     private final DrivetrainCommands drivetrainCommands = new DrivetrainCommands(swerve);
 
-    private VisionController visionController =
-            new VisionController(swerve::addVisionData, swerve, VisionConstants.ar_doo_cam);
-    // () -> twist);
+    public final AprilTagPhotonVision ar_doo_cam =
+            new AprilTagPhotonVision(
+                    VisionConstants.photonName,
+                    new Transform3d(
+                            new Translation3d(),
+                            new Rotation3d(0, Units.degreesToRadians(-12), Math.PI)),
+                    swerve::getOdoPose);
 
-    public final AutoCommands autoCommands = new AutoCommands(swerve);
+    private VisionController visionController =
+            new VisionController(swerve::addVisionData, swerve, ar_doo_cam);
+    // () -> twist);
 
     public final NeuralDetector detector = new NeuralDetector(VisionConstants.limelightName);
 
@@ -205,6 +227,9 @@ public class RobotContainer {
 
     public final Superstructure superstructure =
             new Superstructure(intake, kicker, shooter, pivot, autoDrive::getPivotAngle);
+
+    public final AutoCommands autoCommands =
+            new AutoCommands(swerve, autoDrive::getVelocities, superstructure);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
     final GroupPrinter printer = GroupPrinter.getInstance();

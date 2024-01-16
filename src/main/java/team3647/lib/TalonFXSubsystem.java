@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.Timer;
@@ -23,6 +24,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     private final PositionDutyCycle positionDutyCycle = new PositionDutyCycle(0);
     private final MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0);
     private final VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(0);
+    private final VoltageOut voltageOut = new VoltageOut(0);
     private Follower masterOutput;
     private final double positionConversion;
     private final double velocityConversion;
@@ -90,6 +92,12 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
         periodicIO.controlMode = dutyCycle;
         periodicIO.feedforward = 0;
         dutyCycle.Output = output;
+    }
+
+    public void setVoltage(double voltage) {
+        periodicIO.controlMode = voltageOut;
+        periodicIO.feedforward = 0;
+        voltageOut.Output = voltage;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -39,6 +40,7 @@ public class SwerveModule {
     private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0);
     private final VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(0);
     private final PositionDutyCycle positionDutyCycle = new PositionDutyCycle(0);
+    private final VoltageOut voltageOut = new VoltageOut(0);
 
     public SwerveModule(
             TalonFX driveMotor,
@@ -132,6 +134,13 @@ public class SwerveModule {
         driveConfigurator.refresh(driveConfiguration);
         driveConfiguration.MotorOutput.NeutralMode = driveNeutralMode;
         driveConfigurator.apply(driveConfiguration);
+    }
+
+    public void goForwardForCharacterization(double voltage) {
+        voltageOut.Output = voltage;
+        driveMotor.setControl(voltageOut);
+        positionDutyCycle.Position = 0;
+        turnMotor.setControl(positionDutyCycle);
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {

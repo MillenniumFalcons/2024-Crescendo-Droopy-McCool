@@ -13,11 +13,11 @@ import team3647.lib.GeomUtil;
 
 public class TargetingUtil {
 
-    Pose2d speakerPose;
-    double speakerHeight;
-    Supplier<Pose2d> drivePose;
-    Supplier<ChassisSpeeds> fieldRelativeSpeeds;
-    Transform3d robotToShooter;
+    final Pose2d speakerPose;
+    final double speakerHeight;
+    final Supplier<Pose2d> drivePose;
+    final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
+    final Transform3d robotToShooter;
     double kDt = 0.02;
 
     public TargetingUtil(
@@ -65,22 +65,22 @@ public class TargetingUtil {
     }
 
     public double angleToSpeakerCompensated() { // if facing to the left, returns positive
-        var currentPose = compensatedPose();
-        var toSpeaker =
+        final var currentPose = compensatedPose();
+        final var toSpeaker =
                 VecBuilder.fill(
                         speakerPose.getX() - currentPose.getX(),
                         speakerPose.getY() - currentPose.getY());
-        var driveOrientation =
+        final var driveOrientation =
                 VecBuilder.fill(
                         Math.cos(currentPose.getRotation().getRadians()),
                         Math.sin(currentPose.getRotation().getRadians()));
-        double angle = Math.acos(toSpeaker.dot(driveOrientation) / toSpeaker.norm());
-        double fieldAngle =
+        final double angle = Math.acos(toSpeaker.dot(driveOrientation) / toSpeaker.norm());
+        final double fieldAngle =
                 Math.acos(toSpeaker.dot(VecBuilder.fill(-1, 0)) / toSpeaker.norm())
                         * Math.signum(currentPose.getY() - speakerPose.getY());
-        boolean shouldBeNegative =
+        final boolean shouldBeNegative =
                 Math.sin(currentPose.getRotation().getRadians() - fieldAngle) < 0;
-        int negative = shouldBeNegative ? -1 : 1;
+        final int negative = shouldBeNegative ? -1 : 1;
         // SmartDashboard.putNumber("angle", Units.radiansToDegrees(angle) * negative);
         return angle * negative;
     }

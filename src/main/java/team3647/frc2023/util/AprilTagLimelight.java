@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
+import edu.wpi.first.networktables.TimestampedDoubleArray;
 import java.util.Optional;
 import team3647.lib.vision.AprilTagCamera.AprilTagId;
 
@@ -81,7 +82,7 @@ public class AprilTagLimelight implements AprilTagCamera {
         return tagNumberSubscriber;
     }
 
-    public Integer getTagNum() {
+    public int getTagNum() {
         return ((int) tagNumberSubscriber.get(-1));
     }
 
@@ -106,6 +107,8 @@ public class AprilTagLimelight implements AprilTagCamera {
                 botPoseQueue.length <= botToTargetQueue.length
                         ? botPoseQueue.length
                         : botToTargetQueue.length;
+        for (TimestampedDoubleArray botPose : botPoseQueue) {}
+
         for (int i = 0; i < length; i++) {
             var botPose = botPoseQueue[i].value;
             var timestamp = botPoseQueue[i].timestamp;

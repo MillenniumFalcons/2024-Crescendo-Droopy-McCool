@@ -13,7 +13,7 @@ public class Shooter extends TalonFXSubsystem {
             double nominalVoltage,
             double kDt) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
-        super.addFollower(follower, false);
+        super.addFollower(follower, true);
     }
 
     public void openLoop(double demand) {

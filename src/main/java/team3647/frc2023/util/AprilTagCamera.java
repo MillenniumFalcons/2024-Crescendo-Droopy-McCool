@@ -5,5 +5,5 @@ import java.util.Optional;
 public interface AprilTagCamera {
     public Optional<VisionMeasurement[]> QueueToInputs();
 
-    public Integer getTagNum();
+    public int getTagNum();
 }

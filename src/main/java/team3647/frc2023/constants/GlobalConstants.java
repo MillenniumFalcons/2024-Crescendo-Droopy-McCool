@@ -45,11 +45,12 @@ public final class GlobalConstants {
 
     public static final class PivotIds {
         public static final int kMasterId = 0;
+        public static final int kSlaveId = 0;
     }
 
     public static final class ShooterIds {
-        public static final int kShooterTopId = 28;
-        public static final int kShooterBottomId = 31;
+        public static final int kShooterTopId = 31;
+        public static final int kShooterBottomId = 28;
     }
 
     public static final class KickerIds {

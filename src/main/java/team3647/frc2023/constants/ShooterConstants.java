@@ -39,8 +39,8 @@ public class ShooterConstants {
 
         kTopMotor.NeutralMode = NeutralModeValue.Brake;
         kBottomMotor.NeutralMode = NeutralModeValue.Brake;
-        kTopMotor.Inverted = InvertedValue.CounterClockwise_Positive;
-        kBottomMotor.Inverted = InvertedValue.CounterClockwise_Positive;
+        kTopMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kBottomMotor.Inverted = InvertedValue.Clockwise_Positive;
 
         kTopCurrent.StatorCurrentLimitEnable = false;
         kBottomCurrent.StatorCurrentLimitEnable = false;

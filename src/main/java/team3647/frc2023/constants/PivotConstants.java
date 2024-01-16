@@ -9,11 +9,12 @@ import edu.wpi.first.math.geometry.Transform3d;
 public class PivotConstants {
     // positive is swinging towards the front of the robot
     public static final TalonFX kMaster = new TalonFX(GlobalConstants.PivotIds.kMasterId);
+    public static final TalonFX kSlave = new TalonFX(GlobalConstants.PivotIds.kSlaveId);
 
     public static final boolean kMasterInvert = true;
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
-    private static final double kGearBoxRatio = 1 / 120; // UPDATE THIS ONCE CAD DONE
+    private static final double kGearBoxRatio = 1 / 160.0; // UPDATE THIS ONCE CAD DONE
 
     public static final double kNativePosToDegrees =
             kGearBoxRatio / GlobalConstants.kFalconTicksPerRotation * 360.0;
@@ -23,12 +24,14 @@ public class PivotConstants {
     public static final double kMaxVelocityTicks = (400.0 / kNativeVelToDPS);
     public static final double kMaxAccelerationTicks = (200.0 / kNativeVelToDPS);
 
-    public static final double kMinDegree = 0;
-    public static final double kMaxDegree = 90;
+    public static final double kMinDegree = 0.0;
+    public static final double kMaxDegree = 90.0;
 
     private static final double masterKP = 0.3;
     private static final double masterKI = 0;
     private static final double masterKD = 0;
+
+    public static final double maxKG = 0.0;
 
     public static final double nominalVoltage = 11.0;
     public static final double kStallCurrent = 30.0;

@@ -56,7 +56,7 @@ public class SwerveDrive implements PeriodicSubsystem {
     public static class PeriodicIO {
         // inputs
 
-        public double characterizationVoltage;
+        public double characterizationVoltage = 0;
         public boolean isOpenloop = true;
         public double heading = 0;
         public double roll = 0;
@@ -142,8 +142,6 @@ public class SwerveDrive implements PeriodicSubsystem {
         periodicIO.backRightState = backRight.getState();
         periodicIO.gyroRotation = Rotation2d.fromDegrees(periodicIO.heading);
         periodicIO.timestamp = Timer.getFPGATimestamp();
-        periodicIO.characterizationVoltage =
-                SmartDashboard.getNumber("characterization voltage", 0);
 
         // SmartDashboard.putNumber("characterization voltage", periodicIO.characterizationVoltage);
         // SmartDashboard.putNumber("yaw", getHeading());
@@ -169,6 +167,11 @@ public class SwerveDrive implements PeriodicSubsystem {
         frontRight.setDesiredState(periodicIO.frontRightOutputState, periodicIO.isOpenloop);
         backLeft.setDesiredState(periodicIO.backLeftOutputState, periodicIO.isOpenloop);
         backRight.setDesiredState(periodicIO.backRightOutputState, periodicIO.isOpenloop);
+
+        // frontLeft.goForwardForCharacterization(periodicIO.characterizationVoltage);
+        // frontRight.goForwardForCharacterization(periodicIO.characterizationVoltage);
+        // backLeft.goForwardForCharacterization(periodicIO.characterizationVoltage);
+        // backRight.goForwardForCharacterization(periodicIO.characterizationVoltage);
     }
 
     @Override
@@ -179,6 +182,10 @@ public class SwerveDrive implements PeriodicSubsystem {
         field.setRobotPose(poseEstimator.getEstimatedPosition());
         field.getObject("vision bill").setPose(periodicIO.visionPose);
         field.getObject("odometry greg").setPose(odometry.getPoseMeters());
+    }
+
+    public void setCharacterizationVoltage(double voltage) {
+        periodicIO.characterizationVoltage = voltage;
     }
 
     public void setRobotPose(Pose2d pose) {

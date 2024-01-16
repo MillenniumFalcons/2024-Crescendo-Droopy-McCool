@@ -67,11 +67,13 @@ public class AutoDrive extends VirtualSubsystem {
         } else if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.angleToSpeakerOnTheMove();
         }
-        var bill = detector.pieceCoordinate(swerve::getOdoPose);
-        if (bill.isPresent()) {
-            targetPose = bill.get();
-            swerve.field.getObject("piece location").setPose(targetPose);
-        }
+        detector.pieceCoordinate(swerve::getOdoPose).ifPresent(this::setTargetPose);
+    }
+
+    private void setTargetPose(Pose2d targetPose) {
+        this.targetPose = targetPose;
+        swerve.field.getObject("piece pose").setPose(targetPose);
+        xController.setGoal(targetPose.getX());
     }
 
     public Command enable() {
