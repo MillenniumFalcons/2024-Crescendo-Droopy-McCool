@@ -25,6 +25,12 @@ public class FieldConstants {
 
     public static final double kSpeakerHeight = Units.inchesToMeters(80);
 
+    public static final Pose2d kBlueAmpAlign =
+            new Pose2d(
+                    1.82,
+                    7.72,
+                    Rotation2d.fromDegrees(90)); // rotation is heading, not holonomic rotation
+
     public static Translation2d flipTranslation(Translation2d translation) {
         return new Translation2d(
                 FieldConstants.kFieldLength - translation.getX(), translation.getY());

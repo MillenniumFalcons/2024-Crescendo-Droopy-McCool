@@ -9,11 +9,11 @@ import team3647.frc2023.subsystems.Intake;
 public class IntakeCommands {
 
     public Command intake() {
-        return Commands.run(() -> intake.openLoop(0.5));
+        return Commands.run(() -> intake.openLoop(0.5), intake);
     }
 
     public Command kill() {
-        return Commands.run(() -> intake.openLoop(0));
+        return Commands.run(() -> intake.openLoop(0), intake);
     }
 
     private final Set<Subsystem> requirements;

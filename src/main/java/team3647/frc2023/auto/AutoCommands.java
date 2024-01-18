@@ -113,6 +113,12 @@ public class AutoCommands {
                 swerve::getOdoPose);
     }
 
+    public Command pathAndShootWithOverride(String path, Alliance color) {
+        return Commands.parallel(
+                superstructure.shoot().withTimeout(1.75),
+                followChoreoPathWithOverride(path, color));
+    }
+
     public Command followChoreoPathWithOverride(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;

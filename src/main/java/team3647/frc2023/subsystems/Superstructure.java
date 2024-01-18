@@ -36,19 +36,18 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                        ejectPiece(),
-                        prep(),
-                        spinUp(),
-                        Commands.sequence(Commands.waitSeconds(1), feed()))
-                .andThen(Commands.waitSeconds(0.5))
-                .andThen(stowShoot());
+                ejectPiece(), prep(), spinUp(), Commands.sequence(Commands.waitSeconds(1), feed()));
+    }
+
+    public Command shootStow() {
+        return shoot().andThen(Commands.waitSeconds(0.5)).andThen(stowFromShoot());
     }
 
     public Command prep() {
         return pivotCommands.setAngle(pivotAngleSupplier);
     }
 
-    public Command stowShoot() {
+    public Command stowFromShoot() {
         return Commands.parallel(pivotCommands.setAngle(() -> stowAngle), shooterCommands.kill());
     }
 

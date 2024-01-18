@@ -6,15 +6,19 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.List;
 import team3647.frc2023.constants.AutoConstants;
+import team3647.frc2023.constants.FieldConstants;
 import team3647.frc2023.constants.SwerveDriveConstants;
 import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.lib.team6328.VirtualSubsystem;
@@ -134,17 +138,20 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public PathPlannerPath getPathToAmp() {
+        var pose = swerve.getOdoPose();
+        var endHolonomicRotation = new Rotation2d(-Math.PI / 2);
+        var vector =
+                VecBuilder.fill(
+                        FieldConstants.kBlueAmpAlign.getX() - pose.getX(),
+                        FieldConstants.kBlueAmpAlign.getY() - pose.getY());
+        var rotation = Math.acos(vector.dot(VecBuilder.fill(1, 0)) / vector.norm());
+        Pose2d startingPose = new Pose2d(pose.getX(), pose.getY(), new Rotation2d(rotation));
+        List<Translation2d> bezierPoints =
+                PathPlannerPath.bezierFromPoses(startingPose, FieldConstants.kBlueAmpAlign);
         return new PathPlannerPath(
-                null,
+                bezierPoints,
                 AutoConstants.defaultConstraints,
-                new GoalEndState(0, new Rotation2d(-Math.PI / 2)));
-    }
-
-    public PathPlannerPath getPathToClosestPiece() {
-        return new PathPlannerPath(
-                null,
-                AutoConstants.defaultConstraints,
-                new GoalEndState(0, new Rotation2d(-Math.PI / 2)));
+                new GoalEndState(0, endHolonomicRotation));
     }
 
     public Command followPathCommand(PathPlannerPath path) {

@@ -21,6 +21,7 @@ import team3647.frc2023.constants.GlobalConstants;
 import team3647.frc2023.constants.IntakeConstants;
 import team3647.frc2023.constants.KickerConstants;
 import team3647.frc2023.constants.PivotConstants;
+import team3647.frc2023.constants.ShooterConstants;
 import team3647.frc2023.constants.SwerveDriveConstants;
 import team3647.frc2023.constants.VisionConstants;
 import team3647.frc2023.subsystems.Intake;
@@ -72,8 +73,8 @@ public class RobotContainer {
         mainController.leftBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
 
-        mainController.leftBumper.onTrue(superstructure.shoot());
-        mainController.rightBumper.onTrue(superstructure.shoot());
+        mainController.leftBumper.onTrue(superstructure.shootStow());
+        mainController.rightBumper.onTrue(superstructure.shootStow());
 
         piece.whileTrue(superstructure.stowIntake());
 
@@ -124,12 +125,13 @@ public class RobotContainer {
 
     public final Shooter shooter =
             new Shooter(
-                    team3647.frc2023.constants.ShooterConstants.kTopRoller,
-                    team3647.frc2023.constants.ShooterConstants.kBottomRoller,
+                    ShooterConstants.kTopRoller,
+                    ShooterConstants.kBottomRoller,
+                    ShooterConstants.kNativeVelToSurfaceMpS,
                     1,
-                    1,
-                    team3647.frc2023.constants.ShooterConstants.kNominalVoltage,
-                    0.02);
+                    ShooterConstants.kNominalVoltage,
+                    0.02,
+                    ShooterConstants.ff);
 
     public final Kicker kicker =
             new Kicker(KickerConstants.kMaster, 1, 1, KickerConstants.kNominalVoltage, 0.02);
