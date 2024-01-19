@@ -42,6 +42,17 @@ public class AutoCommands {
     private final String n1_to_n2 = "n1 to n2";
     private final String n3_to_n2 = "n3 to n2";
     private final String f1_to_n2 = "f1 to n2";
+    private final String f1_to_shoot1 = "f1 to shoot1";
+    private final String shoot1_to_f2 = "shoot1 to f2";
+    private final String f2_to_n2 = "f2 to n2";
+    private final String n2_to_f1 = "n2 to f1";
+    private final String f2_to_shoot1 = "f2 to shoot1";
+    private final String shoot1_to_f3 = "shoot1 to f3";
+    private final String f3_to_shoot2 = "f3 to shoot2";
+    private final String f5_to_shoot3 = "f5 to shoot3";
+    private final String shoot3_to_f4 = "shoot3 to f4";
+    private final String f4_to_shoot3 = "f4 to shoot3";
+    private final String shoot3_to_f3 = "shoot3 to f3";
 
     public final AutonomousMode blueFive_S1N1F1N2N3;
 
@@ -115,8 +126,7 @@ public class AutoCommands {
 
     public Command pathAndShootWithOverride(String path, Alliance color) {
         return Commands.parallel(
-                superstructure.shoot().withTimeout(1.75),
-                followChoreoPathWithOverride(path, color));
+                superstructure.shootStow(), followChoreoPathWithOverride(path, color));
     }
 
     public Command followChoreoPathWithOverride(String path, Alliance color) {

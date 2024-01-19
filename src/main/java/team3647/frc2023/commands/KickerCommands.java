@@ -9,11 +9,11 @@ import team3647.frc2023.subsystems.Kicker;
 public class KickerCommands {
 
     public Command kick() {
-        return Commands.run(() -> kicker.openLoop(0.5));
+        return Commands.run(() -> kicker.openLoop(0.5), kicker);
     }
 
     public Command kill() {
-        return Commands.run(() -> kicker.openLoop(0));
+        return Commands.run(() -> kicker.openLoop(0), kicker);
     }
 
     private final Set<Subsystem> requirements;

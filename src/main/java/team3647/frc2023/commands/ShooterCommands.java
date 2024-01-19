@@ -17,8 +17,12 @@ public class ShooterCommands {
         return Commands.run(() -> shooter.openLoop(bill.getAsDouble()), shooter);
     }
 
+    public Command setVelocity(DoubleSupplier bill) {
+        return Commands.run(() -> shooter.setVelocity(bill.getAsDouble()));
+    }
+
     public Command kill() {
-        return Commands.run(() -> shooter.openLoop(0));
+        return Commands.run(() -> shooter.openLoop(0), shooter);
     }
 
     public Command characterize() {
@@ -56,7 +60,8 @@ public class ShooterCommands {
                     var kA = 1 / b;
                     SmartDashboard.putNumber("drivetrain kS", kS);
                     SmartDashboard.putNumber("drivetrain kA", kA);
-                });
+                },
+                shooter);
     }
 
     private final Set<Subsystem> requirements;

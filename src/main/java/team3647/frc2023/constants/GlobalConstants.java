@@ -54,7 +54,7 @@ public final class GlobalConstants {
     }
 
     public static final class IntakeIds {
-        public static final int kMasterId = 0;
+        public static final int kMasterId = 20;
     }
 
     private GlobalConstants() {}

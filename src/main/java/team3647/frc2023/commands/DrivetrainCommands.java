@@ -102,7 +102,8 @@ public class DrivetrainCommands {
                     var kA = 1 / b;
                     SmartDashboard.putNumber("drivetrain kS", kS);
                     SmartDashboard.putNumber("drivetrain kA", kA);
-                });
+                },
+                swerve);
     }
 
     private final SwerveDrive swerve;

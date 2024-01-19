@@ -37,6 +37,10 @@ public class Shooter extends TalonFXSubsystem {
         Logger.recordOutput(getName() + "/voltage", voltage);
     }
 
+    public boolean velocityReached(double setpoint, double threshold) {
+        return Math.abs(super.getVelocity() - setpoint) < threshold;
+    }
+
     @Override
     public String getName() {
         return "Shooter";

@@ -96,6 +96,7 @@ public class RobotContainer {
                         autoDrive::getVelocities));
         pivot.setDefaultCommand(superstructure.pivotCommands.holdPositionAtCall());
         intake.setDefaultCommand(superstructure.intakeCommands.intake());
+        kicker.setDefaultCommand(superstructure.kickerCommands.kick());
     }
 
     public void teleopInit() {}

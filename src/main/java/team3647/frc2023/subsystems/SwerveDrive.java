@@ -144,9 +144,6 @@ public class SwerveDrive implements PeriodicSubsystem {
         periodicIO.timestamp = Timer.getFPGATimestamp();
 
         // SmartDashboard.putNumber("characterization voltage", periodicIO.characterizationVoltage);
-        // SmartDashboard.putNumber("yaw", getHeading());
-        // SmartDashboard.putNumber("pitch", periodicIO.pitch);
-        // SmartDashboard.putNumber("roll", periodicIO.roll);
         SmartDashboard.putData("field bruh", field);
 
         SmartDashboard.putNumber("fl abs", frontLeft.getAbsEncoderPos().getDegrees());
@@ -154,11 +151,8 @@ public class SwerveDrive implements PeriodicSubsystem {
         SmartDashboard.putNumber("bl abs", backLeft.getAbsEncoderPos().getDegrees());
         SmartDashboard.putNumber("br abs", backRight.getAbsEncoderPos().getDegrees());
 
-        // SmartDashboard.putNumber("timestamp", Timer.getFPGATimestamp());
-
         poseEstimator.update(Rotation2d.fromDegrees(periodicIO.rawHeading), getModulePositions());
         odometry.update(Rotation2d.fromDegrees(periodicIO.rawHeading), getModulePositions());
-        // poseEstimator.updateWithTime(kDt, getOdoRot(), null);
     }
 
     @Override

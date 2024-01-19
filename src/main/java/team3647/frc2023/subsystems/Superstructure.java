@@ -11,7 +11,7 @@ import team3647.frc2023.commands.ShooterCommands;
 public class Superstructure {
 
     private final DoubleSupplier pivotAngleSupplier;
-    private final double stowAngle = 30;
+    private final double stowAngle = 60;
     private boolean hasPiece = false;
 
     public Command feed() {
@@ -36,7 +36,7 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                ejectPiece(), prep(), spinUp(), Commands.sequence(Commands.waitSeconds(1), feed()));
+                prep(), spinUp(), Commands.sequence(Commands.waitSeconds(1), feed(), ejectPiece()));
     }
 
     public Command shootStow() {
@@ -48,7 +48,8 @@ public class Superstructure {
     }
 
     public Command stowFromShoot() {
-        return Commands.parallel(pivotCommands.setAngle(() -> stowAngle), shooterCommands.kill());
+        return Commands.parallel(pivotCommands.setAngle(() -> stowAngle), shooterCommands.kill())
+                .until(() -> pivot.angleReached(stowAngle, 5));
     }
 
     public Command intake() {
