@@ -185,6 +185,7 @@ public class RobotContainer {
             new AutoCommands(swerve, autoDrive::getVelocities, superstructure);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
+
     final GroupPrinter printer = GroupPrinter.getInstance();
 
     Trigger piece = new Trigger(() -> superstructure.getPiece());

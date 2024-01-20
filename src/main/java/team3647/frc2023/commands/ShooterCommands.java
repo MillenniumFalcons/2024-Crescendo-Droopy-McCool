@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import team3647.frc2023.subsystems.Shooter;
+import team3647.lib.LinearRegression;
 
 public class ShooterCommands {
 
@@ -35,31 +36,22 @@ public class ShooterCommands {
                     voltageVelocityMap.put(desiredVoltage, shooter.getVelocity());
                 },
                 () -> {
-                    var xArray = voltageVelocityMap.keySet().stream().toArray(Double[]::new);
-                    var yArray = voltageVelocityMap.entrySet().stream().toArray(Double[]::new);
-                    var xSum = 0;
-                    var ySum = 0;
-                    var xSquareSum = 0;
-                    var xySum = 0;
-                    for (int i = 0; i < xArray.length; i++) {
-                        double x = xArray[i];
-                        double y = yArray[i];
-                        xSum += x;
-                        xSquareSum += x * x;
-                        ySum += y;
-                        xySum += x * y;
-                    }
-                    // y = a + bx
-                    var a =
-                            (ySum * xSquareSum - xSum * xySum)
-                                    / (xArray.length * xSquareSum - xSum * xSum);
-                    var b =
-                            (xArray.length * xySum - xSum * ySum)
-                                    / (xArray.length * xSquareSum - xSum * xSum);
-                    var kS = -a / b;
-                    var kA = 1 / b;
-                    SmartDashboard.putNumber("drivetrain kS", kS);
-                    SmartDashboard.putNumber("drivetrain kA", kA);
+                    var xArray =
+                            voltageVelocityMap.keySet().stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .toArray();
+                    var yArray =
+                            voltageVelocityMap.values().stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .toArray();
+                    LinearRegression linReg = new LinearRegression(xArray, yArray);
+                    // y = ax + b
+                    var a = linReg.slope();
+                    var b = linReg.intercept();
+                    var kS = -b / a;
+                    var kV = a;
+                    SmartDashboard.putNumber("shooter kS", kS);
+                    SmartDashboard.putNumber("shooter kV", kV);
                 },
                 shooter);
     }

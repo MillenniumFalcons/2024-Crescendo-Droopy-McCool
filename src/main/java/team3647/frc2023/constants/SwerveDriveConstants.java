@@ -1,21 +1,9 @@
 package team3647.frc2023.constants;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
-import com.ctre.phoenix.sensors.PigeonIMUConfiguration;
 import com.ctre.phoenix6.StatusCode;
-// import com.ctre.phoenix.ErrorCode;
-// import com.ctre.phoenix.motorcontrol.NeutralMode;
-// import com.ctre.phoenix.motorcontrol.can.TalonFX;
-// import com.ctre.phoenix.motorcontrol.can.TalonFXConfigurator;
-// import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-// import com.ctre.phoenix.sensors.CANCoder;
-// import com.ctre.phoenix.sensors.CANCoderConfiguration;
-// import com.ctre.phoenix.sensors.Pigeon2;
-// import com.ctre.phoenix.sensors.Pigeon2Configuration;
-// import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-// import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
@@ -75,7 +63,7 @@ public class SwerveDriveConstants {
     public static final CANcoder kBackRightAbsEncoder =
             new CANcoder(GlobalConstants.SwerveDriveIds.kBackRightAbsEncoderPort, "rio");
 
-    public static final PigeonIMU kGyro = new PigeonIMU(GlobalConstants.SwerveDriveIds.gyroPin);
+    public static final Pigeon2 kGyro = new Pigeon2(GlobalConstants.SwerveDriveIds.gyroPin);
 
     public static final SwerveDrivetrainConstants kSwerveDrivetrainConstants =
             new SwerveDrivetrainConstants();
@@ -167,7 +155,7 @@ public class SwerveDriveConstants {
     public static final CANcoderConfigurator kBackRightAbsConfig =
             kBackRightAbsEncoder.getConfigurator();
 
-    public static final PigeonIMUConfiguration kGyroConfig = new PigeonIMUConfiguration();
+    public static final Pigeon2Configurator kGyroConfig = kGyro.getConfigurator();
 
     // master FF for drive for all modules
     public static final double kS = 0.0091587; // (0.56744 / 12); // 0.56744; // Volts
@@ -314,10 +302,6 @@ public class SwerveDriveConstants {
     }
 
     static {
-        kSwerveDrivetrainConstants.withCANbusName("rio");
-        kSwerveDrivetrainConstants.withPigeon2Id(16);
-        // kSwerveDrivetrainConstants.withSupportsPro(false);
-
         kDriveGains.kP = kDriveP;
         kDriveGains.kI = kDriveI;
         kDriveGains.kD = kDriveD;
@@ -375,6 +359,8 @@ public class SwerveDriveConstants {
         setAbsConfig(kFrontRightAbsConfig, new MagnetSensorConfigs());
         setAbsConfig(kBackLeftAbsConfig, new MagnetSensorConfigs());
         setAbsConfig(kBackRightAbsConfig, new MagnetSensorConfigs());
+
+        setGyroConfig(kGyroConfig, new MountPoseConfigs());
     }
 
     private SwerveDriveConstants() {}

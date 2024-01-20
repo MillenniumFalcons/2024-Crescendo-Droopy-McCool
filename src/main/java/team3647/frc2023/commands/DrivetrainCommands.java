@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import team3647.frc2023.constants.FieldConstants;
 import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.frc2023.util.AutoDrive.DriveMode;
+import team3647.lib.PolynomialRegression;
 
 public class DrivetrainCommands {
 
@@ -77,31 +78,25 @@ public class DrivetrainCommands {
                             desiredVoltage, swerve.getChassisSpeeds().vxMetersPerSecond);
                 },
                 () -> {
-                    var xArray = voltageVelocityMap.keySet().stream().toArray(Double[]::new);
-                    var yArray = voltageVelocityMap.entrySet().stream().toArray(Double[]::new);
-                    var xSum = 0;
-                    var ySum = 0;
-                    var xSquareSum = 0;
-                    var xySum = 0;
-                    for (int i = 0; i < xArray.length; i++) {
-                        double x = xArray[i];
-                        double y = yArray[i];
-                        xSum += x;
-                        xSquareSum += x * x;
-                        ySum += y;
-                        xySum += x * y;
-                    }
-                    // y = a + bx
-                    var a =
-                            (ySum * xSquareSum - xSum * xySum)
-                                    / (xArray.length * xSquareSum - xSum * xSum);
-                    var b =
-                            (xArray.length * xySum - xSum * ySum)
-                                    / (xArray.length * xSquareSum - xSum * xSum);
-                    var kS = -a / b;
-                    var kA = 1 / b;
+                    var xArray =
+                            voltageVelocityMap.keySet().stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .toArray();
+                    var yArray =
+                            voltageVelocityMap.values().stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .toArray();
+                    PolynomialRegression polyReg = new PolynomialRegression(xArray, yArray, 2);
+                    // y = ax^2 + bx + c
+                    var a = polyReg.beta(0);
+                    var b = polyReg.beta(1);
+                    var c = polyReg.beta(2);
+                    var kS = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+                    var kA = 2 * a;
+                    var kV = b;
                     SmartDashboard.putNumber("drivetrain kS", kS);
-                    SmartDashboard.putNumber("drivetrain kA", kA);
+                    SmartDashboard.putNumber("drivetrain KA", kA);
+                    SmartDashboard.putNumber("drivetrain kV", kV);
                 },
                 swerve);
     }

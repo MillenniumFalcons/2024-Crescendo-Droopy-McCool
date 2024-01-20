@@ -1,6 +1,6 @@
 package team3647.frc2023.subsystems;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -36,7 +36,7 @@ public class SwerveDrive implements PeriodicSubsystem {
 
     public final Field2d field = new Field2d();
 
-    private final PigeonIMU gyro;
+    private final Pigeon2 gyro;
 
     private final double maxSpeedMpS;
     private final double maxRotRadPerSec;
@@ -84,7 +84,7 @@ public class SwerveDrive implements PeriodicSubsystem {
             SwerveModule frontRight,
             SwerveModule backLeft,
             SwerveModule backRight,
-            PigeonIMU gyro,
+            Pigeon2 gyro,
             SwerveDriveKinematics kinematics,
             double maxSpeedMpS,
             double maxRotRadPerSec,
@@ -115,14 +115,14 @@ public class SwerveDrive implements PeriodicSubsystem {
         this.poseEstimator =
                 new SwerveDrivePoseEstimator(
                         this.kinematics,
-                        Rotation2d.fromDegrees(gyro.getYaw()),
+                        Rotation2d.fromDegrees(gyro.getYaw().getValue()),
                         getModulePositions(),
                         new Pose2d(14.69, 2.85, FieldConstants.kOneEighty));
 
         this.odometry =
                 new SwerveDriveOdometry(
                         this.kinematics,
-                        Rotation2d.fromDegrees(gyro.getYaw()),
+                        Rotation2d.fromDegrees(gyro.getYaw().getValue()),
                         getModulePositions());
     }
 
@@ -132,10 +132,10 @@ public class SwerveDrive implements PeriodicSubsystem {
 
     @Override
     public void readPeriodicInputs() {
-        periodicIO.roll = gyro.getRoll();
-        periodicIO.heading = gyro.getYaw();
-        periodicIO.pitch = gyro.getPitch() - this.pitchZero;
-        periodicIO.rawHeading = gyro.getYaw();
+        periodicIO.roll = gyro.getRoll().getValue();
+        periodicIO.heading = gyro.getYaw().getValue();
+        periodicIO.pitch = gyro.getPitch().getValue() - this.pitchZero;
+        periodicIO.rawHeading = gyro.getYaw().getValue();
         periodicIO.frontLeftState = frontLeft.getState();
         periodicIO.frontRightState = frontRight.getState();
         periodicIO.backLeftState = backLeft.getState();
@@ -322,16 +322,6 @@ public class SwerveDrive implements PeriodicSubsystem {
 
     public void drive(ChassisSpeeds speeds) {
         SwerveModuleState[] swerveModuleStates = null;
-
-        // Pose2d robot_pose_vel =
-        //         new Pose2d(
-        //                 speeds.vxMetersPerSecond * this.kDt,
-        //                 speeds.vyMetersPerSecond * this.kDt,
-        //                 Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * kDt));
-        // Twist2d twist_vel = robot_pose_vel.log(zeroPose2d);
-        // ChassisSpeeds updated_chassis_speeds =
-        //         new ChassisSpeeds(
-        //                 -twist_vel.dx / kDt, -twist_vel.dy / kDt, -twist_vel.dtheta / kDt);
 
         swerveModuleStates = this.kinematics.toSwerveModuleStates(speeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, this.maxSpeedMpS);
