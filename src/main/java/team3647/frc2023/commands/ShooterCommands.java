@@ -27,12 +27,12 @@ public class ShooterCommands {
     }
 
     public Command characterize() {
-        SlewRateLimiter filter = new SlewRateLimiter(0.01);
+        SlewRateLimiter filter = new SlewRateLimiter(0.1);
         Map<Double, Double> voltageVelocityMap = new HashMap<>();
         return Commands.runEnd(
                 () -> {
-                    double desiredVoltage = filter.calculate(12);
-                    shooter.setVelocity(desiredVoltage);
+                    double desiredVoltage = filter.calculate(5);
+                    shooter.setVoltage(desiredVoltage);
                     voltageVelocityMap.put(desiredVoltage, shooter.getVelocity());
                 },
                 () -> {

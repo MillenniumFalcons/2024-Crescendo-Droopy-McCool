@@ -289,7 +289,7 @@ public class SwerveDriveConstants {
 
     private static void setGyroConfig(
             Pigeon2Configurator configurator, MountPoseConfigs mountPoseConfigs) {
-        mountPoseConfigs.MountPoseYaw = 90;
+        mountPoseConfigs.MountPoseYaw = -90;
         configurator.apply(mountPoseConfigs);
     }
 

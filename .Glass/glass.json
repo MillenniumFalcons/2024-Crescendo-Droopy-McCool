@@ -13,7 +13,7 @@
     "visible": true
   },
   "NetworkTables Settings": {
-    "mode": "Disabled",
+    "mode": "Client (NT4)",
     "serverTeam": "10.36.47.2"
   }
 }

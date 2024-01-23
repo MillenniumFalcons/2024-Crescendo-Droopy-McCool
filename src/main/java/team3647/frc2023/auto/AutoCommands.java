@@ -58,6 +58,8 @@ public class AutoCommands {
 
     public final AutonomousMode blueFour_S1N1N2N3;
 
+    public final AutonomousMode blue;
+
     // public final AutonomousMode Test;
 
     public AutoCommands(
@@ -73,6 +75,8 @@ public class AutoCommands {
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+
+        this.blue = new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s2_to_n2));
     }
 
     public void registerCommands() {}
@@ -142,9 +146,8 @@ public class AutoCommands {
                 (ChassisSpeeds speeds) ->
                         swerve.drive(
                                 new Translation2d(
-                                        speeds.vxMetersPerSecond / 4.279,
-                                        speeds.vyMetersPerSecond / 4.279),
-                                deeThetaOnTheMove(speeds) / 13.449,
+                                        speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
+                                deeThetaOnTheMove(speeds),
                                 false,
                                 true),
                 () -> mirror);
@@ -172,6 +175,7 @@ public class AutoCommands {
                     if (interrupted) {
                         outputChassisSpeeds.accept(new ChassisSpeeds());
                     }
+                    superstructure.setPiece();
                 },
                 () ->
                         GeomUtil.distance(swerve.getOdoPose().minus(trajectory.getFinalPose()))

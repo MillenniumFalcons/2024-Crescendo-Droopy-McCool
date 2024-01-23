@@ -7,11 +7,13 @@ import team3647.lib.TalonFXSubsystem;
 public class Intake extends TalonFXSubsystem {
     public Intake(
             TalonFX master,
+            TalonFX follower,
             double ticksToMetersPerSec,
             double ticksToMeters,
             double nominalVoltage,
             double kDt) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
+        super.addFollower(follower, false);
     }
 
     public void openLoop(double demand) {

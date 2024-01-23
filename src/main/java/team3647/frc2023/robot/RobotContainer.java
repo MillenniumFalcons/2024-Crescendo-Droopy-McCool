@@ -1,5 +1,6 @@
 package team3647.frc2023.robot;
 
+import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -35,7 +36,6 @@ import team3647.frc2023.util.AutoDrive;
 import team3647.frc2023.util.AutoDrive.DriveMode;
 import team3647.frc2023.util.NeuralDetector;
 import team3647.frc2023.util.TargetingUtil;
-import team3647.frc2023.util.VisionController;
 import team3647.lib.GroupPrinter;
 import team3647.lib.inputs.Joysticks;
 
@@ -59,7 +59,8 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1N1N2N3;
+        runningMode = autoCommands.blue;
+        pivot.setEncoder(PivotConstants.kInitialAngle);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
     }
 
@@ -73,14 +74,24 @@ public class RobotContainer {
         mainController.leftBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
 
-        mainController.leftBumper.onTrue(superstructure.shootStow());
-        mainController.rightBumper.onTrue(superstructure.shootStow());
-
-        piece.whileTrue(superstructure.stowIntake());
-
-        mainController.buttonA.whileTrue(
-                superstructure.shooterCommands.shoot(mainController::getLeftTriggerValue));
+        mainController.buttonA.whileTrue(superstructure.shooterCommands.setVelocity(() -> 6));
+        mainController.buttonA.whileTrue(superstructure.prep());
         mainController.buttonA.onFalse(superstructure.shooterCommands.kill());
+        mainController.buttonA.onFalse(superstructure.stowFromShoot());
+        mainController.buttonB.whileTrue(superstructure.intakeCommands.intake());
+        mainController.buttonB.whileTrue(superstructure.kickerCommands.kick());
+        mainController.buttonB.onFalse(superstructure.intakeCommands.kill());
+        mainController.buttonB.onFalse(superstructure.kickerCommands.kill());
+        mainController.buttonX.onTrue(superstructure.outtake());
+        mainController.buttonX.onFalse(superstructure.intakeCommands.kill());
+        mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
+
+        // mainController.leftBumper.onTrue(superstructure.shootStow());
+        // mainController.rightBumper.onTrue(superstructure.shootStow());
+
+        // piece.whileTrue(superstructure.stowIntake());
+
+        intakeDebounce.onTrue(superstructure.setPiece());
     }
 
     private void configureDefaultCommands() {
@@ -95,8 +106,8 @@ public class RobotContainer {
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
         pivot.setDefaultCommand(superstructure.pivotCommands.holdPositionAtCall());
-        intake.setDefaultCommand(superstructure.intakeCommands.intake());
-        kicker.setDefaultCommand(superstructure.kickerCommands.kick());
+        // intake.setDefaultCommand(superstructure.intakeCommands.intake());
+        // kicker.setDefaultCommand(superstructure.kickerCommands.kick());
     }
 
     public void teleopInit() {}
@@ -105,6 +116,8 @@ public class RobotContainer {
 
     public void configureSmartDashboardLogging() {
         SmartDashboard.putNumber("pivot characterization voltage", 0);
+        printer.addDouble("pivot angle", pivot::getAngle);
+        printer.addDouble("gyro angle", swerve::getRawHeading);
     }
 
     public Command getAutonomousCommand() {
@@ -112,6 +125,9 @@ public class RobotContainer {
     }
 
     private final Joysticks mainController = new Joysticks(0);
+
+    private TimeOfFlight tof = new TimeOfFlight(GlobalConstants.SensorIds.tofID);
+
     public final SwerveDrive swerve =
             new SwerveDrive(
                     SwerveDriveConstants.kFrontLeftModule,
@@ -138,7 +154,13 @@ public class RobotContainer {
             new Kicker(KickerConstants.kMaster, 1, 1, KickerConstants.kNominalVoltage, 0.02);
 
     public final Intake intake =
-            new Intake(IntakeConstants.kMaster, 1, 1, IntakeConstants.kNominalVoltage, 0.02);
+            new Intake(
+                    IntakeConstants.kMaster,
+                    IntakeConstants.kSlave,
+                    1,
+                    1,
+                    IntakeConstants.kNominalVoltage,
+                    0.02);
 
     public final Pivot pivot =
             new Pivot(
@@ -163,8 +185,8 @@ public class RobotContainer {
                             new Rotation3d(0, Units.degreesToRadians(-12), Math.PI)),
                     swerve::getOdoPose);
 
-    private VisionController visionController =
-            new VisionController(swerve::addVisionData, swerve, ar_doo_cam);
+    //     private VisionController visionController =
+    //             new VisionController(swerve::addVisionData, swerve, ar_doo_cam);
 
     public final NeuralDetector detector = new NeuralDetector(VisionConstants.limelightName);
 
@@ -189,4 +211,8 @@ public class RobotContainer {
     final GroupPrinter printer = GroupPrinter.getInstance();
 
     Trigger piece = new Trigger(() -> superstructure.getPiece());
+
+    Trigger intakeDebounce = new Trigger(() -> intake.getMasterCurrent() > 5).debounce(0.5);
+
+    Trigger tofPiece = new Trigger(() -> tof.getRange() < 100);
 }

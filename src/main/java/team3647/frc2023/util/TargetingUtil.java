@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.Supplier;
+import team3647.frc2023.constants.FieldConstants;
 import team3647.lib.GeomUtil;
 
 public class TargetingUtil {
@@ -34,7 +35,7 @@ public class TargetingUtil {
     }
 
     public double angleToSpeaker() { // if facing to the left, returns positive
-        var currentPose = drivePose.get();
+        var currentPose = drivePose.get().rotateBy(FieldConstants.kOneEighty);
         var toSpeaker =
                 VecBuilder.fill(
                         speakerPose.getX() - currentPose.getX(),
@@ -93,7 +94,7 @@ public class TargetingUtil {
             angle -= 2 * Math.PI * Math.signum(angle);
         }
         SmartDashboard.putNumber("current pose angle", currentPose.getRotation().getRadians());
-        SmartDashboard.putNumber("compensated speaker angle", angleToSpeakerCompensated());
+        SmartDashboard.putNumber("compensated speaker angle", angle);
         var newAngle =
                 Math.atan(
                         (exitVelocity()
@@ -116,7 +117,7 @@ public class TargetingUtil {
 
     public double angleToSpeakerOnTheMove() {
         var currentPose = compensatedPose();
-        var rot = currentPose.getRotation().getRadians();
+        var rot = currentPose.getRotation().rotateBy(FieldConstants.kOneEighty).getRadians();
         var speak = fieldAngleToSpeakerOnTheMove();
         if (Math.signum(rot * speak) < 0) {
             if (rot < 0) {
@@ -147,7 +148,7 @@ public class TargetingUtil {
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
         double shooterDistance = GeomUtil.distance(speakerPose.minus(shooter2D));
-        return Math.atan(speakerHeight / shooterDistance);
+        return Math.atan((speakerHeight - shooterPose.getZ()) / shooterDistance);
     }
 
     public double getPivotAngleByDistanceCompensated() {
@@ -161,7 +162,7 @@ public class TargetingUtil {
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
         double shooterDistance = GeomUtil.distance(speakerPose.minus(shooter2D));
-        return Math.atan(speakerHeight / shooterDistance);
+        return Math.atan((speakerHeight - shooterPose.getZ()) / shooterDistance);
     }
 
     public double getPivotAngleByDistanceOnTheMove() {

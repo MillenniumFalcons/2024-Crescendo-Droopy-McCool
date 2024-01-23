@@ -6,6 +6,7 @@ import com.ctre.phoenix6.signals.*;
 
 public class IntakeConstants {
     public static final TalonFX kMaster = new TalonFX(GlobalConstants.IntakeIds.kMasterId);
+    public static final TalonFX kSlave = new TalonFX(GlobalConstants.IntakeIds.kSlaveId);
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
@@ -21,7 +22,7 @@ public class IntakeConstants {
         kMasterCurrent.StatorCurrentLimitEnable = true;
         kMasterCurrent.StatorCurrentLimit = kMaxCurrent;
         kMasterMotorOutput.NeutralMode = NeutralModeValue.Brake;
-        kMasterMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        kMasterMotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         kMasterConfigurator.apply(kMasterMotorOutput);
     }
 

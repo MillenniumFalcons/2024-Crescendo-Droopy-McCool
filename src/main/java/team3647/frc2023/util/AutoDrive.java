@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
@@ -103,11 +104,11 @@ public class AutoDrive extends VirtualSubsystem {
     public double getPivotAngle() {
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
-                return targeting.getPivotAngleByDistanceOnTheMove();
+                return Units.radiansToDegrees(targeting.getPivotAngleByDistanceOnTheMove());
             case SHOOT_STATIONARY:
-                return targeting.getPivotAngleByDistance();
+                return Units.radiansToDegrees(targeting.getPivotAngleByDistance());
             default:
-                return 90;
+                return 57;
         }
     }
 

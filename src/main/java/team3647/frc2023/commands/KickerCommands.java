@@ -12,6 +12,10 @@ public class KickerCommands {
         return Commands.run(() -> kicker.openLoop(0.5), kicker);
     }
 
+    public Command unkick() {
+        return Commands.run(() -> kicker.openLoop(-0.5), kicker);
+    }
+
     public Command kill() {
         return Commands.run(() -> kicker.openLoop(0), kicker);
     }

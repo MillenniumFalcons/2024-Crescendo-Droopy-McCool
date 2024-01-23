@@ -41,20 +41,25 @@ public final class GlobalConstants {
     }
 
     public static final class PivotIds {
-        public static final int kMasterId = 0;
+        public static final int kMasterId = 20;
     }
 
     public static final class ShooterIds {
-        public static final int kShooterTopId = 31;
-        public static final int kShooterBottomId = 28;
+        public static final int kShooterTopId = 21;
+        public static final int kShooterBottomId = 22;
     }
 
     public static final class KickerIds {
-        public static final int kMasterId = 0;
+        public static final int kMasterId = 23;
     }
 
     public static final class IntakeIds {
-        public static final int kMasterId = 20;
+        public static final int kMasterId = 24;
+        public static final int kSlaveId = 25;
+    }
+
+    public static final class SensorIds {
+        public static final int tofID = 26;
     }
 
     private GlobalConstants() {}

@@ -9,7 +9,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
@@ -24,8 +23,8 @@ public class ShooterConstants {
     public static final double kNativeVelToSurfaceMpS =
             kWheelRotationMeters / GlobalConstants.kFalconTicksPerRotation * kGearboxReduction;
 
-    public static final double kS = 0.0;
-    public static final double kV = 0.0;
+    public static final double kS = 0.23;
+    public static final double kV = 2.6;
     public static final double kA = 0.0;
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
@@ -37,8 +36,6 @@ public class ShooterConstants {
     public static final double kNominalVoltage = 11.0;
     public static final double kStallCurrent = 25.0;
     public static final double kMaxCurrent = 20.0;
-
-    public static final Transform3d robotToShooter = new Transform3d();
 
     static {
         Slot0Configs kTopSlot0 = new Slot0Configs();
@@ -57,8 +54,8 @@ public class ShooterConstants {
 
         kTopMotor.NeutralMode = NeutralModeValue.Brake;
         kBottomMotor.NeutralMode = NeutralModeValue.Brake;
-        kTopMotor.Inverted = InvertedValue.Clockwise_Positive;
-        kBottomMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kTopMotor.Inverted = InvertedValue.CounterClockwise_Positive;
+        kBottomMotor.Inverted = InvertedValue.CounterClockwise_Positive;
 
         kTopSlot0.kP = masterKP;
         kTopSlot0.kI = masterKI;
