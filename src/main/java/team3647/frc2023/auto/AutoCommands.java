@@ -4,7 +4,6 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -111,21 +110,19 @@ public class AutoCommands {
     }
 
     public Command followPathCommand(PathPlannerPath path) {
-        return new FollowPathWithEvents(
-                new FollowPathHolonomic(
-                        path,
-                        swerve::getOdoPose,
-                        swerve::getChassisSpeeds,
-                        swerve::drive,
-                        new HolonomicPathFollowerConfig(
-                                AutoConstants.kTranslationConstants,
-                                AutoConstants.kRotationConstants,
-                                5,
-                                SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
-                                new ReplanningConfig()),
-                        swerve),
+        return new FollowPathHolonomic(
                 path,
-                swerve::getOdoPose);
+                swerve::getOdoPose,
+                swerve::getChassisSpeeds,
+                swerve::drive,
+                new HolonomicPathFollowerConfig(
+                        AutoConstants.kTranslationConstants,
+                        AutoConstants.kRotationConstants,
+                        5,
+                        SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
+                        new ReplanningConfig()),
+                AutoConstants.isRed,
+                swerve);
     }
 
     public Command pathAndShootWithOverride(String path, Alliance color) {

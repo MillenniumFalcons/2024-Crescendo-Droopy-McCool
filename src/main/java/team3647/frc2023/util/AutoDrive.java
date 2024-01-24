@@ -1,7 +1,6 @@
 package team3647.frc2023.util;
 
 import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -151,20 +150,18 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public Command followPathCommand(PathPlannerPath path) {
-        return new FollowPathWithEvents(
-                new FollowPathHolonomic(
-                        path,
-                        swerve::getOdoPose,
-                        swerve::getChassisSpeeds,
-                        swerve::drive,
-                        new HolonomicPathFollowerConfig(
-                                AutoConstants.kTranslationConstants,
-                                AutoConstants.kRotationConstants,
-                                6,
-                                SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
-                                new ReplanningConfig()),
-                        swerve),
+        return new FollowPathHolonomic(
                 path,
-                swerve::getOdoPose);
+                swerve::getOdoPose,
+                swerve::getChassisSpeeds,
+                swerve::drive,
+                new HolonomicPathFollowerConfig(
+                        AutoConstants.kTranslationConstants,
+                        AutoConstants.kRotationConstants,
+                        6,
+                        SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
+                        new ReplanningConfig()),
+                AutoConstants.isRed,
+                swerve);
     }
 }

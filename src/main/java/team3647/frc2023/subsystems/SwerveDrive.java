@@ -110,6 +110,7 @@ public class SwerveDrive implements PeriodicSubsystem {
                         5,
                         SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
                         new ReplanningConfig()),
+                AutoConstants.isRed,
                 this);
 
         this.poseEstimator =

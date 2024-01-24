@@ -4,6 +4,9 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.function.BooleanSupplier;
 
 public class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 4;
@@ -12,6 +15,11 @@ public class AutoConstants {
 
     public static final double kMaxAccelerationMetersPerSecSq = 3;
     public static final double kMaxRotAccelerationRadsPerSecSq = Math.PI;
+
+    public static final BooleanSupplier isRed =
+            () -> {
+                return DriverStation.getAlliance().get() == Alliance.Red;
+            };
 
     public static final PathConstraints defaultConstraints =
             new PathConstraints(
