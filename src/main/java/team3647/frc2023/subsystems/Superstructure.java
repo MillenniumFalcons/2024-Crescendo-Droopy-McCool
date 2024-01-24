@@ -76,7 +76,7 @@ public class Superstructure {
     }
 
     public Command slightReverse() {
-        return outtake().withTimeout(0.2).andThen(stowIntake());
+        return outtake().withTimeout(0.4).andThen(stowIntake());
     }
 
     public Superstructure(

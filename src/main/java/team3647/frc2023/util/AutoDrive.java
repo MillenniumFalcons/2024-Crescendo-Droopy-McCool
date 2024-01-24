@@ -44,7 +44,7 @@ public class AutoDrive extends VirtualSubsystem {
             new PIDController(4, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
-            new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
+            new PIDController(8, 0, 0.5); // new PIDController(0.4, 0, 0);
 
     private final ProfiledPIDController xController =
             new ProfiledPIDController(2.5, 0, 0, new TrapezoidProfile.Constraints(2, 3));
@@ -61,16 +61,13 @@ public class AutoDrive extends VirtualSubsystem {
         INTAKE_FLOOR_PIECE,
         ALIGN_TO_AMP,
         SHOOT_ON_THE_MOVE,
-        SHOOT_STATIONARY,
         NONE
     }
 
     @Override
     public void periodic() {
-        if (this.mode == DriveMode.SHOOT_STATIONARY) {
-            targetRot = targeting.angleToSpeaker();
-        } else if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
-            targetRot = targeting.angleToSpeakerOnTheMove();
+        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
+            targetRot = targeting.shootAtSpeaker().rotation;
         }
         detector.pieceCoordinate(swerve::getOdoPose).ifPresent(this::setTargetPose);
     }
@@ -104,11 +101,9 @@ public class AutoDrive extends VirtualSubsystem {
     public double getPivotAngle() {
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
-                return Units.radiansToDegrees(targeting.getPivotAngleByDistanceOnTheMove());
-            case SHOOT_STATIONARY:
-                return Units.radiansToDegrees(targeting.getPivotAngleByDistance());
+                return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
             default:
-                return 57;
+                return 50;
         }
     }
 
@@ -129,7 +124,7 @@ public class AutoDrive extends VirtualSubsystem {
     public double getRot() {
         rotController.setGoal(targetPose.getRotation().getRadians());
         double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
-        k = quickRotController.calculate(targetRot, 0);
+        k = quickerRotController.calculate(targetRot, 0);
         double setpoint = Math.abs(k) < 0.03 ? 0 : k;
         return setpoint;
     }

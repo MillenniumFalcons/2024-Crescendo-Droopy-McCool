@@ -5,7 +5,9 @@
 package team3647.frc2023.constants;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -21,9 +23,9 @@ public class FieldConstants {
 
     public static final Pose2d kOrigin = new Pose2d();
 
-    public static final Pose2d kBlueSpeaker = new Pose2d(0, 5.4, new Rotation2d());
-
     public static final double kSpeakerHeight = Units.inchesToMeters(83);
+
+    public static final Pose3d kBlueSpeaker = new Pose3d(0, 5.4, kSpeakerHeight, new Rotation3d());
 
     public static final Pose2d kBlueAmpAlign =
             new Pose2d(

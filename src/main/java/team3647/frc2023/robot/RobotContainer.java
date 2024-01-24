@@ -186,7 +186,6 @@ public class RobotContainer {
     public final TargetingUtil targetingUtil =
             new TargetingUtil(
                     FieldConstants.kBlueSpeaker,
-                    FieldConstants.kSpeakerHeight,
                     swerve::getOdoPose,
                     swerve::getFieldRelativeChassisSpeeds,
                     PivotConstants.robotToPivot);

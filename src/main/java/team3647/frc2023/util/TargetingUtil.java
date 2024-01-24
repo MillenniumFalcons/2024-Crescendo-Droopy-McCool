@@ -7,193 +7,186 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.Supplier;
 import team3647.lib.GeomUtil;
 
 public class TargetingUtil {
 
-    private final Pose2d speakerPose;
-    private final double speakerHeight;
+    private final Pose3d speakerPose;
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
     private final Transform3d robotToShooter;
     double kDt = 0.02;
 
     public TargetingUtil(
-            Pose2d speakerPose,
-            double speakerHeight,
+            Pose3d speakerPose,
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> fieldRelativeSpeeds,
             Transform3d robotToShooter) {
         this.speakerPose = speakerPose;
-        this.speakerHeight = speakerHeight;
         this.drivePose = drivePose;
         this.fieldRelativeSpeeds = fieldRelativeSpeeds;
         this.robotToShooter = robotToShooter;
     }
 
-    public double angleToSpeaker() { // if facing to the left, returns positive
-        var currentPose = drivePose.get();
-        var toSpeaker =
-                VecBuilder.fill(
-                        speakerPose.getX() - currentPose.getX(),
-                        speakerPose.getY() - currentPose.getY());
-        var driveOrientation =
-                VecBuilder.fill(
-                        Math.cos(currentPose.getRotation().getRadians()),
-                        Math.sin(currentPose.getRotation().getRadians()));
-        double angle = Math.acos(toSpeaker.dot(driveOrientation) / toSpeaker.norm());
-        double fieldAngle =
-                Math.acos(toSpeaker.dot(VecBuilder.fill(-1, 0)) / toSpeaker.norm())
-                        * Math.signum(currentPose.getY() - speakerPose.getY());
-        boolean shouldBeNegative =
-                Math.sin(currentPose.getRotation().getRadians() - fieldAngle) > 0;
-        int negative = shouldBeNegative ? -1 : 1;
-        // SmartDashboard.putNumber("angle", Units.radiansToDegrees(angle) * negative);
-        return angle * negative;
+    // returns an object storing a pair of doubles, swerve angle change and pivot angle
+    public AimingParameters shootAtPose(Pose3d pose) {
+        return new AimingParameters(robotAngleToPose(pose), getPivotAngle(pose));
     }
 
-    public Pose2d compensatedPose() {
-        var twist =
-                new Twist2d(
-                        fieldRelativeSpeeds.get().vxMetersPerSecond * kDt,
-                        fieldRelativeSpeeds.get().vyMetersPerSecond * kDt,
-                        fieldRelativeSpeeds.get().omegaRadiansPerSecond * kDt);
-        var newPose = drivePose.get().exp(twist);
-        return newPose;
+    // returns the parameters for aiming at the speaker
+    public AimingParameters shootAtSpeaker() {
+        return shootAtPose(speakerPose);
     }
 
-    public double angleToSpeakerCompensated() { // if facing to the left, returns positive
+    // returns the angle between the vector pointing straight back and the pose
+    public double fieldAngleToPose(Pose3d pose) {
         final var currentPose = compensatedPose();
-        final var toSpeaker =
-                VecBuilder.fill(
-                        speakerPose.getX() - currentPose.getX(),
-                        speakerPose.getY() - currentPose.getY());
-        final var driveOrientation =
-                VecBuilder.fill(
-                        Math.cos(currentPose.getRotation().getRadians()),
-                        Math.sin(currentPose.getRotation().getRadians()));
-        final double angle = Math.acos(toSpeaker.dot(driveOrientation) / toSpeaker.norm());
-        final double fieldAngle =
-                Math.acos(toSpeaker.dot(VecBuilder.fill(-1, 0)) / toSpeaker.norm())
-                        * Math.signum(currentPose.getY() - speakerPose.getY());
-        final boolean shouldBeNegative =
-                Math.sin(currentPose.getRotation().getRadians() - fieldAngle) < 0;
-        final int negative = shouldBeNegative ? -1 : 1;
-        // SmartDashboard.putNumber("angle", Units.radiansToDegrees(angle) * negative);
-        return angle * negative;
-    }
-
-    public double fieldAngleToSpeakerOnTheMove() {
-        var currentPose = compensatedPose();
-        double angle = currentPose.getRotation().getRadians() + angleToSpeakerCompensated();
-        // SmartDashboard.putNumber("compensated angle", angleToSpeakerCompensated());
-        while (Math.abs(angle) > Math.PI) {
-            angle -= 2 * Math.PI * Math.signum(angle);
-        }
-        // SmartDashboard.putNumber("current pose angle", currentPose.getRotation().getRadians());
-        // SmartDashboard.putNumber("compensated speaker angle", angle);
+        final var toPose =
+                VecBuilder.fill(pose.getX() - currentPose.getX(), pose.getY() - currentPose.getY());
+        double angle =
+                Math.acos(toPose.dot(VecBuilder.fill(-1, 0)) / toPose.norm())
+                        * Math.signum(currentPose.getY() - pose.getY());
         var newAngle =
                 Math.atan(
-                        (exitVelocity()
-                                                * Math.cos(getPivotAngleByDistanceCompensated())
-                                                * Math.sin(angle)
+                        (exitVelocity() * Math.cos(getPivotAngleStationary(pose)) * Math.sin(angle)
                                         - fieldRelativeSpeeds.get().vyMetersPerSecond)
                                 / (exitVelocity()
-                                                * Math.cos(getPivotAngleByDistanceCompensated())
+                                                * Math.cos(getPivotAngleStationary(pose))
                                                 * Math.cos(angle)
                                         - fieldRelativeSpeeds.get().vxMetersPerSecond));
-        boolean shouldAddPi = Math.cos(angle) < 0;
+        boolean shouldAddPi = Math.cos(newAngle) < 0;
         double pi = shouldAddPi ? Math.PI : 0;
-        boolean shouldSubtract = Math.sin(angle) < 0;
+        boolean shouldSubtract = Math.sin(newAngle) < 0;
         pi = shouldSubtract ? -pi : pi;
         newAngle = newAngle + pi;
-        // SmartDashboard.putNumber("new angle", newAngle);
-        // SmartDashboard.putNumber("angle", angle);
         return newAngle;
     }
 
-    public double angleToSpeakerOnTheMove() {
-        var currentPose = compensatedPose();
+    // returns the angle between the vector pointing straight back and the pose without accounting
+    // for velocity
+    public double fieldAngleToPoseStationary(Pose3d pose) {
+        final var currentPose = compensatedPose();
+        final var toPose =
+                VecBuilder.fill(pose.getX() - currentPose.getX(), pose.getY() - currentPose.getY());
+        double angle =
+                Math.acos(toPose.dot(VecBuilder.fill(-1, 0)) / toPose.norm())
+                        * Math.signum(currentPose.getY() - pose.getY());
+        return angle;
+    }
+
+    // return the angle between the robots back heading (since shooter is at back) and the pose
+    public double robotAngleToPose(Pose3d pose) {
+        final var currentPose = compensatedPose();
         var rot = currentPose.getRotation().getRadians();
-        var speak = fieldAngleToSpeakerOnTheMove();
-        if (Math.signum(rot * speak) < 0) {
+        final var fieldAngle = fieldAngleToPose(pose);
+        if (Math.signum(rot * fieldAngle) < 0) {
             if (rot < 0) {
                 rot += 2 * Math.PI;
             } else {
                 rot -= 2 * Math.PI;
             }
         }
-        var newAngleToSpeaker = rot - fieldAngleToSpeakerOnTheMove();
-        if (newAngleToSpeaker > 0) {
-            newAngleToSpeaker -= Math.PI;
+        var newAngle = rot - fieldAngle;
+        if (newAngle > 0) {
+            newAngle -= Math.PI;
         } else {
-            newAngleToSpeaker += Math.PI;
+            newAngle += Math.PI;
         }
-        // SmartDashboard.putNumber("angle output", newAngleToSpeaker);
-        // SmartDashboard.putNumber("angle", newAngleToSpeaker);
 
-        return newAngleToSpeaker;
+        return newAngle;
     }
 
-    public double exitVelocity() {
-        return 10;
-    }
-
-    public double getPivotAngleByDistance() {
-        var currentPose = drivePose.get();
-        var pose3D =
-                new Pose3d(
-                        currentPose.getX(),
-                        currentPose.getY(),
-                        0,
-                        new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
-        var shooterPose = pose3D.transformBy(robotToShooter);
-        var shooter2D = shooterPose.toPose2d();
-        double shooterDistance = GeomUtil.distance(speakerPose.minus(shooter2D));
-        return Math.atan((speakerHeight - shooterPose.getZ()) / shooterDistance);
-    }
-
-    public double getPivotAngleByDistanceCompensated() {
-        var currentPose = compensatedPose();
-        var pose3D =
-                new Pose3d(
-                        currentPose.getX(),
-                        currentPose.getY(),
-                        0,
-                        new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
-        var shooterPose = pose3D.transformBy(robotToShooter);
-        var shooter2D = shooterPose.toPose2d();
-        double shooterDistance = GeomUtil.distance(speakerPose.minus(shooter2D));
-        SmartDashboard.putNumber("height", speakerHeight - shooterPose.getZ());
-        SmartDashboard.putNumber("disance", shooterDistance);
-        return Math.atan((speakerHeight - shooterPose.getZ()) / shooterDistance)
-                + shooterDistance * Math.PI / 180 * 1;
-    }
-
-    public double getPivotAngleByDistanceOnTheMove() {
-        double angleOnTheMove = fieldAngleToSpeakerOnTheMove();
+    // returns the pivot angle
+    public double getPivotAngle(Pose3d pose) {
+        double angleOnTheMove = fieldAngleToPose(pose);
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;
         } else {
             angleOnTheMove -= Math.PI;
         }
-        SmartDashboard.putNumber("angle on the move", angleOnTheMove);
-        var currentPose = compensatedPose();
-        double angle = currentPose.getRotation().getRadians() + angleToSpeakerCompensated();
+        double angle = fieldAngleToPoseStationary(pose);
         if (angle < 0) {
             angle += Math.PI;
         } else {
             angle -= Math.PI;
         }
-        SmartDashboard.putNumber("angle", angle);
-        double pivotAngle = getPivotAngleByDistanceCompensated();
+        var currentPose = compensatedPose();
+        var pose3D =
+                new Pose3d(
+                        currentPose.getX(),
+                        currentPose.getY(),
+                        0,
+                        new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
+        var shooterPose = pose3D.transformBy(robotToShooter);
+        var shooter2D = shooterPose.toPose2d();
+        double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
+        double pivotAngle =
+                Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
+                        + shooterDistance * Math.PI / 180 * 1;
         double newPivotAngle =
                 Math.atan(
-                        (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angleOnTheMove))
-                                / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angle)
+                        (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))
+                                / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
                                         + fieldRelativeSpeeds.get().vxMetersPerSecond));
         return newPivotAngle;
+    }
+
+    // returns the pivot angle not accounting for movement
+    public double getPivotAngleStationary(Pose3d pose) {
+        double angleOnTheMove = fieldAngleToPose(pose);
+        if (angleOnTheMove < 0) {
+            angleOnTheMove += Math.PI;
+        } else {
+            angleOnTheMove -= Math.PI;
+        }
+        double angle = fieldAngleToPoseStationary(pose);
+        if (angle < 0) {
+            angle += Math.PI;
+        } else {
+            angle -= Math.PI;
+        }
+        var currentPose = compensatedPose();
+        var pose3D =
+                new Pose3d(
+                        currentPose.getX(),
+                        currentPose.getY(),
+                        0,
+                        new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
+        var shooterPose = pose3D.transformBy(robotToShooter);
+        var shooter2D = shooterPose.toPose2d();
+        double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
+        double pivotAngle =
+                Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
+                        + shooterDistance * Math.PI / 180 * 1;
+        return pivotAngle;
+    }
+
+    // returns latency compensated pose;
+    public Pose2d compensatedPose() {
+        var speeds = fieldRelativeSpeeds.get();
+        var twist =
+                new Twist2d(
+                        speeds.vxMetersPerSecond * kDt,
+                        speeds.vyMetersPerSecond * kDt,
+                        speeds.omegaRadiansPerSecond * kDt);
+        var newPose = drivePose.get().exp(twist);
+        return newPose;
+    }
+
+    // returns shot exit velocity
+    public double exitVelocity() {
+        return 10;
+    }
+
+    // object storing doubles
+    public class AimingParameters {
+        public double rotation;
+        public double pivot;
+
+        public AimingParameters(double rotation, double pivot) {
+            this.rotation = rotation;
+            this.pivot = pivot;
+        }
     }
 }

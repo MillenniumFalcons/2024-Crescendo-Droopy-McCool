@@ -49,12 +49,6 @@ public class DrivetrainCommands {
 
                     // var translation = new Translation2d(motionXComponent, motionYComponent);
 
-                    if (mode == DriveMode.SHOOT_STATIONARY && enabeld) {
-                        motionTurnComponent = autoDriveTwist2d.dtheta;
-                        motionXComponent = 0;
-                        motionYComponent = 0;
-                    }
-
                     if (mode == DriveMode.SHOOT_ON_THE_MOVE && enabeld) {
                         motionTurnComponent = autoDriveTwist2d.dtheta;
                     }
