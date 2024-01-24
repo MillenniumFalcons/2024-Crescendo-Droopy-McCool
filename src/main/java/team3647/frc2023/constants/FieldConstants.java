@@ -21,9 +21,9 @@ public class FieldConstants {
 
     public static final Pose2d kOrigin = new Pose2d();
 
-    public static final Pose2d kBlueSpeaker = new Pose2d(0.47, 5.54, new Rotation2d());
+    public static final Pose2d kBlueSpeaker = new Pose2d(0, 5.4, new Rotation2d());
 
-    public static final double kSpeakerHeight = Units.inchesToMeters(80);
+    public static final double kSpeakerHeight = Units.inchesToMeters(83);
 
     public static final Pose2d kBlueAmpAlign =
             new Pose2d(

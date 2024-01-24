@@ -16,8 +16,7 @@ public class PivotCommands {
     }
 
     public Command setAngle(DoubleSupplier setpoint) {
-        return Commands.run(() -> pivot.setAngle(setpoint.getAsDouble()), pivot)
-                .until(() -> pivot.angleReached(setpoint.getAsDouble(), 0.5));
+        return Commands.run(() -> pivot.setAngle(setpoint.getAsDouble()), pivot);
     }
 
     public Command characterizeKG() {

@@ -3,6 +3,7 @@ package team3647.frc2023.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.lib.GeomUtil;
 import team3647.lib.team6328.VirtualSubsystem;
@@ -37,6 +38,8 @@ public class VisionController extends VirtualSubsystem {
             }
 
             for (int j = 0; j < inputs.get().length; j++) {
+
+                Logger.recordOutput("Robot/Vision", inputs.get()[j].pose);
 
                 if (shouldAddData(inputs.get()[j].pose, swerve::getOdoPose)) {
                     botPoseAcceptor.accept(

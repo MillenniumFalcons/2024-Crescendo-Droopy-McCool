@@ -68,7 +68,7 @@ public class DrivetrainCommands {
     }
 
     public Command characterize() {
-        SlewRateLimiter filter = new SlewRateLimiter(0.01);
+        SlewRateLimiter filter = new SlewRateLimiter(0.1);
         Map<Double, Double> voltageVelocityMap = new HashMap<>();
         return Commands.runEnd(
                 () -> {

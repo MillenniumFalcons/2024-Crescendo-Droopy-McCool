@@ -151,6 +151,9 @@ public class SwerveDrive implements PeriodicSubsystem {
         SmartDashboard.putNumber("bl abs", backLeft.getAbsEncoderPos().getDegrees());
         SmartDashboard.putNumber("br abs", backRight.getAbsEncoderPos().getDegrees());
 
+        SmartDashboard.putNumber("x", getPoseX());
+        SmartDashboard.putNumber("y", getPoseY());
+
         poseEstimator.update(Rotation2d.fromDegrees(periodicIO.rawHeading), getModulePositions());
         odometry.update(Rotation2d.fromDegrees(periodicIO.rawHeading), getModulePositions());
     }
@@ -257,11 +260,11 @@ public class SwerveDrive implements PeriodicSubsystem {
     }
 
     public double getPoseX() {
-        return getOdoPose().getX();
+        return poseEstimator.getEstimatedPosition().getX();
     }
 
     public double getPoseY() {
-        return getOdoPose().getY();
+        return poseEstimator.getEstimatedPosition().getY();
     }
 
     public SwerveModulePosition[] getModulePositions() {

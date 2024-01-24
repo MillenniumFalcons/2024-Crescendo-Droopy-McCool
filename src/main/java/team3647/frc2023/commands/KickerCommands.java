@@ -13,7 +13,15 @@ public class KickerCommands {
     }
 
     public Command unkick() {
-        return Commands.run(() -> kicker.openLoop(-0.5), kicker);
+        return Commands.run(() -> kicker.openLoop(-0.1), kicker);
+    }
+
+    public Command oscillate() {
+        return Commands.run(() -> kicker.openLoop(0.1))
+                .withTimeout(0.2)
+                .andThen(Commands.run(() -> kicker.openLoop(-0.1)))
+                .withTimeout(0.2)
+                .andThen(oscillate());
     }
 
     public Command kill() {

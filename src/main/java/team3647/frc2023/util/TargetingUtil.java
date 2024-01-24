@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.Supplier;
-import team3647.frc2023.constants.FieldConstants;
 import team3647.lib.GeomUtil;
 
 public class TargetingUtil {
@@ -35,7 +34,7 @@ public class TargetingUtil {
     }
 
     public double angleToSpeaker() { // if facing to the left, returns positive
-        var currentPose = drivePose.get().rotateBy(FieldConstants.kOneEighty);
+        var currentPose = drivePose.get();
         var toSpeaker =
                 VecBuilder.fill(
                         speakerPose.getX() - currentPose.getX(),
@@ -89,12 +88,12 @@ public class TargetingUtil {
     public double fieldAngleToSpeakerOnTheMove() {
         var currentPose = compensatedPose();
         double angle = currentPose.getRotation().getRadians() + angleToSpeakerCompensated();
-        SmartDashboard.putNumber("compensated angle", angleToSpeakerCompensated());
+        // SmartDashboard.putNumber("compensated angle", angleToSpeakerCompensated());
         while (Math.abs(angle) > Math.PI) {
             angle -= 2 * Math.PI * Math.signum(angle);
         }
-        SmartDashboard.putNumber("current pose angle", currentPose.getRotation().getRadians());
-        SmartDashboard.putNumber("compensated speaker angle", angle);
+        // SmartDashboard.putNumber("current pose angle", currentPose.getRotation().getRadians());
+        // SmartDashboard.putNumber("compensated speaker angle", angle);
         var newAngle =
                 Math.atan(
                         (exitVelocity()
@@ -110,14 +109,14 @@ public class TargetingUtil {
         boolean shouldSubtract = Math.sin(angle) < 0;
         pi = shouldSubtract ? -pi : pi;
         newAngle = newAngle + pi;
-        SmartDashboard.putNumber("new angle", newAngle);
-        SmartDashboard.putNumber("angle", angle);
+        // SmartDashboard.putNumber("new angle", newAngle);
+        // SmartDashboard.putNumber("angle", angle);
         return newAngle;
     }
 
     public double angleToSpeakerOnTheMove() {
         var currentPose = compensatedPose();
-        var rot = currentPose.getRotation().rotateBy(FieldConstants.kOneEighty).getRadians();
+        var rot = currentPose.getRotation().getRadians();
         var speak = fieldAngleToSpeakerOnTheMove();
         if (Math.signum(rot * speak) < 0) {
             if (rot < 0) {
@@ -127,14 +126,19 @@ public class TargetingUtil {
             }
         }
         var newAngleToSpeaker = rot - fieldAngleToSpeakerOnTheMove();
-        SmartDashboard.putNumber("angle output", newAngleToSpeaker);
+        if (newAngleToSpeaker > 0) {
+            newAngleToSpeaker -= Math.PI;
+        } else {
+            newAngleToSpeaker += Math.PI;
+        }
+        // SmartDashboard.putNumber("angle output", newAngleToSpeaker);
         // SmartDashboard.putNumber("angle", newAngleToSpeaker);
 
         return newAngleToSpeaker;
     }
 
     public double exitVelocity() {
-        return 12;
+        return 10;
     }
 
     public double getPivotAngleByDistance() {
@@ -162,18 +166,32 @@ public class TargetingUtil {
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
         double shooterDistance = GeomUtil.distance(speakerPose.minus(shooter2D));
-        return Math.atan((speakerHeight - shooterPose.getZ()) / shooterDistance);
+        SmartDashboard.putNumber("height", speakerHeight - shooterPose.getZ());
+        SmartDashboard.putNumber("disance", shooterDistance);
+        return Math.atan((speakerHeight - shooterPose.getZ()) / shooterDistance)
+                + shooterDistance * Math.PI / 180 * 1;
     }
 
     public double getPivotAngleByDistanceOnTheMove() {
+        double angleOnTheMove = fieldAngleToSpeakerOnTheMove();
+        if (angleOnTheMove < 0) {
+            angleOnTheMove += Math.PI;
+        } else {
+            angleOnTheMove -= Math.PI;
+        }
+        SmartDashboard.putNumber("angle on the move", angleOnTheMove);
         var currentPose = compensatedPose();
-        double angle = currentPose.getRotation().getRadians() - angleToSpeakerCompensated();
+        double angle = currentPose.getRotation().getRadians() + angleToSpeakerCompensated();
+        if (angle < 0) {
+            angle += Math.PI;
+        } else {
+            angle -= Math.PI;
+        }
+        SmartDashboard.putNumber("angle", angle);
         double pivotAngle = getPivotAngleByDistanceCompensated();
         double newPivotAngle =
                 Math.atan(
-                        (exitVelocity()
-                                        * Math.sin(pivotAngle)
-                                        * Math.cos(fieldAngleToSpeakerOnTheMove()))
+                        (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angleOnTheMove))
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angle)
                                         + fieldRelativeSpeeds.get().vxMetersPerSecond));
         return newPivotAngle;

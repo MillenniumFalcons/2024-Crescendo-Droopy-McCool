@@ -19,7 +19,7 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        return shooterCommands.shoot(() -> 1);
+        return shooterCommands.setVelocity(() -> 10);
     }
 
     public boolean getPiece() {
@@ -36,11 +36,10 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                        prep(),
-                        spinUp(),
-                        Commands.sequence(
-                                Commands.waitSeconds(0.6), feed(), intake(), ejectPiece()))
-                .withTimeout(1.5);
+                prep(),
+                spinUp(),
+                Commands.sequence(
+                        Commands.waitSeconds(2), Commands.parallel(intake(), ejectPiece())));
     }
 
     public Command shootStow() {
@@ -52,11 +51,19 @@ public class Superstructure {
     }
 
     public Command prep() {
-        return pivotCommands.setAngle(() -> 50);
+        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+    }
+
+    public Command oscillateToCenter() {
+        return Commands.parallel(intakeCommands.oscillate(), kickerCommands.oscillate());
     }
 
     public Command stowFromShoot() {
-        return Commands.parallel(pivotCommands.setAngle(() -> stowAngle), shooterCommands.kill())
+        return Commands.parallel(
+                        pivotCommands.setAngle(() -> stowAngle),
+                        shooterCommands.kill(),
+                        kickerCommands.kill(),
+                        intakeCommands.kill())
                 .until(() -> pivot.angleReached(stowAngle, 5));
     }
 
@@ -66,6 +73,10 @@ public class Superstructure {
 
     public Command stowIntake() {
         return Commands.parallel(intakeCommands.kill(), kickerCommands.kill());
+    }
+
+    public Command slightReverse() {
+        return outtake().withTimeout(0.2).andThen(stowIntake());
     }
 
     public Superstructure(

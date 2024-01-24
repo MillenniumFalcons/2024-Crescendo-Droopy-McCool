@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
@@ -41,6 +42,7 @@ public class Pivot extends TalonFXSubsystem {
     @Override
     public void periodic() {
         super.periodic();
+        SmartDashboard.putNumber("pviot angle", getAngle());
         pose =
                 new Pose3d(
                         new Translation3d(),
