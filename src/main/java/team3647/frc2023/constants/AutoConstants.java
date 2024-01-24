@@ -16,10 +16,7 @@ public class AutoConstants {
     public static final double kMaxAccelerationMetersPerSecSq = 3;
     public static final double kMaxRotAccelerationRadsPerSecSq = Math.PI;
 
-    public static final BooleanSupplier isRed =
-            () -> {
-                return DriverStation.getAlliance().get() == Alliance.Red;
-            };
+    public static final BooleanSupplier isRed;
 
     public static final PathConstraints defaultConstraints =
             new PathConstraints(
@@ -58,6 +55,11 @@ public class AutoConstants {
 
     static {
         kRotController.enableContinuousInput(-Math.PI, Math.PI);
+
+        isRed =
+                () -> {
+                    return DriverStation.getAlliance().get() == Alliance.Red;
+                };
     }
 
     private AutoConstants() {}
