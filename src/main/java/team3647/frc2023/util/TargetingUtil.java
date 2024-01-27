@@ -16,6 +16,7 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
     private final Transform3d robotToShooter;
+    private final double shootSpeed = 5;
     double kDt = 0.02;
 
     public TargetingUtil(
@@ -88,11 +89,6 @@ public class TargetingUtil {
             }
         }
         var newAngle = rot - fieldAngle;
-        if (newAngle > 0) {
-            newAngle -= Math.PI;
-        } else {
-            newAngle += Math.PI;
-        }
 
         return newAngle;
     }
@@ -134,7 +130,7 @@ public class TargetingUtil {
 
     // returns the pivot angle not accounting for movement
     public double getPivotAngleStationary(Pose3d pose) {
-        double angleOnTheMove = fieldAngleToPose(pose);
+        double angleOnTheMove = fieldAngleToPoseStationary(pose);
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;
         } else {
@@ -176,10 +172,10 @@ public class TargetingUtil {
 
     // returns shot exit velocity
     public double exitVelocity() {
-        return 10;
+        return shootSpeed;
     }
 
-    // object storing doubles
+    // for cleaner packaging
     public class AimingParameters {
         public double rotation;
         public double pivot;

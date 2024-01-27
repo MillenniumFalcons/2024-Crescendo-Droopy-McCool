@@ -20,6 +20,7 @@ import team3647.frc2023.constants.KickerConstants;
 import team3647.frc2023.constants.PivotConstants;
 import team3647.frc2023.constants.ShooterConstants;
 import team3647.frc2023.constants.SwerveDriveConstants;
+import team3647.frc2023.constants.TunerConstants;
 import team3647.frc2023.constants.VisionConstants;
 import team3647.frc2023.subsystems.Intake;
 import team3647.frc2023.subsystems.Kicker;
@@ -56,7 +57,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blue;
+        runningMode = autoCommands.blueFour_S1N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
     }
@@ -64,15 +65,18 @@ public class RobotContainer {
     private void configureButtonBindings() {
 
         mainController.buttonX.whileTrue(drivetrainCommands.characterize());
-        mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.ALIGN_TO_AMP));
         mainController.leftBumper.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         mainController
                 .leftBumper
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot())
                 .onFalse(superstructure.ejectPiece());
+        mainController
+                .rightBumper
+                .whileTrue(superstructure.shootManual())
+                .onFalse(superstructure.stowFromShoot())
+                .onFalse(superstructure.ejectPiece());
         mainController.leftBumper.onFalse(autoDrive.setMode(DriveMode.NONE));
-        mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.buttonB.and(() -> !piece.getAsBoolean()).whileTrue(superstructure.intake());
         mainController.buttonB.onFalse(superstructure.intakeCommands.kill());
@@ -83,6 +87,8 @@ public class RobotContainer {
 
         tofPiece.onTrue(superstructure.setPiece());
         tofPiece.onTrue(superstructure.slightReverse());
+
+        mainController.buttonY.whileTrue(drivetrainCommands.characterize());
 
         // mainController.leftBumper.onTrue(superstructure.shootStow());
         // mainController.rightBumper.onTrue(superstructure.shootStow());
@@ -113,6 +119,7 @@ public class RobotContainer {
     public void configureSmartDashboardLogging() {
         SmartDashboard.putNumber("pivot interp angle", 40);
         printer.addBoolean("tof", () -> tof.getRange() < 100);
+        printer.addBoolean("shooht", () -> superstructure.getIsShooting());
     }
 
     public Command getAutonomousCommand() {
@@ -125,15 +132,15 @@ public class RobotContainer {
 
     public final SwerveDrive swerve =
             new SwerveDrive(
-                    SwerveDriveConstants.kFrontLeftModule,
-                    SwerveDriveConstants.kFrontRightModule,
-                    SwerveDriveConstants.kBackLeftModule,
-                    SwerveDriveConstants.kBackRightModule,
-                    SwerveDriveConstants.kGyro,
+                    TunerConstants.DrivetrainConstants,
                     SwerveDriveConstants.kDriveKinematics,
                     SwerveDriveConstants.kDrivePossibleMaxSpeedMPS,
                     SwerveDriveConstants.kRotPossibleMaxSpeedRadPerSec,
-                    GlobalConstants.kDt);
+                    GlobalConstants.kDt,
+                    TunerConstants.FrontLeft,
+                    TunerConstants.FrontRight,
+                    TunerConstants.BackLeft,
+                    TunerConstants.BackRight);
 
     public final Shooter shooter =
             new Shooter(
@@ -193,7 +200,13 @@ public class RobotContainer {
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
     public final Superstructure superstructure =
-            new Superstructure(intake, kicker, shooter, pivot, autoDrive::getPivotAngle);
+            new Superstructure(
+                    intake,
+                    kicker,
+                    shooter,
+                    pivot,
+                    autoDrive::getPivotAngle,
+                    targetingUtil.exitVelocity());
 
     public final AutoCommands autoCommands =
             new AutoCommands(swerve, autoDrive::getVelocities, superstructure);
@@ -204,5 +217,5 @@ public class RobotContainer {
 
     Trigger piece = new Trigger(() -> superstructure.getPiece());
 
-    Trigger tofPiece = new Trigger(() -> tof.getRange() < 100);
+    Trigger tofPiece = new Trigger(() -> (tof.getRange() < 100 && !superstructure.getIsShooting()));
 }

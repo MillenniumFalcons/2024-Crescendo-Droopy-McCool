@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 import team3647.frc2023.constants.FieldConstants;
 import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.frc2023.util.AutoDrive.DriveMode;
-import team3647.lib.PolynomialRegression;
+import team3647.lib.LinearRegression;
 
 public class DrivetrainCommands {
 
@@ -39,7 +39,7 @@ public class DrivetrainCommands {
                     double triggerSlow = slowTriggerFunction.getAsBoolean() ? 0.6 : 1;
                     // boolean autoSteer = enableAutoSteer.getAsBoolean();
                     boolean fieldOriented = getIsFieldOriented.getAsBoolean();
-                    boolean openloop = false;
+                    boolean openloop = true;
                     var motionXComponent = ySpeedFunction.getAsDouble() * maxSpeed * triggerSlow;
                     // right stick X, (negative so that left positive)
                     var motionYComponent = -xSpeedFunction.getAsDouble() * maxSpeed * triggerSlow;
@@ -56,20 +56,25 @@ public class DrivetrainCommands {
                     var translation = new Translation2d(motionXComponent, motionYComponent);
 
                     var rotation = motionTurnComponent;
-                    swerve.drive(translation, rotation, fieldOriented, openloop);
+                    swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
                 },
                 swerve);
     }
 
     public Command characterize() {
-        SlewRateLimiter filter = new SlewRateLimiter(0.1);
+        SlewRateLimiter filter = new SlewRateLimiter(0.2);
         Map<Double, Double> voltageVelocityMap = new HashMap<>();
+        Map<Double, Double> voltageAccelMap = new HashMap<>();
         return Commands.runEnd(
                 () -> {
                     double desiredVoltage = filter.calculate(12);
                     swerve.setCharacterizationVoltage(desiredVoltage);
                     voltageVelocityMap.put(
                             desiredVoltage, swerve.getChassisSpeeds().vxMetersPerSecond);
+                    voltageAccelMap.put(desiredVoltage, swerve.getAccel());
+                    SmartDashboard.putNumber("voltage", desiredVoltage);
+                    SmartDashboard.putNumber(
+                            "velocity", swerve.getChassisSpeeds().vxMetersPerSecond);
                 },
                 () -> {
                     var xArray =
@@ -80,17 +85,27 @@ public class DrivetrainCommands {
                             voltageVelocityMap.values().stream()
                                     .mapToDouble(Double::doubleValue)
                                     .toArray();
-                    PolynomialRegression polyReg = new PolynomialRegression(xArray, yArray, 2);
-                    // y = ax^2 + bx + c
-                    var a = polyReg.beta(0);
-                    var b = polyReg.beta(1);
-                    var c = polyReg.beta(2);
-                    var kS = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
-                    var kA = 2 * a;
-                    var kV = b;
-                    SmartDashboard.putNumber("drivetrain kS", kS);
-                    SmartDashboard.putNumber("drivetrain KA", kA);
-                    SmartDashboard.putNumber("drivetrain kV", kV);
+                    var xArray2 =
+                            voltageAccelMap.keySet().stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .toArray();
+                    var yArray2 =
+                            voltageAccelMap.values().stream()
+                                    .mapToDouble(Double::doubleValue)
+                                    .toArray();
+                    LinearRegression linReg = new LinearRegression(xArray, yArray);
+                    LinearRegression linReg2 = new LinearRegression(xArray2, yArray2);
+
+                    // y = ax + b
+                    var a = linReg.slope();
+                    var a2 = linReg2.slope();
+                    var b = linReg.intercept();
+                    var kS = -b / a;
+                    var kV = a;
+                    var kA = a2;
+                    SmartDashboard.putNumber("dt kS", kS);
+                    SmartDashboard.putNumber("dt kV", kV);
+                    SmartDashboard.putNumber("dt kA", kA);
                 },
                 swerve);
     }

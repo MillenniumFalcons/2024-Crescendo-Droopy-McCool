@@ -1,10 +1,7 @@
 package team3647.frc2023.util;
 
-import com.pathplanner.lib.commands.FollowPathHolonomic;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -19,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
 import team3647.frc2023.constants.AutoConstants;
 import team3647.frc2023.constants.FieldConstants;
-import team3647.frc2023.constants.SwerveDriveConstants;
 import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.lib.team6328.VirtualSubsystem;
 
@@ -147,21 +143,5 @@ public class AutoDrive extends VirtualSubsystem {
                 bezierPoints,
                 AutoConstants.defaultConstraints,
                 new GoalEndState(0, endHolonomicRotation));
-    }
-
-    public Command followPathCommand(PathPlannerPath path) {
-        return new FollowPathHolonomic(
-                path,
-                swerve::getOdoPose,
-                swerve::getChassisSpeeds,
-                swerve::drive,
-                new HolonomicPathFollowerConfig(
-                        AutoConstants.kTranslationConstants,
-                        AutoConstants.kRotationConstants,
-                        6,
-                        SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
-                        new ReplanningConfig()),
-                AutoConstants.isRed,
-                swerve);
     }
 }

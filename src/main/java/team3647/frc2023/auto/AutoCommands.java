@@ -3,10 +3,6 @@ package team3647.frc2023.auto;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
-import com.pathplanner.lib.commands.FollowPathHolonomic;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,7 +17,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import team3647.frc2023.constants.AutoConstants;
 import team3647.frc2023.constants.FieldConstants;
-import team3647.frc2023.constants.SwerveDriveConstants;
 import team3647.frc2023.subsystems.Superstructure;
 import team3647.frc2023.subsystems.SwerveDrive;
 import team3647.lib.GeomUtil;
@@ -59,8 +54,6 @@ public class AutoCommands {
 
     public final AutonomousMode blue;
 
-    // public final AutonomousMode Test;
-
     public AutoCommands(
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
@@ -90,17 +83,28 @@ public class AutoCommands {
 
     public Command four_S1N1N2N3(Alliance color) {
         return Commands.sequence(
+                shoot(),
                 Commands.waitSeconds(1),
-                followChoreoPath(s1_to_n1, color),
-                Commands.waitSeconds(1),
-                followChoreoPath(n1_to_n2, color),
-                Commands.waitSeconds(1),
-                followChoreoPath(n2_to_n3, color));
+                followChoreoPathWithIntake(s1_to_n1, color),
+                shoot());
     }
+
+    //     ,
+    //                 Commands.waitSeconds(1),
+    //                 followChoreoPath(n1_to_n2, color),
+    //                 Commands.waitSeconds(1),
+    //                 followChoreoPath(n2_to_n3, color)
 
     public Pose2d getInitial(String path) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         return traj.getInitialPose();
+    }
+
+    public Command shoot() {
+        return Commands.parallel(
+                        superstructure.shoot(),
+                        Commands.run(() -> swerve.drive(0, 0, autoDriveVelocities.get().dtheta)))
+                .until(() -> !superstructure.getIsShooting());
     }
 
     public Pose2d flipForPP(Pose2d pose) {
@@ -109,20 +113,8 @@ public class AutoCommands {
                 pose.getRotation());
     }
 
-    public Command followPathCommand(PathPlannerPath path) {
-        return new FollowPathHolonomic(
-                path,
-                swerve::getOdoPose,
-                swerve::getChassisSpeeds,
-                swerve::drive,
-                new HolonomicPathFollowerConfig(
-                        AutoConstants.kTranslationConstants,
-                        AutoConstants.kRotationConstants,
-                        5,
-                        SwerveDriveConstants.kTrackWidth / 2.0 * Math.sqrt(2.0),
-                        new ReplanningConfig()),
-                AutoConstants.isRed,
-                swerve);
+    public Command followChoreoPathWithIntake(String path, Alliance color) {
+        return Commands.deadline(followChoreoPath(path, color), superstructure.intake());
     }
 
     public Command pathAndShootWithOverride(String path, Alliance color) {
@@ -142,11 +134,9 @@ public class AutoCommands {
                         new PIDController(0, 0, 0)),
                 (ChassisSpeeds speeds) ->
                         swerve.drive(
-                                new Translation2d(
-                                        speeds.vxMetersPerSecond, speeds.vyMetersPerSecond),
-                                deeThetaOnTheMove(speeds),
-                                false,
-                                true),
+                                speeds.vxMetersPerSecond,
+                                speeds.vyMetersPerSecond,
+                                deeThetaOnTheMove(speeds)),
                 () -> mirror);
     }
 
@@ -228,12 +218,9 @@ public class AutoCommands {
                 AutoConstants.kRotController,
                 (ChassisSpeeds speeds) ->
                         swerve.drive(
-                                new Translation2d(
-                                        speeds.vxMetersPerSecond / 4.279,
-                                        speeds.vyMetersPerSecond / 4.279),
-                                speeds.omegaRadiansPerSecond / 13.449,
-                                false,
-                                true),
+                                speeds.vxMetersPerSecond,
+                                speeds.vyMetersPerSecond,
+                                speeds.omegaRadiansPerSecond),
                 () -> mirror,
                 swerve);
     }
