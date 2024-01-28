@@ -52,7 +52,7 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        SlewRateLimiter filter = new SlewRateLimiter(2);
+        SlewRateLimiter filter = new SlewRateLimiter(3);
         return shooterCommands.setVelocity(() -> filter.calculate(shootSpeed));
     }
 
@@ -89,6 +89,7 @@ public class Superstructure {
                 prep(),
                 spinUp(),
                 Commands.sequence(
+                        Commands.waitSeconds(0.5),
                         Commands.waitUntil(() -> shooter.velocityReached(shootSpeed, 1))
                                 .withTimeout(2),
                         Commands.parallel(isSHooting(), intake(), ejectPiece()).withTimeout(0.8),
@@ -112,6 +113,7 @@ public class Superstructure {
     }
 
     public Command prep() {
+        SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
         return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
     }
 

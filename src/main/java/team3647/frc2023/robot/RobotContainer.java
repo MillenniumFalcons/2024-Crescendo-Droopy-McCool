@@ -84,9 +84,11 @@ public class RobotContainer {
         mainController.buttonX.onTrue(superstructure.outtake());
         mainController.buttonX.onFalse(superstructure.intakeCommands.kill());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
+        mainController.buttonA.onTrue(superstructure.ejectPiece());
 
         tofPiece.onTrue(superstructure.setPiece());
-        tofPiece.onTrue(superstructure.slightReverse());
+        tofPiece.and(() -> !mainController.leftBumper.getAsBoolean())
+                .onTrue(superstructure.slightReverse());
 
         mainController.buttonY.whileTrue(drivetrainCommands.characterize());
 
@@ -118,7 +120,7 @@ public class RobotContainer {
 
     public void configureSmartDashboardLogging() {
         SmartDashboard.putNumber("pivot interp angle", 40);
-        printer.addBoolean("tof", () -> tof.getRange() < 100);
+        printer.addBoolean("tof", () -> tofPiece.getAsBoolean());
         printer.addBoolean("shooht", () -> superstructure.getIsShooting());
     }
 

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.Supplier;
 import team3647.lib.GeomUtil;
 
@@ -16,7 +17,7 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
     private final Transform3d robotToShooter;
-    private final double shootSpeed = 5;
+    private final double shootSpeed = 8;
     double kDt = 0.02;
 
     public TargetingUtil(
@@ -51,16 +52,17 @@ public class TargetingUtil {
         var newAngle =
                 Math.atan(
                         (exitVelocity() * Math.cos(getPivotAngleStationary(pose)) * Math.sin(angle)
-                                        - fieldRelativeSpeeds.get().vyMetersPerSecond)
+                                        + fieldRelativeSpeeds.get().vyMetersPerSecond)
                                 / (exitVelocity()
                                                 * Math.cos(getPivotAngleStationary(pose))
                                                 * Math.cos(angle)
-                                        - fieldRelativeSpeeds.get().vxMetersPerSecond));
+                                        + fieldRelativeSpeeds.get().vxMetersPerSecond));
         boolean shouldAddPi = Math.cos(newAngle) < 0;
         double pi = shouldAddPi ? Math.PI : 0;
         boolean shouldSubtract = Math.sin(newAngle) < 0;
         pi = shouldSubtract ? -pi : pi;
         newAngle = newAngle + pi;
+        SmartDashboard.putNumber("new anlge", newAngle);
         return newAngle;
     }
 
@@ -80,17 +82,20 @@ public class TargetingUtil {
     public double robotAngleToPose(Pose3d pose) {
         final var currentPose = compensatedPose();
         var rot = currentPose.getRotation().getRadians();
+        SmartDashboard.putNumber("rot", rot);
         final var fieldAngle = fieldAngleToPose(pose);
-        if (Math.signum(rot * fieldAngle) < 0) {
-            if (rot < 0) {
-                rot += 2 * Math.PI;
-            } else {
-                rot -= 2 * Math.PI;
-            }
-        }
+        // if (Math.signum(rot * fieldAngle) < 0) {
+        //     if (rot < 0) {
+        //         rot += 2 * Math.PI;
+        //     } else {
+        //         rot -= 2 * Math.PI;
+        //     }
+        // }
         var newAngle = rot - fieldAngle;
 
-        return newAngle;
+        double distance = GeomUtil.distance(pose.toPose2d().minus(currentPose));
+
+        return newAngle - 0.05 * distance;
     }
 
     // returns the pivot angle
@@ -119,7 +124,7 @@ public class TargetingUtil {
         double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
         double pivotAngle =
                 Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
-                        + shooterDistance * Math.PI / 180 * 1;
+                        + shooterDistance * Math.PI / 180 * 1.6;
         double newPivotAngle =
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))

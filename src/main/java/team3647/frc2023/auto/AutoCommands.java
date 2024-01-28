@@ -107,6 +107,10 @@ public class AutoCommands {
                 .until(() -> !superstructure.getIsShooting());
     }
 
+    public Command intakeAndShoot(String path, Alliance color) {
+        return Commands.parallel(followChoreoPathWithIntake(path, color), superstructure.shoot());
+    }
+
     public Pose2d flipForPP(Pose2d pose) {
         return new Pose2d(
                 new Translation2d(pose.getX(), FieldConstants.kFieldWidth - pose.getY()),
@@ -115,6 +119,10 @@ public class AutoCommands {
 
     public Command followChoreoPathWithIntake(String path, Alliance color) {
         return Commands.deadline(followChoreoPath(path, color), superstructure.intake());
+    }
+
+    public Command overrideChoreoPathWithIntake(String path, Alliance color) {
+        return Commands.deadline(pathAndShootWithOverride(path, color), superstructure.intake());
     }
 
     public Command pathAndShootWithOverride(String path, Alliance color) {
@@ -136,7 +144,7 @@ public class AutoCommands {
                         swerve.drive(
                                 speeds.vxMetersPerSecond,
                                 speeds.vyMetersPerSecond,
-                                deeThetaOnTheMove(speeds)),
+                                deeThetaOnTheMove()),
                 () -> mirror);
     }
 
@@ -194,17 +202,8 @@ public class AutoCommands {
         };
     }
 
-    public double deeThetaOnTheMove(ChassisSpeeds robotRelativePathSpeeds) {
-        ChassisSpeeds fieldRelative =
-                ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativePathSpeeds, swerve.getOdoRot());
-        ChassisSpeeds fieldRelativeOverride =
-                new ChassisSpeeds(
-                        fieldRelative.vxMetersPerSecond,
-                        fieldRelative.vyMetersPerSecond,
-                        autoDriveVelocities.get().dtheta);
-        ChassisSpeeds backToRobotRelative =
-                ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeOverride, swerve.getOdoRot());
-        return backToRobotRelative.omegaRadiansPerSecond;
+    public double deeThetaOnTheMove() {
+        return autoDriveVelocities.get().dtheta;
     }
 
     public Command followChoreoPath(String path, Alliance color) {
