@@ -90,8 +90,8 @@ public class SwerveDriveConstants {
     // rotation.
 
     // from motor to output shaft
-    public static final double kDriveMotorGearRatio = 6.12;
-    public static final double kTurnMotorGearRatio = 12.8; // 7.0 / 150.0;
+    public static final double kDriveMotorGearRatio = 1 / 6.12;
+    public static final double kTurnMotorGearRatio = 1 / 12.8; // 7.0 / 150.0;
     public static final double kCouplingGearRatio = 3.57;
     public static final double kWheelDiameterMeters = 0.097; // 97mm
     public static final double kWheelRadiusInches = 1.9;

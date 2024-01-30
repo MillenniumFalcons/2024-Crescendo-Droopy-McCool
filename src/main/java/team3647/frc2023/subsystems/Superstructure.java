@@ -86,14 +86,15 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                prep(),
-                spinUp(),
-                Commands.sequence(
-                        Commands.waitSeconds(0.5),
-                        Commands.waitUntil(() -> shooter.velocityReached(shootSpeed, 1))
-                                .withTimeout(2),
-                        Commands.parallel(isSHooting(), intake(), ejectPiece()).withTimeout(0.8),
-                        doneShooting()));
+                        prep(),
+                        spinUp(),
+                        Commands.sequence(
+                                Commands.waitSeconds(1),
+                                // Commands.waitUntil(() -> shooter.velocityReached(shootSpeed, 1))
+                                //         .withTimeout(3),
+                                Commands.parallel(isSHooting(), intake(), ejectPiece())
+                                        .withTimeout(1)))
+                .finallyDo((interrupted) -> doneShooting());
     }
 
     public Command shootManual() {

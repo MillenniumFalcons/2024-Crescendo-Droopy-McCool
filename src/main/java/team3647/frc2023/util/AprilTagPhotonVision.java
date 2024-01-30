@@ -44,7 +44,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         return possibleValues[adjustedId];
     }
 
-    public Optional<VisionMeasurement[]> QueueToInputs() {
+    public Optional<VisionMeasurement> QueueToInputs() {
         var update = photonPoseEstimator.update();
         if (update.isEmpty()) {
             return Optional.empty();
@@ -55,7 +55,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .times(GeomUtil.distance(drivePose.get(), visionPose));
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
-        return Optional.of(new VisionMeasurement[] {measurement});
+        return Optional.of(measurement);
     }
 
     public int getTagNum() {

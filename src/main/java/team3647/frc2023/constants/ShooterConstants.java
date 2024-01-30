@@ -34,8 +34,8 @@ public class ShooterConstants {
     public static final double masterKD = 0;
 
     public static final double kNominalVoltage = 11.0;
-    public static final double kStallCurrent = 25.0;
-    public static final double kMaxCurrent = 20.0;
+    public static final double kStallCurrent = 55.0;
+    public static final double kMaxCurrent = 40.0;
 
     static {
         Slot0Configs kTopSlot0 = new Slot0Configs();
@@ -67,6 +67,8 @@ public class ShooterConstants {
 
         kTopCurrent.StatorCurrentLimitEnable = false;
         kBottomCurrent.StatorCurrentLimitEnable = false;
+        // kTopCurrent.StatorCurrentLimit = kMaxCurrent;
+        // kBottomCurrent.StatorCurrentLimit = kMaxCurrent;
 
         kTopRollerConfigurator.apply(kTopMotor);
         kTopRollerConfigurator.apply(kTopCurrent);

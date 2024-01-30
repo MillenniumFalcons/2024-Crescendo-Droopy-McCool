@@ -1,6 +1,7 @@
 package team3647.frc2023.robot;
 
 import com.playingwithfusion.TimeOfFlight;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -87,10 +88,9 @@ public class RobotContainer {
         mainController.buttonA.onTrue(superstructure.ejectPiece());
 
         tofPiece.onTrue(superstructure.setPiece());
-        tofPiece.and(() -> !mainController.leftBumper.getAsBoolean())
-                .onTrue(superstructure.slightReverse());
+        tofPiece.and(() -> !superstructure.getIsShooting()).onTrue(superstructure.slightReverse());
 
-        mainController.buttonY.whileTrue(drivetrainCommands.characterize());
+        // mainController.buttonY.whileTrue(drivetrainCommands.characterize());
 
         // mainController.leftBumper.onTrue(superstructure.shootStow());
         // mainController.rightBumper.onTrue(superstructure.shootStow());
@@ -110,8 +110,9 @@ public class RobotContainer {
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
         pivot.setDefaultCommand(superstructure.pivotCommands.holdPositionAtCall());
-        // intake.setDefaultCommand(superstructure.intakeCommands.intake());
-        // kicker.setDefaultCommand(superstructure.kickerCommands.kick());
+        intake.setDefaultCommand(superstructure.intakeCommands.kill());
+        kicker.setDefaultCommand(superstructure.kickerCommands.kill());
+        shooter.setDefaultCommand(superstructure.shooterCommands.kill());
     }
 
     public void teleopInit() {}
@@ -122,6 +123,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("pivot interp angle", 40);
         printer.addBoolean("tof", () -> tofPiece.getAsBoolean());
         printer.addBoolean("shooht", () -> superstructure.getIsShooting());
+        // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
     public Command getAutonomousCommand() {
@@ -211,7 +213,7 @@ public class RobotContainer {
                     targetingUtil.exitVelocity());
 
     public final AutoCommands autoCommands =
-            new AutoCommands(swerve, autoDrive::getVelocities, superstructure);
+            new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 
@@ -219,5 +221,10 @@ public class RobotContainer {
 
     Trigger piece = new Trigger(() -> superstructure.getPiece());
 
-    Trigger tofPiece = new Trigger(() -> (tof.getRange() < 100 && !superstructure.getIsShooting()));
+    Trigger tofPiece =
+            new Trigger(
+                    () ->
+                            (tof.getRange() < 100
+                                    && !superstructure.getIsShooting()
+                                    && !DriverStation.isAutonomous()));
 }

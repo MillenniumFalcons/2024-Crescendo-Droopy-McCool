@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
@@ -61,9 +62,10 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
-            targetRot = targeting.shootAtSpeaker().rotation;
-        }
+        // if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
+        targetRot = targeting.shootAtSpeaker().rotation;
+        // }
+        SmartDashboard.putNumber("auto drive", getRot());
         detector.pieceCoordinate(swerve::getOdoPose).ifPresent(this::setTargetPose);
     }
 

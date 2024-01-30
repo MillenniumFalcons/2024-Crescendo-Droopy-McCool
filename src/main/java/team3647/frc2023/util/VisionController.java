@@ -1,6 +1,7 @@
 package team3647.frc2023.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -37,17 +38,14 @@ public class VisionController extends VirtualSubsystem {
                 break;
             }
 
-            for (int j = 0; j < inputs.get().length; j++) {
+            var getInputs = inputs.get();
 
-                Logger.recordOutput("Robot/Vision", inputs.get()[j].pose);
+            Logger.recordOutput("Robot/Vision", getInputs.pose);
 
-                if (shouldAddData(inputs.get()[j].pose, swerve::getOdoPose)) {
-                    botPoseAcceptor.accept(
-                            new VisionMeasurement(
-                                    inputs.get()[j].pose,
-                                    inputs.get()[j].timestamp,
-                                    inputs.get()[j].stdDevs));
-                }
+            if (shouldAddData(getInputs.pose, swerve::getOdoPose)) {
+                botPoseAcceptor.accept(
+                        new VisionMeasurement(
+                                getInputs.pose, Timer.getFPGATimestamp(), getInputs.stdDevs));
             }
         }
     }

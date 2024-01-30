@@ -224,7 +224,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     public void addVisionData(VisionMeasurement data) {
         periodicIO.visionPose = data.pose;
         SmartDashboard.putNumber("timestamped viison", data.timestamp);
-        this.m_odometry.addVisionMeasurement(data.pose, data.timestamp);
+        addVisionMeasurement(data.pose, data.timestamp, data.stdDevs);
     }
 
     @Override
@@ -253,6 +253,13 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
             periodicIO.backLeftState,
             periodicIO.backRightState
         };
+    }
+
+    public double getVel() {
+        return Math.sqrt(
+                getChassisSpeeds().vxMetersPerSecond * getChassisSpeeds().vxMetersPerSecond
+                        + getChassisSpeeds().vyMetersPerSecond
+                                * getChassisSpeeds().vyMetersPerSecond);
     }
 
     public double getMaxSpeedMpS() {

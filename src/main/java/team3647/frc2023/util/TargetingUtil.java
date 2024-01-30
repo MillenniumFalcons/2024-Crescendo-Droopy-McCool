@@ -17,7 +17,7 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
     private final Transform3d robotToShooter;
-    private final double shootSpeed = 8;
+    private final double shootSpeed = 9;
     double kDt = 0.02;
 
     public TargetingUtil(
@@ -84,13 +84,6 @@ public class TargetingUtil {
         var rot = currentPose.getRotation().getRadians();
         SmartDashboard.putNumber("rot", rot);
         final var fieldAngle = fieldAngleToPose(pose);
-        // if (Math.signum(rot * fieldAngle) < 0) {
-        //     if (rot < 0) {
-        //         rot += 2 * Math.PI;
-        //     } else {
-        //         rot -= 2 * Math.PI;
-        //     }
-        // }
         var newAngle = rot - fieldAngle;
 
         double distance = GeomUtil.distance(pose.toPose2d().minus(currentPose));
@@ -124,29 +117,18 @@ public class TargetingUtil {
         double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
         double pivotAngle =
                 Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
-                        + shooterDistance * Math.PI / 180 * 1.6;
+                        + shooterDistance * Math.PI / 180 * 3;
         double newPivotAngle =
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
                                         + fieldRelativeSpeeds.get().vxMetersPerSecond));
+        SmartDashboard.putNumber("new pibotr angle", newPivotAngle * 180 / Math.PI);
         return newPivotAngle;
     }
 
     // returns the pivot angle not accounting for movement
     public double getPivotAngleStationary(Pose3d pose) {
-        double angleOnTheMove = fieldAngleToPoseStationary(pose);
-        if (angleOnTheMove < 0) {
-            angleOnTheMove += Math.PI;
-        } else {
-            angleOnTheMove -= Math.PI;
-        }
-        double angle = fieldAngleToPoseStationary(pose);
-        if (angle < 0) {
-            angle += Math.PI;
-        } else {
-            angle -= Math.PI;
-        }
         var currentPose = compensatedPose();
         var pose3D =
                 new Pose3d(
@@ -160,6 +142,24 @@ public class TargetingUtil {
         double pivotAngle =
                 Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
                         + shooterDistance * Math.PI / 180 * 1;
+        return pivotAngle;
+    }
+
+    public double getPivotAngleByPose(Pose2d botPose) {
+        var currentPose = botPose;
+        var pose3D =
+                new Pose3d(
+                        currentPose.getX(),
+                        currentPose.getY(),
+                        0,
+                        new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
+        var shooterPose = pose3D.transformBy(robotToShooter);
+        var shooter2D = shooterPose.toPose2d();
+        var pose = speakerPose;
+        double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
+        double pivotAngle =
+                Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
+                        + (shooterDistance) * Math.PI / 180 * 2.6;
         return pivotAngle;
     }
 

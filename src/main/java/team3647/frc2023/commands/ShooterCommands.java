@@ -19,7 +19,7 @@ public class ShooterCommands {
     }
 
     public Command setVelocity(DoubleSupplier bill) {
-        return Commands.run(() -> shooter.setVelocity(bill.getAsDouble()));
+        return Commands.run(() -> shooter.setVelocity(bill.getAsDouble()), shooter);
     }
 
     public Command kill() {
