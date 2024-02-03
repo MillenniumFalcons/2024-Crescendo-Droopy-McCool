@@ -13,7 +13,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import team3647.frc2023.constants.SwerveDriveConstants;
+import team3647.frc2024.constants.SwerveDriveConstants;
 
 public class SwerveModule {
 
