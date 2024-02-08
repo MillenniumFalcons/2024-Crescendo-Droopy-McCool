@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.util.VisionMeasurement;
+import team3647.lib.GeomUtil;
 import team3647.lib.PeriodicSubsystem;
 
 public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
@@ -219,6 +220,11 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     public ChassisSpeeds getFieldRelativeChassisSpeeds() {
         return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getOdoRot());
+    }
+
+    public boolean shouldAddData(Pose2d visionPose) {
+        double distance = GeomUtil.distance(visionPose, getOdoPose());
+        return (distance < 1) ? true : false;
     }
 
     public void addVisionData(VisionMeasurement data) {

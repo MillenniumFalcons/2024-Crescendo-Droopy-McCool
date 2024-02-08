@@ -1,13 +1,10 @@
 package team3647.frc2024.subsystems;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import team3647.lib.TalonFXSubsystem;
 
-public class ShooterLeft extends TalonFXSubsystem{
+public class ShooterLeft extends TalonFXSubsystem {
     private final SimpleMotorFeedforward ff;
 
     public ShooterLeft(
@@ -23,17 +20,14 @@ public class ShooterLeft extends TalonFXSubsystem{
 
     public void openLoop(double demand) {
         super.setOpenloop(demand);
-        Logger.recordOutput(getName() + "/openLoop", demand);
     }
 
     public void setVelocity(double velocity) {
         super.setVelocity(velocity, ff.calculate(velocity));
-        Logger.recordOutput(getName() + "/velocity", velocity);
     }
 
     public void setVoltage(double voltage) {
         super.setVoltage(voltage);
-        Logger.recordOutput(getName() + "/voltage", voltage);
     }
 
     public boolean velocityReached(double setpoint, double threshold) {
@@ -42,6 +36,6 @@ public class ShooterLeft extends TalonFXSubsystem{
 
     @Override
     public String getName() {
-        return "Shooter";
+        return "Shooter Left";
     }
 }

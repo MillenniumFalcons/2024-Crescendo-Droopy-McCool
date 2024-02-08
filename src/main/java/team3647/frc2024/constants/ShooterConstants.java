@@ -12,18 +12,19 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
-    public static final TalonFX kRightRoller = new TalonFX(GlobalConstants.ShooterIds.kShooterRightId);
+    public static final TalonFX kRightRoller =
+            new TalonFX(GlobalConstants.ShooterIds.kShooterRightId);
     public static final TalonFX kLeftRoller =
             new TalonFX(GlobalConstants.ShooterIds.kShooterLeftId);
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
-    public static final double kGearboxReduction = 2.0;
-    public static final double kWheelDiameterMeters = Units.inchesToMeters(2);
+    public static final double kGearboxReduction = 1.5;
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(3);
     public static final double kWheelRotationMeters = kWheelDiameterMeters * Math.PI;
     public static final double kNativeVelToSurfaceMpS =
             kWheelRotationMeters / GlobalConstants.kFalconTicksPerRotation * kGearboxReduction;
 
-            // tune ff
+    // tune ff
     public static final double kS = 0.23;
     public static final double kV = 2.6;
     public static final double kA = 0.0;

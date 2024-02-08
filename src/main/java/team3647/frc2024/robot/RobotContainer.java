@@ -18,6 +18,7 @@ import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.GlobalConstants;
 import team3647.frc2024.constants.IntakeConstants;
 import team3647.frc2024.constants.KickerConstants;
+import team3647.frc2024.constants.LEDConstants;
 import team3647.frc2024.constants.PivotConstants;
 import team3647.frc2024.constants.ShooterConstants;
 import team3647.frc2024.constants.SwerveDriveConstants;
@@ -26,6 +27,7 @@ import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
+import team3647.frc2024.subsystems.LEDs;
 import team3647.frc2024.subsystems.Pivot;
 import team3647.frc2024.subsystems.ShooterLeft;
 import team3647.frc2024.subsystems.ShooterRight;
@@ -36,6 +38,7 @@ import team3647.frc2024.util.AprilTagPhotonVision;
 import team3647.frc2024.util.AutoDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
 import team3647.frc2024.util.NeuralDetector;
+import team3647.frc2024.util.NeuralDetectorPhotonVision;
 import team3647.frc2024.util.TargetingUtil;
 import team3647.frc2024.util.VisionController;
 import team3647.lib.GroupPrinter;
@@ -86,12 +89,20 @@ public class RobotContainer {
 
         mainController
                 .leftBumper
+                .and(() -> detector.hasTarget())
+                .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
+        mainController
+                .leftBumper
                 .and(() -> !superstructure.getPiece())
                 .whileTrue(superstructure.intake());
         setPiece.onTrue(superstructure.setPiece());
         piece.and(isIntaking).onTrue(superstructure.passToShooter());
         mainController.leftBumper.onFalse(superstructure.intakeCommands.kill());
         mainController.leftBumper.onFalse(superstructure.kickerCommands.kill());
+        mainController
+                .leftBumper
+                .and(() -> detector.hasTarget())
+                .onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());
 
@@ -207,21 +218,48 @@ public class RobotContainer {
 
     public final AprilTagPhotonVision ar_doo_cam =
             new AprilTagPhotonVision(
-                    VisionConstants.photonName,
+                    VisionConstants.photonName_1_BackLeft,
                     VisionConstants.robotToPhotonCam,
                     swerve::getOdoPose);
 
-    private VisionController visionController =
-            new VisionController(swerve::addVisionData, swerve, ar_doo_cam);
+    public final AprilTagPhotonVision ar_doo_cam2 =
+            new AprilTagPhotonVision(
+                    VisionConstants.photonName_1_BackRight,
+                    VisionConstants.robotToPhotonCam,
+                    swerve::getOdoPose);
 
-    public final NeuralDetector detector = new NeuralDetector(VisionConstants.limelightName);
+    public final AprilTagPhotonVision ar_doo_cam3 =
+            new AprilTagPhotonVision(
+                    VisionConstants.photonName_1_Left,
+                    VisionConstants.robotToPhotonCam,
+                    swerve::getOdoPose);
+
+    public final AprilTagPhotonVision ar_doo_cam4 =
+            new AprilTagPhotonVision(
+                    VisionConstants.photonName_1_Right,
+                    VisionConstants.robotToPhotonCam,
+                    swerve::getOdoPose);
+
+    private final VisionController visionController =
+            new VisionController(
+                    swerve::addVisionData,
+                    swerve::shouldAddData,
+                    ar_doo_cam,
+                    ar_doo_cam2,
+                    ar_doo_cam3,
+                    ar_doo_cam4);
+
+    private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
+
+    public final NeuralDetector detector =
+            new NeuralDetectorPhotonVision(VisionConstants.photonName_1_Driver);
 
     public final TargetingUtil targetingUtil =
             new TargetingUtil(
                     FieldConstants.kBlueSpeaker,
                     FieldConstants.kBlueAmp,
                     swerve::getOdoPose,
-                    swerve::getFieldRelativeChassisSpeeds,
+                    swerve::getChassisSpeeds,
                     PivotConstants.robotToPivot);
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);

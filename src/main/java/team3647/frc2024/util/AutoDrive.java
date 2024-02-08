@@ -62,9 +62,12 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        // if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
-        targetRot = targeting.shootAtSpeaker().rotation;
-        // }
+        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
+            targetRot = targeting.shootAtSpeaker().rotation;
+        }
+        if (this.mode == DriveMode.INTAKE_FLOOR_PIECE) {
+            targetRot = -detector.getTX();
+        }
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             targetRot = targeting.shootAtAmp().rotation;
         }
@@ -72,7 +75,6 @@ public class AutoDrive extends VirtualSubsystem {
         SmartDashboard.putNumber(
                 "pivot setpoint",
                 targeting.getPivotAngle(FieldConstants.kBlueSpeaker) * 180 / Math.PI);
-        detector.pieceCoordinate(swerve::getOdoPose).ifPresent(this::setTargetPose);
     }
 
     private void setTargetPose(Pose2d targetPose) {

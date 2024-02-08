@@ -18,7 +18,7 @@ public class TargetingUtil {
     private final Pose3d speakerPose;
     private final Pose3d ampPose;
     private final Supplier<Pose2d> drivePose;
-    private final Supplier<ChassisSpeeds> fieldRelativeSpeeds;
+    private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
     private final Transform3d robotToShooter;
     private final double shootSpeed = 10;
     private double offset = 2;
@@ -28,12 +28,12 @@ public class TargetingUtil {
             Pose3d speakerPose,
             Pose3d ampPose,
             Supplier<Pose2d> drivePose,
-            Supplier<ChassisSpeeds> fieldRelativeSpeeds,
+            Supplier<ChassisSpeeds> robotRelativeSpeeds,
             Transform3d robotToShooter) {
         this.speakerPose = speakerPose;
         this.ampPose = ampPose;
         this.drivePose = drivePose;
-        this.fieldRelativeSpeeds = fieldRelativeSpeeds;
+        this.robotRelativeSpeeds = robotRelativeSpeeds;
         this.robotToShooter = robotToShooter;
     }
 
@@ -72,11 +72,11 @@ public class TargetingUtil {
         var newAngle =
                 Math.atan(
                         (exitVelocity() * Math.cos(getPivotAngleStationary(pose)) * Math.sin(angle)
-                                        + fieldRelativeSpeeds.get().vyMetersPerSecond)
+                                        + robotRelativeSpeeds.get().vyMetersPerSecond)
                                 / (exitVelocity()
                                                 * Math.cos(getPivotAngleStationary(pose))
                                                 * Math.cos(angle)
-                                        + fieldRelativeSpeeds.get().vxMetersPerSecond));
+                                        + robotRelativeSpeeds.get().vxMetersPerSecond));
         boolean shouldAddPi = Math.cos(newAngle) < 0;
         double pi = shouldAddPi ? Math.PI : 0;
         boolean shouldSubtract = Math.sin(newAngle) < 0;
@@ -143,7 +143,7 @@ public class TargetingUtil {
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - fieldRelativeSpeeds.get().vxMetersPerSecond * 0.5));
+                                        - robotRelativeSpeeds.get().vxMetersPerSecond));
         SmartDashboard.putNumber("new pibotr angle", newPivotAngle * 180 / Math.PI);
         return newPivotAngle;
     }
@@ -186,7 +186,7 @@ public class TargetingUtil {
 
     // returns latency compensated pose;
     public Pose2d compensatedPose() {
-        var speeds = fieldRelativeSpeeds.get();
+        var speeds = robotRelativeSpeeds.get();
         var twist =
                 new Twist2d(
                         speeds.vxMetersPerSecond * kDt,

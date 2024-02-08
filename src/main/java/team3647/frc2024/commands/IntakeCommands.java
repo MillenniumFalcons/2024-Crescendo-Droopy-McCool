@@ -21,7 +21,7 @@ public class IntakeCommands {
                 .withTimeout(0.2)
                 .andThen(Commands.run(() -> intake.openLoop(-0.1)))
                 .withTimeout(0.2)
-                .andThen(oscillate());
+                .repeatedly();
     }
 
     public Command kill() {

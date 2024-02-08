@@ -25,7 +25,7 @@ public class KickerCommands {
                 .withTimeout(0.2)
                 .andThen(Commands.run(() -> kicker.openLoop(-0.1)))
                 .withTimeout(0.2)
-                .andThen(oscillate());
+                .repeatedly();
     }
 
     public Command kill() {

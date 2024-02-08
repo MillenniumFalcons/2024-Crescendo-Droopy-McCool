@@ -17,7 +17,7 @@ public class PivotConstants {
     public static final boolean kMasterInvert = true;
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
-    private static final double kGearBoxRatio = 1 / 41.67;
+    private static final double kGearBoxRatio = 1 / 34.72;
 
     public static final double kNativePosToDegrees =
             kGearBoxRatio / GlobalConstants.kFalconTicksPerRotation * 360.0;
@@ -27,8 +27,8 @@ public class PivotConstants {
     public static final double kMaxVelocityTicks = (400.0 / kNativeVelToDPS);
     public static final double kMaxAccelerationTicks = (200.0 / kNativeVelToDPS);
 
-    public static final double kMinDegree = -20;
-    public static final double kMaxDegree = 70;
+    public static final double kMinDegree = 15;
+    public static final double kMaxDegree = 61.2;
 
     private static final double masterKP = 0.3;
     private static final double masterKI = 0;
@@ -40,7 +40,7 @@ public class PivotConstants {
     public static final double kStallCurrent = 30.0;
     public static final double kMaxCurrent = 40.0;
 
-    public static final double kInitialAngle = 50.0;
+    public static final double kInitialAngle = 61.2;
 
     public static final Transform3d robotToPivot =
             new Transform3d(

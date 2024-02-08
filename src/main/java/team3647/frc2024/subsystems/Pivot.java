@@ -57,13 +57,11 @@ public class Pivot extends TalonFXSubsystem {
                 new Pose3d(
                         new Translation3d(),
                         new Rotation3d(0, Units.degreesToRadians(getAngle()), 0));
-        Logger.recordOutput(getName() + "/pose", pose);
-        Logger.recordOutput(getName() + "/angle", getAngle());
+        Logger.recordOutput("Pivot/pose", pose);
     }
 
     public void openLoop(double demand) {
         super.setOpenloop(demand);
-        Logger.recordOutput(getName() + "/demand", demand);
     }
 
     public void setVoltage(double voltage) {
@@ -78,7 +76,6 @@ public class Pivot extends TalonFXSubsystem {
         double desiredAngle = MathUtil.clamp(angle, minAngle, maxAngle);
         var ffvolts = maxKG * Math.cos(desiredAngle);
         super.setPositionMotionMagic(desiredAngle, ffvolts);
-        Logger.recordOutput(getName() + "/angle", angle);
     }
 
     public boolean angleReached(double targetAngle, double threshold) {

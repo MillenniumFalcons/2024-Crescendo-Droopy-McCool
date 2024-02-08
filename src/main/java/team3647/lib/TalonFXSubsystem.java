@@ -35,8 +35,6 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     protected final double kDt;
     public static final int kLongStatusTimeMS = 255;
     public static final int kTimeoutMS = 100;
-
-    private PeriodicIO periodicIO = new PeriodicIO();
     private PeriodicIOAutoLogged ioAutoLogged = new PeriodicIOAutoLogged();
 
     protected TalonFXSubsystem(
@@ -70,12 +68,12 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
 
     @Override
     public void readPeriodicInputs() {
-        periodicIO.nativePosition = master.getRotorPosition().getValue();
-        periodicIO.position = periodicIO.nativePosition * positionConversion;
-        periodicIO.velocity = master.getRotorVelocity().getValue() * velocityConversion;
-        periodicIO.current = master.getStatorCurrent().getValue();
-        periodicIO.timestamp = Timer.getFPGATimestamp();
-        periodicIO.masterCurrent = master.getSupplyCurrent().getValue();
+        ioAutoLogged.nativePosition = master.getRotorPosition().getValue();
+        ioAutoLogged.position = ioAutoLogged.nativePosition * positionConversion;
+        ioAutoLogged.velocity = master.getRotorVelocity().getValue() * velocityConversion;
+        ioAutoLogged.current = master.getStatorCurrent().getValue();
+        ioAutoLogged.timestamp = Timer.getFPGATimestamp();
+        ioAutoLogged.masterCurrent = master.getSupplyCurrent().getValue();
         Logger.processInputs(getName(), ioAutoLogged);
     }
 
@@ -95,13 +93,13 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
 
     public void setOpenloop(double output) {
         controlMode = dutyCycle;
-        periodicIO.feedforward = 0;
+        ioAutoLogged.feedforward = 0;
         dutyCycle.Output = output;
     }
 
     public void setVoltage(double voltage) {
         controlMode = voltageOut;
-        periodicIO.feedforward = 0;
+        ioAutoLogged.feedforward = 0;
         voltageOut.Output = voltage;
     }
 
@@ -120,7 +118,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     protected void setPositionNative(double position, double feedforward) {
         controlMode = positionDutyCycle;
         positionDutyCycle.FeedForward = feedforward / nominalVoltage;
-        periodicIO.feedforward = feedforward;
+        ioAutoLogged.feedforward = feedforward;
         positionDutyCycle.Position = position;
     }
 
@@ -192,29 +190,29 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
      * @return the velocity in the output units
      */
     public double getVelocity() {
-        return periodicIO.velocity;
+        return ioAutoLogged.velocity;
     }
 
     /**
      * @return ths position in the output units
      */
     public double getPosition() {
-        return periodicIO.position;
+        return ioAutoLogged.position;
     }
 
     /**
      * @return the timestamp for the position and velocity measurements
      */
     public double getTimestamp() {
-        return periodicIO.timestamp;
+        return ioAutoLogged.timestamp;
     }
 
     public double getMasterCurrent() {
-        return periodicIO.masterCurrent;
+        return ioAutoLogged.masterCurrent;
     }
 
     public double getNativePos() {
-        return periodicIO.nativePosition;
+        return ioAutoLogged.nativePosition;
     }
 
     protected void addFollower(TalonFX follower, boolean opposeMaster) {

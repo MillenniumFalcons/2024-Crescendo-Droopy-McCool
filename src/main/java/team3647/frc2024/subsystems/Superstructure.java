@@ -10,6 +10,8 @@ import team3647.frc2024.commands.KickerCommands;
 import team3647.frc2024.commands.PivotCommands;
 import team3647.frc2024.commands.ShooterCommands;
 import team3647.frc2024.commands.WristCommands;
+import team3647.frc2024.constants.PivotConstants;
+import team3647.frc2024.constants.WristConstants;
 
 public class Superstructure {
 
@@ -27,8 +29,8 @@ public class Superstructure {
 
     private final DoubleSupplier pivotAngleSupplier;
     private final double pivotStowAngle = 40;
-    private final double pivotIntakeAngle = -20;
-    private final double wristStowAngle = 90;
+    private final double pivotIntakeAngle = PivotConstants.kMinDegree;
+    private final double wristStowAngle = WristConstants.kMaxDegree;
     private final double wristIntakeAngle = 0;
     private final double shootSpeed;
     private boolean hasPiece = false;
