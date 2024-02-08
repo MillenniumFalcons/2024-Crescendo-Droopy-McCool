@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
-
 import team3647.frc2024.subsystems.ShooterLeft;
 import team3647.frc2024.subsystems.ShooterRight;
 import team3647.lib.LinearRegression;
@@ -17,15 +16,33 @@ import team3647.lib.LinearRegression;
 public class ShooterCommands {
 
     public Command shoot(DoubleSupplier bill) {
-        return Commands.run(() -> {shooterRight.openLoop(bill.getAsDouble() * 0.8); shooterLeft.openLoop(bill.getAsDouble());}, shooterRight, shooterLeft);
+        return Commands.run(
+                () -> {
+                    shooterRight.openLoop(bill.getAsDouble() * 0.8);
+                    shooterLeft.openLoop(bill.getAsDouble());
+                },
+                shooterRight,
+                shooterLeft);
     }
 
     public Command setVelocity(DoubleSupplier bill) {
-        return Commands.run(() -> {shooterRight.setVelocity(bill.getAsDouble() * 0.8); shooterLeft.setVelocity(bill.getAsDouble());}, shooterRight, shooterLeft);
+        return Commands.run(
+                () -> {
+                    shooterRight.setVelocity(bill.getAsDouble() * 0.8);
+                    shooterLeft.setVelocity(bill.getAsDouble());
+                },
+                shooterRight,
+                shooterLeft);
     }
 
     public Command kill() {
-        return Commands.run(() -> {shooterRight.openLoop(0); shooterLeft.openLoop(0);}, shooterRight, shooterLeft);
+        return Commands.run(
+                () -> {
+                    shooterRight.openLoop(0);
+                    shooterLeft.openLoop(0);
+                },
+                shooterRight,
+                shooterLeft);
     }
 
     public Command killRight() {
