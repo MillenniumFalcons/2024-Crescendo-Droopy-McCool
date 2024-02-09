@@ -2,6 +2,7 @@ package team3647.frc2024.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.util.Units;
 import team3647.lib.TalonFXSubsystem;
 
@@ -42,8 +43,9 @@ public class Wrist extends TalonFXSubsystem {
     }
 
     public void setAngle(double angle) {
-        var ffVolts = kG * Math.cos(Units.degreesToRadians(angle));
-        this.setPositionMotionMagic(angle, ffVolts);
+        double desiredAngle = MathUtil.clamp(angle, minDegree, maxDegree);
+        var ffVolts = kG * Math.cos(Units.degreesToRadians(desiredAngle));
+        this.setPositionMotionMagic(desiredAngle, ffVolts);
     }
 
     public boolean angleReached(double targetAngle, double threshold) {

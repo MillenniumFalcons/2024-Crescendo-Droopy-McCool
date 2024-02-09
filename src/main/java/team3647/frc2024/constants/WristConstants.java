@@ -8,7 +8,7 @@ import com.playingwithfusion.TimeOfFlight;
 public final class WristConstants {
     public static final TalonFX kMaster = new TalonFX(GlobalConstants.WristIds.kMasterId);
 
-    private static final double kGearBoxRatio = 1.0 / 41.67;
+    private static final double kGearBoxRatio = 1.0 / 37.50;
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
     public static final double kNativePosToDegrees = kGearBoxRatio * 360.0;

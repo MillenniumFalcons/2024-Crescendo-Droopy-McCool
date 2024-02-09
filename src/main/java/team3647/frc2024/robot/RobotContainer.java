@@ -111,6 +111,8 @@ public class RobotContainer {
 
         // characterization
 
+        // swerve
+
         // mainController.dPadUp.whileTrue(swerve.runDriveQuasiTest(Direction.kForward));
         // mainController.dPadDown.whileTrue(swerve.runDriveQuasiTest(Direction.kReverse));
 
@@ -122,6 +124,15 @@ public class RobotContainer {
 
         // mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
         // mainController.buttonB.whileTrue(swerve.runSteerDynamTest(Direction.kReverse));
+
+        // shooter
+
+        // mainController.leftMidButton.whileTrue(
+        //         shooterLeft.runQuasiTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
+        // mainController.rightMidButton.whileTrue(
+        //         shooterLeft.runQuasiTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
     }
 
     private void configureDefaultCommands() {
