@@ -8,7 +8,9 @@ import com.ctre.phoenix6.controls.EmptyControl;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -27,6 +29,8 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     private final MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0);
     private final VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(0);
     private final VoltageOut voltageOut = new VoltageOut(0);
+    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+    private final PositionVoltage positionVoltage = new PositionVoltage(0);
     public ControlRequest controlMode = new EmptyControl();
     private Follower masterOutput;
     private final double positionConversion;
@@ -136,13 +140,41 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     }
 
     /**
+     * Voltage position
+     *
+     * @param position in units of positionConvertsion (degrees/meters/etc..)
+     * @param velocity in units of velocityConversion (RPM?, Surface speed?)
+     * @param feedforward in volts
+     */
+    protected void setPositionVoltage(double position, double velocity, double feedforward) {
+        controlMode = positionVoltage;
+        positionVoltage.Slot = 0;
+        positionVoltage.Velocity = velocity / velocityConversion;
+        positionVoltage.FeedForward = feedforward / nominalVoltage;
+        positionVoltage.Position = position / positionConversion;
+    }
+
+    /**
      * @param velocity in the units of velocityConversion (RPM?, Surface speed?)
      * @param feedforward in volts
      */
     protected void setVelocity(double velocity, double feedforward) {
         controlMode = velocityDutyCycle;
+        velocityDutyCycle.Acceleration = velocity / 2.0 / velocityConversion;
         velocityDutyCycle.FeedForward = feedforward / nominalVoltage;
         velocityDutyCycle.Velocity = velocity / velocityConversion;
+    }
+
+    /**
+     * @param velocity in the units of velocityConversion (RPM?, Surface speed?)
+     * @param feedforward in volts
+     */
+    protected void setVelocityVoltage(double velocity, double feedforward) {
+        controlMode = velocityVoltage;
+        velocityVoltage.Slot = 0;
+        velocityDutyCycle.Acceleration = velocity / 2.0 / velocityConversion;
+        velocityVoltage.Velocity = velocity / velocityConversion;
+        velocityVoltage.FeedForward = feedforward / nominalVoltage;
     }
 
     /** Sets all motors to brake mode */

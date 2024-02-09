@@ -108,6 +108,20 @@ public class RobotContainer {
 
         mainController.dPadUp.onTrue(targetingUtil.offsetUp());
         mainController.dPadDown.onTrue(targetingUtil.offsetDown());
+
+        // characterization
+
+        // mainController.dPadUp.whileTrue(swerve.runDriveQuasiTest(Direction.kForward));
+        // mainController.dPadDown.whileTrue(swerve.runDriveQuasiTest(Direction.kReverse));
+
+        // mainController.dPadLeft.whileTrue(swerve.runDriveDynamTest(Direction.kForward));
+        // mainController.dPadRight.whileTrue(swerve.runDriveDynamTest(Direction.kReverse));
+
+        // mainController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
+        // mainController.buttonA.whileTrue(swerve.runSteerQuasiTest(Direction.kReverse));
+
+        // mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
+        // mainController.buttonB.whileTrue(swerve.runSteerDynamTest(Direction.kReverse));
     }
 
     private void configureDefaultCommands() {

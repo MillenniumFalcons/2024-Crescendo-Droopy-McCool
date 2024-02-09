@@ -13,11 +13,19 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import team3647.frc2024.util.ModifiedSignalLogger;
+import team3647.frc2024.util.SwerveVoltageRequest;
 import team3647.frc2024.util.VisionMeasurement;
 import team3647.lib.GeomUtil;
 import team3647.lib.PeriodicSubsystem;
@@ -41,6 +49,10 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     private double cachedSpeed = 0;
 
+    private SysIdRoutine m_driveSysIdRoutine;
+
+    private SysIdRoutine m_steerSysIdRoutine;
+
     public static class PeriodicIO {
         // inputs
 
@@ -62,6 +74,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         public Pose2d visionPose = new Pose2d();
 
         public SwerveRequest masterRequest = new SwerveRequest.Idle();
+        public SwerveVoltageRequest driveVoltageRequest = new SwerveVoltageRequest(true);
+        public SwerveVoltageRequest steerVoltageRequest = new SwerveVoltageRequest(false);
         public FieldCentric fieldCentric =
                 new FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         public RobotCentric robotCentric =
@@ -80,6 +94,28 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         this.maxSpeedMpS = maxSpeedMpS;
         this.maxRotRadPerSec = maxRotRadPerSec;
         this.kDt = kDt;
+
+        this.m_driveSysIdRoutine =
+                new SysIdRoutine(
+                        new SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+                        new SysIdRoutine.Mechanism(
+                                (Measure<Voltage> volts) ->
+                                        setControl(
+                                                periodicIO.driveVoltageRequest.withVoltage(
+                                                        volts.in(Units.Volts))),
+                                null,
+                                this));
+
+        this.m_steerSysIdRoutine =
+                new SysIdRoutine(
+                        new SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+                        new SysIdRoutine.Mechanism(
+                                (Measure<Voltage> volts) ->
+                                        setControl(
+                                                periodicIO.steerVoltageRequest.withVoltage(
+                                                        volts.in(Units.Volts))),
+                                null,
+                                this));
     }
 
     public void zeroPitch() {
@@ -124,8 +160,20 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         writePeriodicOutputs();
     }
 
-    public void setCharacterizationVoltage(double voltage) {
-        periodicIO.characterizationVoltage = voltage;
+    public Command runDriveQuasiTest(Direction direction) {
+        return m_driveSysIdRoutine.quasistatic(direction);
+    }
+
+    public Command runDriveDynamTest(SysIdRoutine.Direction direction) {
+        return m_driveSysIdRoutine.dynamic(direction);
+    }
+
+    public Command runSteerQuasiTest(Direction direction) {
+        return m_steerSysIdRoutine.quasistatic(direction);
+    }
+
+    public Command runSteerDynamTest(SysIdRoutine.Direction direction) {
+        return m_steerSysIdRoutine.dynamic(direction);
     }
 
     public void setRobotPose(Pose2d pose) {
