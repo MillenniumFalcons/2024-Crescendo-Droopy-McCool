@@ -65,7 +65,7 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        SlewRateLimiter filter = new SlewRateLimiter(3);
+        SlewRateLimiter filter = new SlewRateLimiter(5);
         return shooterCommands.setVelocity(() -> filter.calculate(shootSpeed));
     }
 
@@ -143,20 +143,31 @@ public class Superstructure {
     public Command shootThrough() {
         return Commands.parallel(intakeCommands.intake(), kickerCommands.kick())
                 .until(() -> pivot.backPiece())
-                .andThen(stowIntake());
+                .andThen(stowIntakeAndIndex());
     }
 
     public Command stowIntake() {
+        return Commands.deadline(
+                pivotCommands
+                        .setAngle(() -> pivotStowAngle)
+                        .until(() -> pivot.angleReached(pivotStowAngle, 5)),
+                intakeCommands.kill());
+    }
+
+    public Command index() {
         if (pivot.frontPiece()) {
-            Commands.parallel(
-                    intakeCommands.kill(),
-                    pivotCommands.setAngle(() -> pivotStowAngle),
-                    slightReverse());
+            return slightReverse().until(() -> pivot.backPiece());
+        } else {
+            return slightForwards().until(() -> pivot.frontPiece());
         }
-        return Commands.parallel(
-                intakeCommands.kill(),
-                pivotCommands.setAngle(() -> pivotStowAngle),
-                slightForwards());
+    }
+
+    public Command stowIntakeAndIndex() {
+        return Commands.parallel(stowIntake(), index());
+    }
+
+    public boolean frontPiece() {
+        return pivot.frontPiece();
     }
 
     public Command slightForwards() {

@@ -53,8 +53,6 @@ public class AutoCommands {
 
     public final AutonomousMode blueFour_S1N1N2N3;
 
-    public final AutonomousMode blue;
-
     public AutoCommands(
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
@@ -70,8 +68,6 @@ public class AutoCommands {
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
-
-        this.blue = new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s2_to_n2));
     }
 
     public void registerCommands() {}
@@ -86,20 +82,20 @@ public class AutoCommands {
 
     public Command four_S1N1N2N3(Alliance color) {
         return Commands.parallel(
+                Commands.sequence(scorePreload(), continuouslyIntakeForShoot(swerve::getOdoPose)),
                 superstructure.spinUp(),
-                Commands.sequence(Commands.waitSeconds(1), superstructure.intake()),
                 Commands.sequence(
-                        Commands.waitSeconds(1.5),
-                        followChoreoPathWithOverrideAndPivot(s1_to_n1, color),
-                        followChoreoPathWithOverrideAndPivot(n1_to_n2, color),
-                        followChoreoPathWithOverrideAndPivot(n2_to_n3, color)));
+                        followChoreoPathWithOverride(s1_to_n1, color),
+                        followChoreoPathWithOverride(n1_to_n2, color),
+                        followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
-    //     ,
-    //                 Commands.waitSeconds(1),
-    //                 followChoreoPath(n1_to_n2, color),
-    //                 Commands.waitSeconds(1),
-    //                 followChoreoPath(n2_to_n3, color)
+    public Command scorePreload() {
+        return Commands.parallel(
+                        superstructure.prep(),
+                        Commands.sequence(Commands.waitSeconds(0.5), superstructure.feed()))
+                .withTimeout(1.2);
+    }
 
     public Pose2d getInitial(String path) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
@@ -131,18 +127,27 @@ public class AutoCommands {
         return Commands.parallel(superstructure.shootStow());
     }
 
-    public Command intakeAndShoot(String path, Alliance color) {
-        return Commands.parallel(overrideChoreoPathWithIntake(path, color), superstructure.shoot());
+    public Command continuouslyIntakeForShoot(Supplier<Pose2d> drivePose) {
+        return Commands.sequence(
+                        superstructure.intake().until(() -> superstructure.getPiece()),
+                        superstructure.passToShooter(),
+                        Commands.deadline(
+                                Commands.sequence(
+                                        Commands.waitUntil(
+                                                () ->
+                                                        drivePose.get().getX()
+                                                                < AutoConstants
+                                                                        .kDrivetrainXShootingThreshold),
+                                        Commands.waitSeconds(0.5),
+                                        superstructure.feed().withTimeout(0.5)),
+                                superstructure.prep()))
+                .repeatedly();
     }
 
     public Pose2d flipForPP(Pose2d pose) {
         return new Pose2d(
                 new Translation2d(pose.getX(), FieldConstants.kFieldWidth - pose.getY()),
                 pose.getRotation());
-    }
-
-    public Command followChoreoPathWithIntake(String path, Alliance color) {
-        return Commands.deadline(followChoreoPath(path, color), superstructure.intake());
     }
 
     public Command overrideChoreoPathWithIntake(String path, Alliance color) {
@@ -197,15 +202,9 @@ public class AutoCommands {
                 },
                 (interrupted) -> {
                     timer.stop();
-                    // if (interrupted) {
                     outputChassisSpeeds.accept(new ChassisSpeeds());
-                    // }
-                    // superstructure.setPiece();
                 },
-                () ->
-                        // GeomUtil.distance(swerve.getOdoPose().minus(trajectory.getFinalPose()))
-                        //         < 0.05,
-                        timer.hasElapsed(0.5) && swerve.getVel() < 0.1,
+                () -> timer.hasElapsed(0.5) && swerve.getVel() < 0.1,
                 swerve);
     }
 
