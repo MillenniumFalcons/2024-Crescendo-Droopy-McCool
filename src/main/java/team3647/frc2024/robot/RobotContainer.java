@@ -97,8 +97,14 @@ public class RobotContainer {
                 .whileTrue(superstructure.intake());
         setPiece.onTrue(superstructure.setPiece());
         piece.and(isIntaking).onTrue(superstructure.passToShooter());
-        mainController.leftBumper.onFalse(superstructure.intakeCommands.kill());
-        mainController.leftBumper.onFalse(superstructure.kickerCommands.kill());
+        mainController
+                .leftBumper
+                .or(() -> superstructure.getPiece())
+                .onFalse(superstructure.stowIntake());
+        mainController
+                .leftBumper
+                .or(() -> superstructure.getPiece())
+                .onFalse(superstructure.kickerCommands.kill());
         mainController
                 .leftBumper
                 .and(() -> detector.hasTarget())

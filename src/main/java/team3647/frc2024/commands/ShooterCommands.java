@@ -15,7 +15,7 @@ import team3647.lib.LinearRegression;
 
 public class ShooterCommands {
 
-    public Command shoot(DoubleSupplier bill) {
+    public Command openLoop(DoubleSupplier bill) {
         return Commands.run(
                 () -> {
                     shooterRight.openLoop(bill.getAsDouble() * 0.8);

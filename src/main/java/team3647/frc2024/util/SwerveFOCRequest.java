@@ -30,10 +30,10 @@ public class SwerveFOCRequest implements SwerveRequest {
                 // Command steer motor to zero
                 module.getSteerMotor().setControl(m_motionMagicControl);
 
-                // Command drive motor to voltage
+                // Command drive motor to torque
                 module.getDriveMotor().setControl(m_torqueCurrentFOC.withOutput(m_targetTorque));
             } else {
-                // Command steer motor to voltage
+                // Command steer motor to torque
                 module.getSteerMotor().setControl(m_torqueCurrentFOC.withOutput(m_targetTorque));
 
                 // Command drive motor to zero

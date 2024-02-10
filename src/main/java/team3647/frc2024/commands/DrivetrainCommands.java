@@ -1,21 +1,16 @@
 package team3647.frc2024.commands;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
-import team3647.lib.LinearRegression;
 
 public class DrivetrainCommands {
 
@@ -47,8 +42,6 @@ public class DrivetrainCommands {
                     var motionTurnComponent =
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
 
-                    // var translation = new Translation2d(motionXComponent, motionYComponent);
-
                     if (mode != DriveMode.NONE && enabeld) {
                         motionTurnComponent = autoDriveTwist2d.dtheta;
                     }
@@ -57,56 +50,6 @@ public class DrivetrainCommands {
 
                     var rotation = motionTurnComponent;
                     swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
-                },
-                swerve);
-    }
-
-    public Command characterize() {
-        SlewRateLimiter filter = new SlewRateLimiter(0.2);
-        Map<Double, Double> voltageVelocityMap = new HashMap<>();
-        Map<Double, Double> voltageAccelMap = new HashMap<>();
-        return Commands.runEnd(
-                () -> {
-                    double desiredVoltage = filter.calculate(12);
-
-                    swerve.drive(desiredVoltage, 0, 0);
-                    voltageVelocityMap.put(
-                            desiredVoltage, swerve.getChassisSpeeds().vxMetersPerSecond);
-                    voltageAccelMap.put(desiredVoltage, swerve.getAccel());
-                    SmartDashboard.putNumber("voltage", desiredVoltage);
-                    SmartDashboard.putNumber(
-                            "velocity", swerve.getChassisSpeeds().vxMetersPerSecond);
-                },
-                () -> {
-                    var xArray =
-                            voltageVelocityMap.keySet().stream()
-                                    .mapToDouble(Double::doubleValue)
-                                    .toArray();
-                    var yArray =
-                            voltageVelocityMap.values().stream()
-                                    .mapToDouble(Double::doubleValue)
-                                    .toArray();
-                    var xArray2 =
-                            voltageAccelMap.keySet().stream()
-                                    .mapToDouble(Double::doubleValue)
-                                    .toArray();
-                    var yArray2 =
-                            voltageAccelMap.values().stream()
-                                    .mapToDouble(Double::doubleValue)
-                                    .toArray();
-                    LinearRegression linReg = new LinearRegression(xArray, yArray);
-                    LinearRegression linReg2 = new LinearRegression(xArray2, yArray2);
-
-                    // y = ax + b
-                    var a = linReg.slope();
-                    var a2 = linReg2.slope();
-                    var b = linReg.intercept();
-                    var kS = -b / a;
-                    var kV = a;
-                    var kA = a2;
-                    SmartDashboard.putNumber("dt kS", kS);
-                    SmartDashboard.putNumber("dt kV", kV);
-                    SmartDashboard.putNumber("dt kA", kA);
                 },
                 swerve);
     }
