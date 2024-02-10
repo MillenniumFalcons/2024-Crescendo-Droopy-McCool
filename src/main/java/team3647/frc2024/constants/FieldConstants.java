@@ -31,6 +31,17 @@ public class FieldConstants {
 
     public static final Pose3d kBlueAmp = new Pose3d(1.957, 8.218, kAmpHeight, new Rotation3d());
 
+    public static final Pose2d[] kBlueAutoNotePoses = {
+        new Pose2d(2.912, 6.951, kZero), // n1
+        new Pose2d(2.912, 5.508, kZero), // n2
+        new Pose2d(2.912, 4.046, kZero), // n3
+        new Pose2d(8.274, 6.951, kZero), // f1
+        new Pose2d(8.274, 5.723, kZero), // f2
+        new Pose2d(8.274, 4.065, kZero), // f3
+        new Pose2d(8.274, 2.369, kZero), // f4
+        new Pose2d(8.274, 0.712, kZero) // f5
+    };
+
     public static final Pose2d kBlueAmpAlign =
             new Pose2d(
                     1.82,

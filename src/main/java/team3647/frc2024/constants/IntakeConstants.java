@@ -6,7 +6,6 @@ import com.ctre.phoenix6.signals.*;
 
 public class IntakeConstants {
     public static final TalonFX kMaster = new TalonFX(GlobalConstants.IntakeIds.kMasterId);
-    public static final TalonFX kSlave = new TalonFX(GlobalConstants.IntakeIds.kSlaveId);
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 

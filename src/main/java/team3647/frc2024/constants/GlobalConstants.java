@@ -60,7 +60,6 @@ public final class GlobalConstants {
 
     public static final class IntakeIds {
         public static final int kMasterId = 26;
-        public static final int kSlaveId = 27;
     }
 
     public static final class SensorIds {

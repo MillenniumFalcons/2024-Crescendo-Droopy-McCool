@@ -221,13 +221,7 @@ public class RobotContainer {
             new Kicker(KickerConstants.kMaster, 1, 1, KickerConstants.kNominalVoltage, 0.02);
 
     public final Intake intake =
-            new Intake(
-                    IntakeConstants.kMaster,
-                    IntakeConstants.kSlave,
-                    1,
-                    1,
-                    IntakeConstants.kNominalVoltage,
-                    0.02);
+            new Intake(IntakeConstants.kMaster, 1, 1, IntakeConstants.kNominalVoltage, 0.02);
 
     public final Pivot pivot =
             new Pivot(
