@@ -23,6 +23,10 @@ public class WristCommands {
         return Commands.run(() -> wrist.setAngle(angle), wrist);
     }
 
+    public Command setAngle(DoubleSupplier angle) {
+        return Commands.run(() -> wrist.setAngle(angle.getAsDouble()), wrist);
+    }
+
     public Command holdPositionAtCall() {
         return new Command() {
             double degreeAtStart = WristConstants.kInitialDegree;

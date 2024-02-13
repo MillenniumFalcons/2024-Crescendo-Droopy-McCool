@@ -73,28 +73,34 @@ public class AutoCommands {
     public void registerCommands() {}
 
     public Command five_S1N1F1N2N3(Alliance color) {
-        return Commands.sequence(
-                Commands.waitSeconds(1),
-                followChoreoPathWithOverride(s1_to_n1_to_f1, color),
-                followChoreoPathWithOverride(f1_to_n2, color),
-                followChoreoPath(n2_to_n3, color));
+        return Commands.parallel(
+                masterSuperstructureSequence(),
+                Commands.sequence(
+                        followChoreoPathWithOverride(s1_to_n1_to_f1, color),
+                        followChoreoPathWithOverride(f1_to_n2, color),
+                        followChoreoPath(n2_to_n3, color)));
     }
 
     public Command four_S1N1N2N3(Alliance color) {
         return Commands.parallel(
-                Commands.sequence(scorePreload(), continuouslyIntakeForShoot(swerve::getOdoPose)),
-                superstructure.spinUp(),
+                masterSuperstructureSequence(),
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1, color),
                         followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
+    public Command masterSuperstructureSequence() {
+        return Commands.parallel(
+                Commands.sequence(scorePreload(), continuouslyIntakeForShoot(swerve::getOdoPose)),
+                superstructure.spinUp(),
+                superstructure.prep());
+    }
+
     public Command scorePreload() {
         return Commands.parallel(
-                        superstructure.prep(),
                         Commands.sequence(Commands.waitSeconds(0.5), superstructure.feed()))
-                .withTimeout(1.2);
+                .withTimeout(0.8);
     }
 
     public Pose2d getInitial(String path) {
@@ -139,8 +145,7 @@ public class AutoCommands {
                                                                 < AutoConstants
                                                                         .kDrivetrainXShootingThreshold),
                                         Commands.waitSeconds(0.5),
-                                        superstructure.feed().withTimeout(0.5)),
-                                superstructure.prep()))
+                                        superstructure.feed().withTimeout(0.5))))
                 .repeatedly();
     }
 

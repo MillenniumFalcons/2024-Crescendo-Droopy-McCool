@@ -10,8 +10,7 @@ import team3647.frc2024.commands.KickerCommands;
 import team3647.frc2024.commands.PivotCommands;
 import team3647.frc2024.commands.ShooterCommands;
 import team3647.frc2024.commands.WristCommands;
-import team3647.frc2024.constants.PivotConstants;
-import team3647.frc2024.constants.WristConstants;
+import team3647.frc2024.util.InverseKinematics;
 
 public class Superstructure {
 
@@ -29,11 +28,12 @@ public class Superstructure {
 
     private final DoubleSupplier pivotAngleSupplier;
     private final double pivotStowAngle = 40;
-    private final double pivotIntakeAngle = PivotConstants.kMinDegree;
-    private final double wristStowAngle = WristConstants.kMaxDegree;
+    private final double wristStowAngle = 60;
     private final double wristIntakeAngle = 0;
     private final double shootSpeed;
     private boolean hasPiece = false;
+
+    private InverseKinematics inverseKinematics;
 
     public Superstructure(
             Intake intake,
@@ -58,6 +58,8 @@ public class Superstructure {
         shooterCommands = new ShooterCommands(shooterRight, shooterLeft);
         pivotCommands = new PivotCommands(pivot);
         wristCommands = new WristCommands(wrist);
+
+        inverseKinematics = new InverseKinematics(pivotAngleSupplier);
     }
 
     public Command feed() {
@@ -130,14 +132,9 @@ public class Superstructure {
 
     public Command passToShooter() {
         return Commands.parallel(
-                        intakeCommands.kill(),
-                        wristCommands.setAngle(wristStowAngle),
-                        pivotCommands.setAngle(() -> pivotIntakeAngle))
-                .until(
-                        () ->
-                                wrist.angleReached(wristStowAngle, 1)
-                                        && pivot.angleReached(pivotIntakeAngle, 1))
-                .andThen(shootThrough());
+                intakeCommands.kill(),
+                wristCommands.setAngle(() -> inverseKinematics.getWristHandoffAngleByPivot()),
+                Commands.sequence(Commands.waitSeconds(0.5), shootThrough()));
     }
 
     public Command shootThrough() {
@@ -147,10 +144,10 @@ public class Superstructure {
     }
 
     public Command stowIntake() {
-        return Commands.deadline(
-                pivotCommands
-                        .setAngle(() -> pivotStowAngle)
-                        .until(() -> pivot.angleReached(pivotStowAngle, 5)),
+        return Commands.parallel(
+                wristCommands
+                        .setAngle(wristStowAngle)
+                        .until(() -> wrist.angleReached(wristStowAngle, 5)),
                 intakeCommands.kill());
     }
 

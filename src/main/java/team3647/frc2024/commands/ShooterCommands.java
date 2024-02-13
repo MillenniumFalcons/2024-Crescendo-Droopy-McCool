@@ -1,5 +1,6 @@
 package team3647.frc2024.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,7 +20,7 @@ public class ShooterCommands {
         return Commands.run(
                 () -> {
                     shooterRight.openLoop(bill.getAsDouble() * 0.8);
-                    shooterLeft.openLoop(bill.getAsDouble());
+                    shooterLeft.openLoop(MathUtil.clamp(bill.getAsDouble() * 1.2, 0, 1));
                 },
                 shooterRight,
                 shooterLeft);
@@ -29,7 +30,7 @@ public class ShooterCommands {
         return Commands.run(
                 () -> {
                     shooterRight.setVelocity(bill.getAsDouble() * 0.8);
-                    shooterLeft.setVelocity(bill.getAsDouble());
+                    shooterLeft.setVelocity(bill.getAsDouble() * 1.2);
                 },
                 shooterRight,
                 shooterLeft);

@@ -12,9 +12,6 @@ import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.commands.DrivetrainCommands;
 import team3647.frc2024.constants.FieldConstants;
-// import team3647.frc2024.auto.AutoCommands;
-// // import team3647.frc2024.auto.AutoCommands;
-// import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.constants.GlobalConstants;
 import team3647.frc2024.constants.IntakeConstants;
 import team3647.frc2024.constants.KickerConstants;
@@ -67,6 +64,7 @@ public class RobotContainer {
         autoCommands.registerCommands();
         runningMode = autoCommands.blueFour_S1N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
+        wrist.setEncoder(WristConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
     }
 
@@ -100,10 +98,7 @@ public class RobotContainer {
         mainController
                 .leftBumper
                 .or(() -> superstructure.getPiece())
-                .onFalse(superstructure.stowIntake());
-        mainController
-                .leftBumper
-                .or(() -> superstructure.getPiece())
+                .onFalse(superstructure.stowIntake())
                 .onFalse(superstructure.kickerCommands.kill());
         mainController
                 .leftBumper
@@ -241,43 +236,31 @@ public class RobotContainer {
 
     private final DrivetrainCommands drivetrainCommands = new DrivetrainCommands(swerve);
 
-    public final AprilTagPhotonVision ar_doo_cam =
+    public final AprilTagPhotonVision backLeft =
             new AprilTagPhotonVision(
-                    VisionConstants.photonName_1_BackLeft,
-                    VisionConstants.robotToPhotonCam,
+                    VisionConstants.backLeft, VisionConstants.robotToBackLeft, swerve::getOdoPose);
+
+    public final AprilTagPhotonVision backRight =
+            new AprilTagPhotonVision(
+                    VisionConstants.backRight,
+                    VisionConstants.robotToBackRight,
                     swerve::getOdoPose);
 
-    public final AprilTagPhotonVision ar_doo_cam2 =
+    public final AprilTagPhotonVision left =
             new AprilTagPhotonVision(
-                    VisionConstants.photonName_1_BackRight,
-                    VisionConstants.robotToPhotonCam,
-                    swerve::getOdoPose);
+                    VisionConstants.left, VisionConstants.robotToLeft, swerve::getOdoPose);
 
-    public final AprilTagPhotonVision ar_doo_cam3 =
+    public final AprilTagPhotonVision right =
             new AprilTagPhotonVision(
-                    VisionConstants.photonName_1_Left,
-                    VisionConstants.robotToPhotonCam,
-                    swerve::getOdoPose);
-
-    public final AprilTagPhotonVision ar_doo_cam4 =
-            new AprilTagPhotonVision(
-                    VisionConstants.photonName_1_Right,
-                    VisionConstants.robotToPhotonCam,
-                    swerve::getOdoPose);
+                    VisionConstants.right, VisionConstants.robotToRight, swerve::getOdoPose);
 
     private final VisionController visionController =
             new VisionController(
-                    swerve::addVisionData,
-                    swerve::shouldAddData,
-                    ar_doo_cam,
-                    ar_doo_cam2,
-                    ar_doo_cam3,
-                    ar_doo_cam4);
+                    swerve::addVisionData, swerve::shouldAddData, backLeft, backRight, left, right);
 
     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
-    public final NeuralDetector detector =
-            new NeuralDetectorPhotonVision(VisionConstants.photonName_1_Driver);
+    public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 
     public final TargetingUtil targetingUtil =
             new TargetingUtil(
