@@ -4,6 +4,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import team3647.frc2024.commands.IntakeCommands;
 import team3647.frc2024.commands.KickerCommands;
@@ -132,9 +133,20 @@ public class Superstructure {
 
     public Command passToShooter() {
         return Commands.parallel(
-                intakeCommands.kill(),
-                wristCommands.setAngle(() -> inverseKinematics.getWristHandoffAngleByPivot()),
-                Commands.sequence(Commands.waitSeconds(0.5), shootThrough()));
+                        intakeCommands.kill(),
+                        wristCommands.setAngle(
+                                () -> inverseKinematics.getWristHandoffAngleByPivot()))
+                .withTimeout(0.5)
+                .andThen(shootThrough());
+    }
+
+    public Command passToShooterNoKicker() {
+        return Commands.parallel(
+                        intakeCommands.kill(),
+                        wristCommands.setAngle(
+                                () -> inverseKinematics.getWristHandoffAngleByPivot()))
+                .withTimeout(0.5)
+                .andThen(shootThroughNoKicker());
     }
 
     public Command shootThrough() {
@@ -143,12 +155,29 @@ public class Superstructure {
                 .andThen(stowIntakeAndIndex());
     }
 
+    public Command shootThroughNoKicker() {
+        return intakeCommands.intake().until(() -> pivot.backPiece()).andThen(stowIntake());
+    }
+
     public Command stowIntake() {
         return Commands.parallel(
                 wristCommands
                         .setAngle(wristStowAngle)
                         .until(() -> wrist.angleReached(wristStowAngle, 5)),
                 intakeCommands.kill());
+    }
+
+    public Command autoFeed(BooleanSupplier goodToGo) {
+        return Commands.run(
+                () -> {
+                    if (goodToGo.getAsBoolean()) {
+                        feed();
+                    } else if (!frontPiece() && !pivot.backPiece()) {
+                        feed();
+                    } else {
+                        index();
+                    }
+                });
     }
 
     public Command index() {

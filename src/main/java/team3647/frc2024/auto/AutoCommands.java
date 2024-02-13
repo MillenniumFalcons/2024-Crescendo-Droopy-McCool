@@ -91,14 +91,22 @@ public class AutoCommands {
     }
 
     public Command masterSuperstructureSequence() {
-        return Commands.parallel(
-                Commands.sequence(scorePreload(), continuouslyIntakeForShoot(swerve::getOdoPose)),
-                superstructure.spinUp(),
-                superstructure.prep());
+        return Commands.sequence(
+                scorePreload(),
+                Commands.parallel(
+                        continuouslyIntakeForShoot(swerve::getOdoPose),
+                        superstructure.spinUp(),
+                        superstructure.autoFeed(
+                                () ->
+                                        swerve.getOdoPose().getX()
+                                                < AutoConstants.kDrivetrainXShootingThreshold),
+                        superstructure.prep()));
     }
 
     public Command scorePreload() {
         return Commands.parallel(
+                        superstructure.spinUp(),
+                        superstructure.prep(),
                         Commands.sequence(Commands.waitSeconds(0.5), superstructure.feed()))
                 .withTimeout(0.8);
     }
@@ -136,16 +144,7 @@ public class AutoCommands {
     public Command continuouslyIntakeForShoot(Supplier<Pose2d> drivePose) {
         return Commands.sequence(
                         superstructure.intake().until(() -> superstructure.getPiece()),
-                        superstructure.passToShooter(),
-                        Commands.deadline(
-                                Commands.sequence(
-                                        Commands.waitUntil(
-                                                () ->
-                                                        drivePose.get().getX()
-                                                                < AutoConstants
-                                                                        .kDrivetrainXShootingThreshold),
-                                        Commands.waitSeconds(0.5),
-                                        superstructure.feed().withTimeout(0.5))))
+                        superstructure.passToShooterNoKicker())
                 .repeatedly();
     }
 

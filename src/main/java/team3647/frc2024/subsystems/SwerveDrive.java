@@ -10,7 +10,6 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Measure;
@@ -31,8 +30,6 @@ import team3647.lib.GeomUtil;
 import team3647.lib.PeriodicSubsystem;
 
 public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
-
-    private final SwerveDriveKinematics kinematics;
 
     public final Field2d field = new Field2d();
 
@@ -84,13 +81,11 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     public SwerveDrive(
             SwerveDrivetrainConstants swerveDriveConstants,
-            SwerveDriveKinematics kinematics,
             double maxSpeedMpS,
             double maxRotRadPerSec,
             double kDt,
             SwerveModuleConstants... swerveModuleConstants) {
         super(swerveDriveConstants, swerveModuleConstants);
-        this.kinematics = kinematics;
         this.maxSpeedMpS = maxSpeedMpS;
         this.maxRotRadPerSec = maxRotRadPerSec;
         this.kDt = kDt;
@@ -257,7 +252,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public ChassisSpeeds getChassisSpeeds() {
-        return this.kinematics.toChassisSpeeds(getModuleStates());
+        return this.m_kinematics.toChassisSpeeds(getModuleStates());
     }
 
     public double getAccel() {

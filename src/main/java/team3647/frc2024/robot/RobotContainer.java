@@ -15,7 +15,6 @@ import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.GlobalConstants;
 import team3647.frc2024.constants.IntakeConstants;
 import team3647.frc2024.constants.KickerConstants;
-import team3647.frc2024.constants.LEDConstants;
 import team3647.frc2024.constants.PivotConstants;
 import team3647.frc2024.constants.ShooterConstants;
 import team3647.frc2024.constants.SwerveDriveConstants;
@@ -24,7 +23,6 @@ import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
-import team3647.frc2024.subsystems.LEDs;
 import team3647.frc2024.subsystems.Pivot;
 import team3647.frc2024.subsystems.ShooterLeft;
 import team3647.frc2024.subsystems.ShooterRight;
@@ -173,7 +171,6 @@ public class RobotContainer {
     public final SwerveDrive swerve =
             new SwerveDrive(
                     TunerConstants.DrivetrainConstants,
-                    SwerveDriveConstants.kDriveKinematics,
                     SwerveDriveConstants.kDrivePossibleMaxSpeedMPS,
                     SwerveDriveConstants.kRotPossibleMaxSpeedRadPerSec,
                     GlobalConstants.kDt,
@@ -226,6 +223,8 @@ public class RobotContainer {
                     PivotConstants.kNativePosToDegrees,
                     PivotConstants.kMinDegree,
                     PivotConstants.kMaxDegree,
+                    PivotConstants.kMaxDegreeUnderStage,
+                    swerve::getOdoPose,
                     PivotConstants.nominalVoltage,
                     PivotConstants.maxKG,
                     0.02,
@@ -258,7 +257,7 @@ public class RobotContainer {
             new VisionController(
                     swerve::addVisionData, swerve::shouldAddData, backLeft, backRight, left, right);
 
-    private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
+    //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 

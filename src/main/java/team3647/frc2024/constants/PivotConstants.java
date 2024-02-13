@@ -29,6 +29,7 @@ public class PivotConstants {
 
     public static final double kMinDegree = 15;
     public static final double kMaxDegree = 61.2;
+    public static final double kMaxDegreeUnderStage = 30;
 
     private static final double masterKP = 0.3;
     private static final double masterKI = 0;
