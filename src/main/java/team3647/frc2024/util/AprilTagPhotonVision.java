@@ -3,11 +3,9 @@ package team3647.frc2024.util;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import java.util.Optional;
-import java.util.function.Supplier;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -19,10 +17,9 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
     AprilTagFieldLayout aprilTagFieldLayout =
             AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator photonPoseEstimator;
-    Supplier<Pose2d> drivePose;
     Transform3d robotToCam;
 
-    public AprilTagPhotonVision(String camera, Transform3d robotToCam, Supplier<Pose2d> drivePose) {
+    public AprilTagPhotonVision(String camera, Transform3d robotToCam) {
         super(NetworkTableInstance.getDefault(), camera);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
@@ -31,7 +28,6 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         this,
                         robotToCam);
         this.robotToCam = robotToCam;
-        this.drivePose = drivePose;
     }
 
     public static AprilTagId getId(int id) {
@@ -47,7 +43,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
     public Optional<VisionMeasurement> QueueToInputs() {
         var update = photonPoseEstimator.update();
         var result = this.getLatestResult();
-        if (update.isEmpty()) {
+        if (update.isEmpty() || !result.hasTargets()) {
             return Optional.empty();
         }
         var targetDistance =
@@ -56,7 +52,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                                 .getBestCameraToTarget()
                                 .getTranslation()
                                 .toTranslation2d());
-        final var stdDevs = VecBuilder.fill(0.03, 0.03, 0.03).times(targetDistance);
+        final var stdDevs = VecBuilder.fill(0.005, 0.005, 0.005).times(targetDistance);
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
         return Optional.of(measurement);

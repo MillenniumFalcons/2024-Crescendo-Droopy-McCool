@@ -236,22 +236,16 @@ public class RobotContainer {
     private final DrivetrainCommands drivetrainCommands = new DrivetrainCommands(swerve);
 
     public final AprilTagPhotonVision backLeft =
-            new AprilTagPhotonVision(
-                    VisionConstants.backLeft, VisionConstants.robotToBackLeft, swerve::getOdoPose);
+            new AprilTagPhotonVision(VisionConstants.backLeft, VisionConstants.robotToBackLeft);
 
     public final AprilTagPhotonVision backRight =
-            new AprilTagPhotonVision(
-                    VisionConstants.backRight,
-                    VisionConstants.robotToBackRight,
-                    swerve::getOdoPose);
+            new AprilTagPhotonVision(VisionConstants.backRight, VisionConstants.robotToBackRight);
 
     public final AprilTagPhotonVision left =
-            new AprilTagPhotonVision(
-                    VisionConstants.left, VisionConstants.robotToLeft, swerve::getOdoPose);
+            new AprilTagPhotonVision(VisionConstants.left, VisionConstants.robotToLeft);
 
     public final AprilTagPhotonVision right =
-            new AprilTagPhotonVision(
-                    VisionConstants.right, VisionConstants.robotToRight, swerve::getOdoPose);
+            new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     private final VisionController visionController =
             new VisionController(
