@@ -46,13 +46,17 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
 
     public Optional<VisionMeasurement> QueueToInputs() {
         var update = photonPoseEstimator.update();
+        var result = this.getLatestResult();
         if (update.isEmpty()) {
             return Optional.empty();
         }
-        var visionPose = update.get().estimatedPose.toPose2d();
-        final var stdDevs =
-                VecBuilder.fill(0.05, 0.05, 0.05)
-                        .times(GeomUtil.distance(drivePose.get(), visionPose));
+        var targetDistance =
+                GeomUtil.distanceSquared(
+                        result.getBestTarget()
+                                .getBestCameraToTarget()
+                                .getTranslation()
+                                .toTranslation2d());
+        final var stdDevs = VecBuilder.fill(0.03, 0.03, 0.03).times(targetDistance);
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
         return Optional.of(measurement);
