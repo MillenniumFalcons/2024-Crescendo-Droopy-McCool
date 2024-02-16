@@ -14,6 +14,8 @@ public final class GlobalConstants {
     public static final double kDt = 0.02;
     public static final int kTimeoutMS = 255;
 
+    public static final String subsystemsLoopName = "subsystems";
+
     public static final class SwerveDriveIds {
         public static final int kFrontLeftDriveId = 1;
         public static final int kFrontLeftTurnId = 2;
@@ -62,10 +64,15 @@ public final class GlobalConstants {
         public static final int kMasterId = 26;
     }
 
+    public static final class ClimbIds {
+        public static final int kLeftId = 27;
+        public static final int kRightId = 28;
+    }
+
     public static final class SensorIds {
-        public static final int wristId = 28;
-        public static final int pivotBackId = 29;
-        public static final int pivotFrontId = 30;
+        public static final int wristId = 29;
+        public static final int pivotBackId = 30;
+        public static final int pivotFrontId = 31;
     }
 
     private GlobalConstants() {}

@@ -2,21 +2,24 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import java.util.function.DoubleSupplier;
 import team3647.lib.GeomUtil;
 
 public class InverseKinematics {
 
     private final DoubleSupplier pivotAngle;
-    private final double wristAngleoffSet = 0;
-    private final double pivotLength = 0;
-    private final double pivotHeight = 0;
-    private final double pivotX = 0;
+    private final double defaultAngle = 0;
+    private final double wristAngleoffSet = Math.toRadians(34);
+    private final double pivotLength = Units.inchesToMeters(7.9854);
+    private final double pivotHeight = Units.inchesToMeters(9);
+    private final double pivotX = Units.inchesToMeters(9.75);
     private final double wristHeight = 0;
     private final double wristX = 0;
-    private final double wristLength = 0;
-    private final double wristRollersAngle = 0;
+    private final double wristLength = Units.inchesToMeters(11.2);
+    private final double wristRollersAngle = Math.toRadians(28);
     private final Pose2d wristOriginPos = new Pose2d(wristX, wristHeight, new Rotation2d());
+    private final double interestingOffset = Math.toRadians(5);
 
     public InverseKinematics(DoubleSupplier pivotAngle) {
         this.pivotAngle = pivotAngle;
@@ -27,15 +30,23 @@ public class InverseKinematics {
 
     public Pose2d getPivotReceivingPosition() {
         return new Pose2d(
-                pivotX - pivotLength * Math.cos(pivotAngle.getAsDouble()),
-                pivotHeight - pivotLength * Math.sin(pivotAngle.getAsDouble()),
+                pivotX
+                        - pivotLength
+                                * Math.cos(
+                                        Math.toRadians(
+                                                pivotAngle.getAsDouble() + interestingOffset)),
+                pivotHeight
+                        - pivotLength
+                                * Math.sin(
+                                        Math.toRadians(
+                                                pivotAngle.getAsDouble() + interestingOffset)),
                 new Rotation2d());
     }
 
     public double getWristHandoffAngleByPivot() {
         Pose2d pivotReceivingPose = getPivotReceivingPosition();
-        double triangleBase =
-                GeomUtil.distance(
+        double triangleBaseSqaured =
+                GeomUtil.distanceSquared(
                         wristOriginPos,
                         pivotReceivingPose); // creating triangle with wrist length, wrist origin to
         // pivot receoving, and note to pivot receiving as
@@ -43,7 +54,10 @@ public class InverseKinematics {
         double triangleSide1 = wristLength;
         double quadraticA = 1; // law of cos
         double quadraticB = -2 * triangleSide1 * Math.cos(wristRollersAngle);
-        double quadraticC = triangleSide1 * triangleSide1 - triangleBase * triangleBase;
+        double quadraticC = triangleSide1 * triangleSide1 - triangleBaseSqaured;
+        if (quadraticB * quadraticB - 4 * quadraticA * quadraticC < 0) {
+            return defaultAngle;
+        }
         double triangleSide2 =
                 (-quadraticB + Math.sqrt(quadraticB * quadraticB - 4 * quadraticA * quadraticC))
                         / (2 * quadraticA); // pick greater solution
@@ -58,7 +72,7 @@ public class InverseKinematics {
             wristAngle += Math.PI;
         }
         wristAngle += wristAngleoffSet; // difference between measured angle and angle to rollers;
-        return wristAngle;
+        return Math.toDegrees(wristAngle);
     }
 
     public Pose2d getCircleIntersection(Pose2d c1, double r1, Pose2d c2, double r2) {

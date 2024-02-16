@@ -1,6 +1,5 @@
 package team3647.frc2024.subsystems;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,7 +10,6 @@ import team3647.frc2024.commands.KickerCommands;
 import team3647.frc2024.commands.PivotCommands;
 import team3647.frc2024.commands.ShooterCommands;
 import team3647.frc2024.commands.WristCommands;
-import team3647.frc2024.util.InverseKinematics;
 
 public class Superstructure {
 
@@ -29,12 +27,12 @@ public class Superstructure {
 
     private final DoubleSupplier pivotAngleSupplier;
     private final double pivotStowAngle = 40;
-    private final double wristStowAngle = 60;
+    private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
     private final double shootSpeed;
     private boolean hasPiece = false;
 
-    private InverseKinematics inverseKinematics;
+    private final DoubleSupplier wristInverseKinematics;
 
     public Superstructure(
             Intake intake,
@@ -44,7 +42,8 @@ public class Superstructure {
             Pivot pivot,
             Wrist wrist,
             DoubleSupplier pivotAngleSupplier,
-            double shootSpeed) {
+            double shootSpeed,
+            DoubleSupplier wristInverseKinematics) {
         this.intake = intake;
         this.kicker = kicker;
         this.shooterRight = shooterRight;
@@ -53,14 +52,13 @@ public class Superstructure {
         this.pivotAngleSupplier = pivotAngleSupplier;
         this.shootSpeed = shootSpeed;
         this.wrist = wrist;
+        this.wristInverseKinematics = wristInverseKinematics;
 
         intakeCommands = new IntakeCommands(intake);
         kickerCommands = new KickerCommands(kicker);
         shooterCommands = new ShooterCommands(shooterRight, shooterLeft);
         pivotCommands = new PivotCommands(pivot);
         wristCommands = new WristCommands(wrist);
-
-        inverseKinematics = new InverseKinematics(pivotAngleSupplier);
     }
 
     public Command feed() {
@@ -68,12 +66,19 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        SlewRateLimiter filter = new SlewRateLimiter(5);
-        return shooterCommands.setVelocity(() -> filter.calculate(shootSpeed));
+        return shooterCommands.setVelocity(() -> shootSpeed);
     }
 
     public double getDesiredSpeed() {
         return shootSpeed;
+    }
+
+    public double getInverseKinematics() {
+        return wristInverseKinematics.getAsDouble();
+    }
+
+    public double getWantedPivot() {
+        return pivotAngleSupplier.getAsDouble();
     }
 
     public boolean getPiece() {
@@ -93,8 +98,10 @@ public class Superstructure {
                 prep(),
                 spinUp(),
                 Commands.sequence(
-                        Commands.waitUntil(() -> shooterLeft.velocityReached(shootSpeed, 1))
-                                .withTimeout(2),
+                        Commands.waitSeconds(2),
+                        // Commands.waitUntil(() -> shooterLeft.velocityReached(shootSpeed * 1.2,
+                        // 1))
+                        //         .withTimeout(2),
                         Commands.parallel(feed(), ejectPiece()).withTimeout(1)));
     }
 
@@ -134,8 +141,8 @@ public class Superstructure {
     public Command passToShooter() {
         return Commands.parallel(
                         intakeCommands.kill(),
-                        wristCommands.setAngle(
-                                () -> inverseKinematics.getWristHandoffAngleByPivot()))
+                        kickerCommands.kick(),
+                        wristCommands.setAngle(() -> this.getInverseKinematics()))
                 .withTimeout(0.5)
                 .andThen(shootThrough());
     }
@@ -143,15 +150,15 @@ public class Superstructure {
     public Command passToShooterNoKicker() {
         return Commands.parallel(
                         intakeCommands.kill(),
-                        wristCommands.setAngle(
-                                () -> inverseKinematics.getWristHandoffAngleByPivot()))
+                        wristCommands.setAngle(() -> this.getInverseKinematics()))
                 .withTimeout(0.5)
                 .andThen(shootThroughNoKicker());
     }
 
     public Command shootThrough() {
-        return Commands.parallel(intakeCommands.intake(), kickerCommands.kick())
+        return Commands.parallel(intakeCommands.intake(), kickerCommands.slowFeed())
                 .until(() -> pivot.backPiece())
+                // .withTimeout(1)
                 .andThen(stowIntakeAndIndex());
     }
 
@@ -189,7 +196,7 @@ public class Superstructure {
     }
 
     public Command stowIntakeAndIndex() {
-        return Commands.parallel(stowIntake(), index());
+        return Commands.parallel(stowIntake(), index()).withTimeout(0.2);
     }
 
     public boolean frontPiece() {

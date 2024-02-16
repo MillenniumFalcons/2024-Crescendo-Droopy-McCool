@@ -107,9 +107,7 @@ public class TargetingUtil {
         final var fieldAngle = fieldAngleToPose(pose);
         var newAngle = rot - fieldAngle;
 
-        double distance = GeomUtil.distance(pose.toPose2d().minus(currentPose));
-
-        return newAngle - 0.01 * distance;
+        return newAngle;
     }
 
     // returns the pivot angle

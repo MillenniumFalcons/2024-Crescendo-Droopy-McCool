@@ -13,9 +13,11 @@ import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
     public static final TalonFX kRightRoller =
-            new TalonFX(GlobalConstants.ShooterIds.kShooterRightId);
+            new TalonFX(
+                    GlobalConstants.ShooterIds.kShooterRightId, GlobalConstants.subsystemsLoopName);
     public static final TalonFX kLeftRoller =
-            new TalonFX(GlobalConstants.ShooterIds.kShooterLeftId);
+            new TalonFX(
+                    GlobalConstants.ShooterIds.kShooterLeftId, GlobalConstants.subsystemsLoopName);
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
     public static final double kGearboxReduction = 1.5;
@@ -25,13 +27,13 @@ public class ShooterConstants {
             kWheelRotationMeters / GlobalConstants.kFalconTicksPerRotation * kGearboxReduction;
 
     // tune ff
-    public static final double kS = 0.23;
-    public static final double kV = 2.6;
-    public static final double kA = 0.0;
+    public static final double kS = 8.7167;
+    public static final double kV = 0.24226;
+    public static final double kA = 0.60231;
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double masterKP = 0.03;
+    public static final double masterKP = 30;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 
@@ -54,10 +56,10 @@ public class ShooterConstants {
 
         kRightRollerConfigurator.apply(kMasterConfig);
 
-        kRightMotor.NeutralMode = NeutralModeValue.Brake;
-        kLeftMotor.NeutralMode = NeutralModeValue.Brake;
-        kRightMotor.Inverted = InvertedValue.CounterClockwise_Positive;
-        kLeftMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kRightMotor.NeutralMode = NeutralModeValue.Coast;
+        kLeftMotor.NeutralMode = NeutralModeValue.Coast;
+        kRightMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kLeftMotor.Inverted = InvertedValue.CounterClockwise_Positive;
 
         kRightSlot0.kP = masterKP;
         kRightSlot0.kI = masterKI;
@@ -76,7 +78,7 @@ public class ShooterConstants {
         kRightRollerConfigurator.apply(kRightCurrent);
         kRightRollerConfigurator.apply(kRightSlot0);
 
-        kLeftRollerConfigurator.apply(kRightMotor);
+        kLeftRollerConfigurator.apply(kLeftMotor);
         kLeftRollerConfigurator.apply(kLeftCurrent);
         kLeftRollerConfigurator.apply(kLeftSlot0);
     }

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
@@ -32,6 +33,7 @@ import team3647.frc2024.subsystems.Wrist;
 import team3647.frc2024.util.AprilTagPhotonVision;
 import team3647.frc2024.util.AutoDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
+import team3647.frc2024.util.InverseKinematics;
 import team3647.frc2024.util.NeuralDetector;
 import team3647.frc2024.util.NeuralDetectorPhotonVision;
 import team3647.frc2024.util.TargetingUtil;
@@ -54,7 +56,7 @@ public class RobotContainer {
 
         pdh.clearStickyFaults();
         scheduler.registerSubsystem(
-                swerve, shooterRight, shooterLeft, intake, kicker, pivot, wrist);
+                swerve, shooterRight, shooterLeft, intake, wrist, kicker, pivot, printer);
 
         configureDefaultCommands();
         configureButtonBindings();
@@ -90,9 +92,11 @@ public class RobotContainer {
         mainController
                 .leftBumper
                 .and(() -> !superstructure.getPiece())
-                .whileTrue(superstructure.intake());
-        setPiece.onTrue(superstructure.setPiece());
-        piece.and(isIntaking).onTrue(superstructure.passToShooter());
+                .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)))
+                .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
+        setPiece.and(isIntaking)
+                .onTrue(superstructure.setPiece())
+                .onTrue(superstructure.passToShooter());
         mainController
                 .leftBumper
                 .or(() -> superstructure.getPiece())
@@ -112,25 +116,31 @@ public class RobotContainer {
 
         // swerve
 
-        // mainController.dPadUp.whileTrue(swerve.runDriveQuasiTest(Direction.kForward));
-        // mainController.dPadDown.whileTrue(swerve.runDriveQuasiTest(Direction.kReverse));
+        mainController.dPadUp.whileTrue(swerve.runDriveQuasiTest(Direction.kForward));
+        mainController.dPadDown.whileTrue(swerve.runDriveQuasiTest(Direction.kReverse));
 
-        // mainController.dPadLeft.whileTrue(swerve.runDriveDynamTest(Direction.kForward));
-        // mainController.dPadRight.whileTrue(swerve.runDriveDynamTest(Direction.kReverse));
+        mainController.dPadLeft.whileTrue(swerve.runDriveDynamTest(Direction.kForward));
+        mainController.dPadRight.whileTrue(swerve.runDriveDynamTest(Direction.kReverse));
 
-        // mainController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
-        // mainController.buttonA.whileTrue(swerve.runSteerQuasiTest(Direction.kReverse));
+        mainController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
+        mainController.buttonA.whileTrue(swerve.runSteerQuasiTest(Direction.kReverse));
 
-        // mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
-        // mainController.buttonB.whileTrue(swerve.runSteerDynamTest(Direction.kReverse));
+        mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
+        mainController.buttonB.whileTrue(swerve.runSteerDynamTest(Direction.kReverse));
 
         // shooter
 
-        // mainController.leftMidButton.whileTrue(
+        // mainController.dPadUp.whileTrue(
         //         shooterLeft.runQuasiTest(
         //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
-        // mainController.rightMidButton.whileTrue(
+        // mainController.dPadDown.whileTrue(
         //         shooterLeft.runQuasiTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
+        // mainController.dPadLeft.whileTrue(
+        //         shooterLeft.runDynamTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
+        // mainController.dPadRight.whileTrue(
+        //         shooterLeft.runDynamTest(
         //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
     }
 
@@ -148,9 +158,9 @@ public class RobotContainer {
         pivot.setDefaultCommand(superstructure.pivotCommands.holdPositionAtCall());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
+        wrist.setDefaultCommand(superstructure.wristCommands.holdPositionAtCall());
         shooterRight.setDefaultCommand(superstructure.shooterCommands.killRight());
         shooterLeft.setDefaultCommand(superstructure.shooterCommands.killLeft());
-        wrist.setDefaultCommand(superstructure.wristCommands.holdPositionAtCall());
     }
 
     public void teleopInit() {}
@@ -158,7 +168,16 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
-        SmartDashboard.putNumber("pivot interp angle", 40);
+        SmartDashboard.putNumber("wrist kg", 0);
+        printer.addDouble("inverse kinematics", superstructure::getInverseKinematics);
+        printer.addDouble("wanted pivot", superstructure::getWantedPivot);
+        printer.addDouble("wrist tof", wrist::tof);
+        printer.addDouble("back tof", pivot::tofBack);
+        printer.addBoolean("front tof", pivot::frontPiece);
+        printer.addDouble("wrist", wrist::getAngle);
+        printer.addDouble("pivot", pivot::getAngle);
+        printer.addBoolean("under stage", swerve::underStage);
+        printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -171,7 +190,7 @@ public class RobotContainer {
     public final SwerveDrive swerve =
             new SwerveDrive(
                     TunerConstants.DrivetrainConstants,
-                    SwerveDriveConstants.kDrivePossibleMaxSpeedMPS,
+                    TunerConstants.kSpeedAt12VoltsMps,
                     SwerveDriveConstants.kRotPossibleMaxSpeedRadPerSec,
                     GlobalConstants.kDt,
                     TunerConstants.FrontLeft,
@@ -224,7 +243,7 @@ public class RobotContainer {
                     PivotConstants.kMinDegree,
                     PivotConstants.kMaxDegree,
                     PivotConstants.kMaxDegreeUnderStage,
-                    swerve::getOdoPose,
+                    swerve::underStage,
                     PivotConstants.nominalVoltage,
                     PivotConstants.maxKG,
                     0.02,
@@ -265,6 +284,8 @@ public class RobotContainer {
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
+    public final InverseKinematics inverseKinematics = new InverseKinematics(pivot::getAngle);
+
     public final Superstructure superstructure =
             new Superstructure(
                     intake,
@@ -274,7 +295,8 @@ public class RobotContainer {
                     pivot,
                     wrist,
                     autoDrive::getPivotAngle,
-                    targetingUtil.exitVelocity());
+                    targetingUtil.exitVelocity(),
+                    inverseKinematics::getWristHandoffAngleByPivot);
 
     public final AutoCommands autoCommands =
             new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
@@ -285,7 +307,9 @@ public class RobotContainer {
 
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
-    private final Trigger setPiece = new Trigger(() -> wrist.hasPiece());
+    private final Trigger setPiece =
+            new Trigger(() -> intake.getMasterCurrent() > 32 && wrist.getAngle() < 5)
+                    .debounce(0.06);
 
     private final BooleanSupplier isIntaking =
             () -> mainController.leftBumper.getAsBoolean() || DriverStation.isAutonomous();

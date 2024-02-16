@@ -23,6 +23,10 @@ public class WristCommands {
         return Commands.run(() -> wrist.setAngle(angle), wrist);
     }
 
+    public Command setTorque(double torque) {
+        return Commands.run(() -> wrist.setTorque(torque), wrist);
+    }
+
     public Command setAngle(DoubleSupplier angle) {
         return Commands.run(() -> wrist.setAngle(angle.getAsDouble()), wrist);
     }

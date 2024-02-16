@@ -5,7 +5,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 
 public class IntakeConstants {
-    public static final TalonFX kMaster = new TalonFX(GlobalConstants.IntakeIds.kMasterId);
+    public static final TalonFX kMaster =
+            new TalonFX(GlobalConstants.IntakeIds.kMasterId, GlobalConstants.subsystemsLoopName);
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 

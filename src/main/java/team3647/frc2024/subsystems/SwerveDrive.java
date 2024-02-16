@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.util.ModifiedSignalLogger;
-import team3647.frc2024.util.SwerveVoltageRequest;
+import team3647.frc2024.util.SwerveFOCRequest;
 import team3647.frc2024.util.VisionMeasurement;
 import team3647.lib.GeomUtil;
 import team3647.lib.PeriodicSubsystem;
@@ -71,8 +71,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         public Pose2d visionPose = new Pose2d();
 
         public SwerveRequest masterRequest = new SwerveRequest.Idle();
-        public SwerveVoltageRequest driveVoltageRequest = new SwerveVoltageRequest(true);
-        public SwerveVoltageRequest steerVoltageRequest = new SwerveVoltageRequest(false);
+        public SwerveFOCRequest driveFOCRequest = new SwerveFOCRequest(true);
+        public SwerveFOCRequest steerFOCRequest = new SwerveFOCRequest(false);
         public FieldCentric fieldCentric =
                 new FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         public RobotCentric robotCentric =
@@ -92,22 +92,30 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
         this.m_driveSysIdRoutine =
                 new SysIdRoutine(
-                        new SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+                        new SysIdRoutine.Config(
+                                Units.Volts.of(6).per(Units.Seconds.of(1)),
+                                Units.Volts.of(30),
+                                null,
+                                ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
                                 (Measure<Voltage> volts) ->
                                         setControl(
-                                                periodicIO.driveVoltageRequest.withVoltage(
+                                                periodicIO.driveFOCRequest.withVoltage(
                                                         volts.in(Units.Volts))),
                                 null,
                                 this));
 
         this.m_steerSysIdRoutine =
                 new SysIdRoutine(
-                        new SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+                        new SysIdRoutine.Config(
+                                Units.Volts.of(6).per(Units.Seconds.of(1)),
+                                Units.Volts.of(30),
+                                null,
+                                ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
                                 (Measure<Voltage> volts) ->
                                         setControl(
-                                                periodicIO.steerVoltageRequest.withVoltage(
+                                                periodicIO.steerFOCRequest.withVoltage(
                                                         volts.in(Units.Volts))),
                                 null,
                                 this));
@@ -153,6 +161,16 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         Logger.recordOutput("Robot/Output", this.m_odometry.getEstimatedPosition());
         readPeriodicInputs();
         writePeriodicOutputs();
+    }
+
+    public boolean underStage() {
+        return ((getOdoPose().getX() > 3.5 && getOdoPose().getX() < 6.2)
+                        || (getOdoPose().getX() > 10.2 && getOdoPose().getX() < 12.9))
+                && ((Math.abs(getOdoPose().getY() - 4) < ((getOdoPose().getX() - 2.9) * 1 / 1.73)
+                                && getOdoPose().getX() < 6.2)
+                        || (Math.abs(getOdoPose().getY() - 4)
+                                        < ((13.6 - getOdoPose().getX()) * 1 / 1.73)
+                                && getOdoPose().getX() > 10.2));
     }
 
     public Command runDriveQuasiTest(Direction direction) {

@@ -11,10 +11,12 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class PivotConstants {
-    public static final TalonFX kMaster = new TalonFX(GlobalConstants.PivotIds.kMasterId);
-    public static final TalonFX kSlave = new TalonFX(GlobalConstants.PivotIds.kSlaveId);
+    public static final TalonFX kMaster =
+            new TalonFX(GlobalConstants.PivotIds.kMasterId, GlobalConstants.subsystemsLoopName);
+    public static final TalonFX kSlave =
+            new TalonFX(GlobalConstants.PivotIds.kSlaveId, GlobalConstants.subsystemsLoopName);
 
-    public static final boolean kMasterInvert = true;
+    public static final boolean kMasterInvert = false;
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
     private static final double kGearBoxRatio = 1 / 34.72;
@@ -31,7 +33,7 @@ public class PivotConstants {
     public static final double kMaxDegree = 61.2;
     public static final double kMaxDegreeUnderStage = 30;
 
-    private static final double masterKP = 0.3;
+    private static final double masterKP = 0.6;
     private static final double masterKI = 0;
     private static final double masterKD = 0;
 
@@ -69,9 +71,11 @@ public class PivotConstants {
         kMasterCurrent.StatorCurrentLimit = kMaxCurrent;
         kMasterMotionMagic.MotionMagicAcceleration = kMaxVelocityTicks * 1.8;
         kMasterMotionMagic.MotionMagicCruiseVelocity = kMaxAccelerationTicks * 1.8;
+        kMasterMotionMagic.MotionMagicExpo_kA = 0.1;
+        kMasterMotionMagic.MotionMagicExpo_kV = 0.12;
         kMasterMotorOutput.PeakReverseDutyCycle = -0.5;
-        kMasterMotorOutput.NeutralMode = NeutralModeValue.Coast;
-        kMasterMotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        kMasterMotorOutput.NeutralMode = NeutralModeValue.Brake;
+        kMasterMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         kMasterSoftLimit.ForwardSoftLimitEnable = true;
         kMasterSoftLimit.ForwardSoftLimitThreshold = kMaxDegree / kNativePosToDegrees;
         kMasterSoftLimit.ReverseSoftLimitEnable = true;

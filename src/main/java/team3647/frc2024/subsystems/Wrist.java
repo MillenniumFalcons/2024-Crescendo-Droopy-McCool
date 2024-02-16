@@ -52,14 +52,21 @@ public class Wrist extends TalonFXSubsystem {
         return this.tof.getRange() < 300;
     }
 
+    public double tof() {
+        return tof.getRange();
+    }
+
     public double getAngle() {
         return super.getPosition();
     }
 
+    public void setTorque(double toqrque) {
+        this.setTorque(toqrque);
+    }
+
     public void setAngle(double angle) {
         double desiredAngle = MathUtil.clamp(angle, minDegree, maxDegree);
-        var ffVolts = kG * Math.cos(Units.degreesToRadians(desiredAngle));
-        this.setPositionMotionMagic(desiredAngle, ffVolts);
+        this.setPositionExpoVoltage(desiredAngle, 0);
     }
 
     public boolean angleReached(double targetAngle, double threshold) {

@@ -28,9 +28,13 @@ public class ShooterLeft extends TalonFXSubsystem {
 
         this.m_shooterSysIdRoutine =
                 new SysIdRoutine(
-                        new SysIdRoutine.Config(null, null, null, ModifiedSignalLogger.logState()),
+                        new SysIdRoutine.Config(
+                                Units.Volts.of(6).per(Units.Seconds.of(1)),
+                                Units.Volts.of(30),
+                                null,
+                                ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
-                                (Measure<Voltage> volts) -> setVoltage(volts.in(Units.Volts)),
+                                (Measure<Voltage> volts) -> setTorque(volts.in(Units.Volts)),
                                 null,
                                 this));
     }
@@ -47,8 +51,12 @@ public class ShooterLeft extends TalonFXSubsystem {
         super.setOpenloop(demand);
     }
 
+    public void setTorque(double torque) {
+        super.setTorque(torque);
+    }
+
     public void setVelocity(double velocity) {
-        super.setVelocity(velocity, ff.calculate(velocity));
+        super.setVelocityFOC(velocity, ff.calculate(velocity));
     }
 
     public void setVoltage(double voltage) {

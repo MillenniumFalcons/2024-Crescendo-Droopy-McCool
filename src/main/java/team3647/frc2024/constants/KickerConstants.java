@@ -5,7 +5,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 
 public class KickerConstants {
-    public static final TalonFX kMaster = new TalonFX(GlobalConstants.KickerIds.kMasterId);
+    public static final TalonFX kMaster =
+            new TalonFX(GlobalConstants.KickerIds.kMasterId, GlobalConstants.subsystemsLoopName);
 
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 

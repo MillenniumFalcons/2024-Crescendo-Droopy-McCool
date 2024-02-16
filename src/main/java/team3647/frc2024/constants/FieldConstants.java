@@ -23,7 +23,7 @@ public class FieldConstants {
 
     public static final Pose2d kOrigin = new Pose2d();
 
-    public static final double kSpeakerHeight = Units.inchesToMeters(83);
+    public static final double kSpeakerHeight = Units.inchesToMeters(100);
 
     public static final Pose3d kBlueSpeaker = new Pose3d(0, 5.2, kSpeakerHeight, new Rotation3d());
 
