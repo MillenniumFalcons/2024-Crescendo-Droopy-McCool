@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
@@ -70,15 +69,19 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
+        mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
+        mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
+                .and(() -> superstructure.getPiece())
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot())
                 .onFalse(superstructure.ejectPiece());
         mainController
                 .leftTrigger
+                .and(() -> superstructure.getPiece())
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot())
                 .onFalse(superstructure.ejectPiece());
@@ -116,17 +119,17 @@ public class RobotContainer {
 
         // swerve
 
-        mainController.dPadUp.whileTrue(swerve.runDriveQuasiTest(Direction.kForward));
-        mainController.dPadDown.whileTrue(swerve.runDriveQuasiTest(Direction.kReverse));
+        // mainController.dPadUp.whileTrue(swerve.runDriveQuasiTest(Direction.kForward));
+        // mainController.dPadDown.whileTrue(swerve.runDriveQuasiTest(Direction.kReverse));
 
-        mainController.dPadLeft.whileTrue(swerve.runDriveDynamTest(Direction.kForward));
-        mainController.dPadRight.whileTrue(swerve.runDriveDynamTest(Direction.kReverse));
+        // mainController.dPadLeft.whileTrue(swerve.runDriveDynamTest(Direction.kForward));
+        // mainController.dPadRight.whileTrue(swerve.runDriveDynamTest(Direction.kReverse));
 
-        mainController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
-        mainController.buttonA.whileTrue(swerve.runSteerQuasiTest(Direction.kReverse));
+        // mainController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
+        // mainController.buttonA.whileTrue(swerve.runSteerQuasiTest(Direction.kReverse));
 
-        mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
-        mainController.buttonB.whileTrue(swerve.runSteerDynamTest(Direction.kReverse));
+        // mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
+        // mainController.buttonB.whileTrue(swerve.runSteerDynamTest(Direction.kReverse));
 
         // shooter
 
@@ -178,6 +181,8 @@ public class RobotContainer {
         printer.addDouble("pivot", pivot::getAngle);
         printer.addBoolean("under stage", swerve::underStage);
         printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
+        SmartDashboard.putNumber("pivot interp", 40);
+        printer.addDouble("shooter distance squared", targetingUtil::distance);
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -267,8 +272,7 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     private final VisionController visionController =
-            new VisionController(
-                    swerve::addVisionData, swerve::shouldAddData, backLeft, backRight, left, right);
+            new VisionController(swerve::addVisionData, swerve::shouldAddData, backRight);
 
     //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
@@ -309,7 +313,8 @@ public class RobotContainer {
 
     private final Trigger setPiece =
             new Trigger(() -> intake.getMasterCurrent() > 32 && wrist.getAngle() < 5)
-                    .debounce(0.06);
+                    .debounce(0.06)
+                    .or(mainController.buttonB);
 
     private final BooleanSupplier isIntaking =
             () -> mainController.leftBumper.getAsBoolean() || DriverStation.isAutonomous();

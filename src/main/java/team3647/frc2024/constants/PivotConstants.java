@@ -8,6 +8,7 @@ import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 
 public class PivotConstants {
@@ -55,7 +56,20 @@ public class PivotConstants {
     public static final TimeOfFlight tofFront =
             new TimeOfFlight(GlobalConstants.SensorIds.pivotFrontId);
 
+    // distance squared vs pivot angle
+    public static final InterpolatingDoubleTreeMap kMasterPivotMap =
+            new InterpolatingDoubleTreeMap();
+
     static {
+        kMasterPivotMap.put(0.0, 60.0);
+        kMasterPivotMap.put(1.26, 60.0);
+        kMasterPivotMap.put(2.0, 52.0);
+        kMasterPivotMap.put(2.43, 48.0);
+        kMasterPivotMap.put(3.0, 42.5);
+        kMasterPivotMap.put(3.5, 38.0);
+        kMasterPivotMap.put(4.0, 35.5);
+        kMasterPivotMap.put(4.5, 35.5);
+        kMasterPivotMap.put(20.0, 35.5);
         Slot0Configs kMasterSlot0 = new Slot0Configs();
         CurrentLimitsConfigs kMasterCurrent = new CurrentLimitsConfigs();
         MotionMagicConfigs kMasterMotionMagic = new MotionMagicConfigs();

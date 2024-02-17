@@ -6,12 +6,13 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.Supplier;
-import team3647.lib.GeomUtil;
+import team3647.frc2024.constants.PivotConstants;
 
 public class TargetingUtil {
 
@@ -20,9 +21,11 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
     private final Transform3d robotToShooter;
-    private final double shootSpeed = 10;
-    private double offset = 2;
+    private final double shootSpeed = 25;
+    private double offset = 0;
     double kDt = 0.02;
+
+    private final InterpolatingDoubleTreeMap pivotMap = PivotConstants.kMasterPivotMap;
 
     public TargetingUtil(
             Pose3d speakerPose,
@@ -133,10 +136,8 @@ public class TargetingUtil {
                         new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
-        double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
-        double pivotAngle =
-                Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
-                        + (shooterDistance + 0.3) * Math.PI / 180 * offset;
+        double shooterDistance = pose.toPose2d().minus(shooter2D).getTranslation().getNorm();
+        double pivotAngle = Math.toRadians(pivotMap.get(shooterDistance) + offset);
         double newPivotAngle =
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))
@@ -144,6 +145,20 @@ public class TargetingUtil {
                                         - robotRelativeSpeeds.get().vxMetersPerSecond));
         SmartDashboard.putNumber("new pibotr angle", newPivotAngle * 180 / Math.PI);
         return newPivotAngle;
+    }
+
+    public double distance() {
+        var currentPose = compensatedPose();
+        var pose3D =
+                new Pose3d(
+                        currentPose.getX(),
+                        currentPose.getY(),
+                        0,
+                        new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
+        var shooterPose = pose3D.transformBy(robotToShooter);
+        var shooter2D = shooterPose.toPose2d();
+        var shooterDistance = speakerPose.toPose2d().minus(shooter2D);
+        return shooterDistance.getTranslation().getNorm();
     }
 
     // returns the pivot angle not accounting for movement
@@ -157,10 +172,8 @@ public class TargetingUtil {
                         new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
-        double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
-        double pivotAngle =
-                Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
-                        + (shooterDistance + 0.3) * Math.PI / 180 * offset;
+        double shooterDistance = pose.toPose2d().minus(shooter2D).getTranslation().getNorm();
+        double pivotAngle = Math.toRadians(pivotMap.get(shooterDistance) + offset);
         return pivotAngle;
     }
 
@@ -175,10 +188,8 @@ public class TargetingUtil {
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
         var pose = speakerPose;
-        double shooterDistance = GeomUtil.distance(pose.toPose2d().minus(shooter2D));
-        double pivotAngle =
-                Math.atan((pose.getZ() - shooterPose.getZ()) / shooterDistance)
-                        + (shooterDistance) * Math.PI / 180 * offset;
+        double shooterDistance = pose.toPose2d().minus(shooter2D).getTranslation().getNorm();
+        double pivotAngle = Math.toRadians(pivotMap.get(shooterDistance) + offset);
         return pivotAngle;
     }
 

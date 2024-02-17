@@ -194,6 +194,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
      */
     protected void setVelocityFOC(double velocity, double feedforward) {
         controlMode = velocityTorqueCurrentFOC;
+        velocityTorqueCurrentFOC.Slot = 0;
         velocityTorqueCurrentFOC.Acceleration = velocity / velocityConversion;
         velocityTorqueCurrentFOC.FeedForward = feedforward;
         velocityTorqueCurrentFOC.Velocity = velocity / velocityConversion;

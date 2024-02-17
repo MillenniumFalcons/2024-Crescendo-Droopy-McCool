@@ -94,7 +94,7 @@ public class AutoCommands {
         return Commands.sequence(
                 scorePreload(),
                 Commands.parallel(
-                        continuouslyIntakeForShoot(swerve::getOdoPose),
+                        continuouslyIntakeForShoot(),
                         superstructure.spinUp(),
                         superstructure.autoFeed(
                                 () ->
@@ -141,7 +141,7 @@ public class AutoCommands {
         return Commands.parallel(superstructure.shootStow());
     }
 
-    public Command continuouslyIntakeForShoot(Supplier<Pose2d> drivePose) {
+    public Command continuouslyIntakeForShoot() {
         return Commands.sequence(
                         superstructure.intake().until(() -> superstructure.getPiece()),
                         superstructure.passToShooterNoKicker())

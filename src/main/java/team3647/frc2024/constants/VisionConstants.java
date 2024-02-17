@@ -6,9 +6,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
-    public static final String photonIP_right = "10.36.47.14";
-    public static final String photonIP_left = "10.36.47.15";
-    public static final String photonIP_driver = "10.36.47.16";
+    public static final String photonIP_back = "10.36.47.14"; // has left and back left
+    public static final String photonIP_left = "10.36.47.15"; // has driver
+    public static final String photonIP_right = "10.36.47.16"; // has right and back right
 
     public static final String backLeft = "back left";
     public static final String backRight = "back right";
@@ -22,8 +22,8 @@ public class VisionConstants {
                             Units.inchesToMeters(-9.2193),
                             Units.inchesToMeters(8),
                             Units.inchesToMeters(8.7885)),
-                    new Rotation3d(0, Math.PI / 180 * 28.12, 0)
-                            .rotateBy(new Rotation3d(0, 0, Math.PI * 2 / 3)));
+                    new Rotation3d(0, -Math.PI / 180 * 28.12, 0)
+                            .rotateBy(new Rotation3d(0, 0, Math.PI * 5 / 6)));
 
     public static final Transform3d robotToBackRight =
             new Transform3d(
@@ -31,8 +31,8 @@ public class VisionConstants {
                             Units.inchesToMeters(-9.2193),
                             Units.inchesToMeters(-8),
                             Units.inchesToMeters(8.7885)),
-                    new Rotation3d(0, Math.PI / 180 * 28.12, 0)
-                            .rotateBy(new Rotation3d(0, 0, -Math.PI * 2 / 3)));
+                    new Rotation3d(0, -Math.PI / 180 * 28.12, 0)
+                            .rotateBy(new Rotation3d(0, 0, -Math.PI * 5 / 6)));
 
     public static final Transform3d robotToLeft =
             new Transform3d(

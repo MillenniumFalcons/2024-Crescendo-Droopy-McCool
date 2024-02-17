@@ -9,7 +9,7 @@ import team3647.frc2024.subsystems.Kicker;
 public class KickerCommands {
 
     public Command kick() {
-        return Commands.run(() -> kicker.openLoop(0.5), kicker);
+        return Commands.run(() -> kicker.openLoop(0.4), kicker);
     }
 
     public Command slowFeed() {

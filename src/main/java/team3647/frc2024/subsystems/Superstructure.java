@@ -98,11 +98,10 @@ public class Superstructure {
                 prep(),
                 spinUp(),
                 Commands.sequence(
-                        Commands.waitSeconds(2),
-                        // Commands.waitUntil(() -> shooterLeft.velocityReached(shootSpeed * 1.2,
-                        // 1))
-                        //         .withTimeout(2),
-                        Commands.parallel(feed(), ejectPiece()).withTimeout(1)));
+                        // Commands.waitSeconds(3),
+                        Commands.waitUntil(() -> shooterLeft.velocityReached(shootSpeed * 1.1, 1))
+                                .withTimeout(2),
+                        feed()));
     }
 
     public Command shootManual() {
@@ -118,7 +117,7 @@ public class Superstructure {
     }
 
     public Command prep() {
-        SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
+        // SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
         return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
     }
 
@@ -142,7 +141,9 @@ public class Superstructure {
         return Commands.parallel(
                         intakeCommands.kill(),
                         kickerCommands.kick(),
-                        wristCommands.setAngle(() -> this.getInverseKinematics()))
+                        wristCommands
+                                .setAngle(() -> this.getInverseKinematics())
+                                .until(() -> wrist.angleReached(this.getInverseKinematics(), 5)))
                 .withTimeout(0.5)
                 .andThen(shootThrough());
     }
@@ -189,7 +190,7 @@ public class Superstructure {
 
     public Command index() {
         if (pivot.frontPiece()) {
-            return slightReverse().until(() -> pivot.backPiece());
+            return slightReverse().until(() -> !pivot.frontPiece());
         } else {
             return slightForwards().until(() -> pivot.frontPiece());
         }
@@ -212,10 +213,6 @@ public class Superstructure {
     }
 
     public Command slightReverse() {
-        return kickerCommands
-                .unkick()
-                .until(() -> !pivot.frontPiece())
-                .withTimeout(0.4)
-                .andThen(kickerCommands.kill());
+        return kickerCommands.unkick();
     }
 }

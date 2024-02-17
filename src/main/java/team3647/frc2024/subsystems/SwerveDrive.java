@@ -284,8 +284,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public boolean shouldAddData(Pose2d visionPose) {
-        double distance = GeomUtil.distance(visionPose, getOdoPose());
-        return (distance < 1) ? true : false;
+        double distance = GeomUtil.distanceSquared(visionPose, getOdoPose());
+        return (distance < 1) ? true : true;
     }
 
     public void addVisionData(VisionMeasurement data) {

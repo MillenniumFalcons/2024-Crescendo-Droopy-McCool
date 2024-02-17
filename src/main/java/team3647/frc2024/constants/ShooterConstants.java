@@ -33,7 +33,7 @@ public class ShooterConstants {
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double masterKP = 30;
+    public static final double masterKP = 1.0657;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 
@@ -64,10 +64,16 @@ public class ShooterConstants {
         kRightSlot0.kP = masterKP;
         kRightSlot0.kI = masterKI;
         kRightSlot0.kD = masterKD;
+        kRightSlot0.kS = kS;
+        kRightSlot0.kV = kV;
+        kRightSlot0.kA = kA;
 
         kLeftSlot0.kP = masterKP;
         kLeftSlot0.kI = masterKI;
         kLeftSlot0.kD = masterKD;
+        kLeftSlot0.kS = kS;
+        kLeftSlot0.kV = kV;
+        kLeftSlot0.kA = kA;
 
         kRightCurrent.StatorCurrentLimitEnable = false;
         kLeftCurrent.StatorCurrentLimitEnable = false;

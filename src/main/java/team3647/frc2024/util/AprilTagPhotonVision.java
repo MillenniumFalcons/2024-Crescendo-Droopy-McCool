@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import team3647.lib.GeomUtil;
 import team3647.lib.vision.AprilTagCamera.AprilTagId;
 
 public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera {
@@ -47,12 +46,12 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
             return Optional.empty();
         }
         var targetDistance =
-                GeomUtil.distanceSquared(
-                        result.getBestTarget()
-                                .getBestCameraToTarget()
-                                .getTranslation()
-                                .toTranslation2d());
-        final var stdDevs = VecBuilder.fill(0.005, 0.005, 0.005).times(targetDistance);
+                result.getBestTarget()
+                        .getBestCameraToTarget()
+                        .getTranslation()
+                        .toTranslation2d()
+                        .getNorm();
+        final var stdDevs = VecBuilder.fill(0.1, 0.1, 0.1).times(targetDistance);
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
         return Optional.of(measurement);
