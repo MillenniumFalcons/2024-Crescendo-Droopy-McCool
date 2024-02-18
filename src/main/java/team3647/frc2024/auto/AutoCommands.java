@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -49,6 +50,8 @@ public class AutoCommands {
     private final String f4_to_shoot3 = "f4 to shoot3";
     private final String shoot3_to_f3 = "shoot3 to f3";
 
+    public final Trigger currentYes;
+
     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
@@ -62,6 +65,8 @@ public class AutoCommands {
         this.autoDriveVelocities = autoDriveVelocities;
         this.superstructure = superstructure;
         this.targeting = targeting;
+
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
         this.blueFive_S1N1F1N2N3 =
                 new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s1_to_n1_to_f1));
@@ -78,7 +83,7 @@ public class AutoCommands {
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverride(f1_to_n2, color),
-                        followChoreoPath(n2_to_n3, color)));
+                        followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
     public Command four_S1N1N2N3(Alliance color) {
@@ -94,21 +99,22 @@ public class AutoCommands {
         return Commands.sequence(
                 scorePreload(),
                 Commands.parallel(
-                        continuouslyIntakeForShoot(),
                         superstructure.spinUp(),
+                        superstructure.prep(),
+                        // superstructure.fastFeed(),
+                        continuouslyIntakeForShoot().repeatedly(),
                         superstructure.autoFeed(
                                 () ->
                                         swerve.getOdoPose().getX()
-                                                < AutoConstants.kDrivetrainXShootingThreshold),
-                        superstructure.prep()));
+                                                < AutoConstants.kDrivetrainXShootingThreshold)));
     }
 
     public Command scorePreload() {
         return Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.5), superstructure.feed()))
-                .withTimeout(0.8);
+                        Commands.sequence(Commands.waitSeconds(0.3), superstructure.feed()))
+                .withTimeout(0.6);
     }
 
     public Pose2d getInitial(String path) {
@@ -143,9 +149,10 @@ public class AutoCommands {
 
     public Command continuouslyIntakeForShoot() {
         return Commands.sequence(
-                        superstructure.intake().until(() -> superstructure.getPiece()),
-                        superstructure.passToShooterNoKicker())
-                .repeatedly();
+                superstructure
+                        .intake()
+                        .until(currentYes)
+                        .andThen(superstructure.passToShooterNoKicker()));
     }
 
     public Pose2d flipForPP(Pose2d pose) {

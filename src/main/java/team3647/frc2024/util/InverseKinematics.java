@@ -19,7 +19,7 @@ public class InverseKinematics {
     private final double wristLength = Units.inchesToMeters(11.2);
     private final double wristRollersAngle = Math.toRadians(28);
     private final Pose2d wristOriginPos = new Pose2d(wristX, wristHeight, new Rotation2d());
-    private final double interestingOffset = Math.toRadians(0);
+    private final double interestingOffset = Math.toRadians(5);
 
     public InverseKinematics(DoubleSupplier pivotAngle) {
         this.pivotAngle = pivotAngle;

@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
+import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
+import team3647.frc2024.constants.ClimbConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.GlobalConstants;
 import team3647.frc2024.constants.IntakeConstants;
@@ -21,6 +23,7 @@ import team3647.frc2024.constants.SwerveDriveConstants;
 import team3647.frc2024.constants.TunerConstants;
 import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
+import team3647.frc2024.subsystems.Climb;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
 import team3647.frc2024.subsystems.Pivot;
@@ -55,15 +58,16 @@ public class RobotContainer {
 
         pdh.clearStickyFaults();
         scheduler.registerSubsystem(
-                swerve, shooterRight, shooterLeft, intake, wrist, kicker, pivot, printer);
+                swerve, shooterRight, shooterLeft, intake, wrist, kicker, pivot, printer, climb);
 
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1N1N2N3;
+        runningMode = autoCommands.blueFive_S1N1F1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
+        climb.setEncoder(0);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
     }
 
@@ -72,7 +76,7 @@ public class RobotContainer {
         mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
-        mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
+        // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
                 .and(() -> superstructure.getPiece())
@@ -114,6 +118,11 @@ public class RobotContainer {
 
         mainController.dPadUp.onTrue(targetingUtil.offsetUp());
         mainController.dPadDown.onTrue(targetingUtil.offsetDown());
+
+        mainController.dPadLeft.whileTrue(climbCommands.goUp());
+        mainController.dPadLeft.onFalse(climbCommands.kill());
+        mainController.dPadRight.whileTrue(climbCommands.goDown());
+        mainController.dPadRight.onFalse(climbCommands.kill());
 
         // characterization
 
@@ -174,15 +183,17 @@ public class RobotContainer {
         SmartDashboard.putNumber("wrist kg", 0);
         printer.addDouble("inverse kinematics", superstructure::getInverseKinematics);
         printer.addDouble("wanted pivot", superstructure::getWantedPivot);
-        printer.addDouble("wrist tof", wrist::tof);
         printer.addDouble("back tof", pivot::tofBack);
         printer.addBoolean("front tof", pivot::frontPiece);
         printer.addDouble("wrist", wrist::getAngle);
         printer.addDouble("pivot", pivot::getAngle);
         printer.addBoolean("under stage", swerve::underStage);
         printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
-        SmartDashboard.putNumber("pivot interp", 40);
+        SmartDashboard.putNumber("pivot interp", 35);
         printer.addDouble("shooter distance squared", targetingUtil::distance);
+        printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
+        printer.addBoolean("wrist at stow", superstructure::wristAtStow);
+        printer.addDouble("climb len", () -> climb.getLength());
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -230,8 +241,7 @@ public class RobotContainer {
                     WristConstants.kMaxDegree,
                     WristConstants.nominalVoltage,
                     WristConstants.kG,
-                    0.02,
-                    WristConstants.tof);
+                    0.02);
 
     public final Kicker kicker =
             new Kicker(KickerConstants.kMaster, 1, 1, KickerConstants.kNominalVoltage, 0.02);
@@ -255,6 +265,20 @@ public class RobotContainer {
                     PivotConstants.tofBack,
                     PivotConstants.tofFront);
 
+    private final Climb climb =
+            new Climb(
+                    ClimbConstants.kMaster,
+                    ClimbConstants.kSlave,
+                    1,
+                    1,
+                    ClimbConstants.kMinLength,
+                    ClimbConstants.kMaxDegreeLength,
+                    ClimbConstants.nominalVoltage,
+                    0,
+                    0.02);
+
+    private final ClimbCommands climbCommands = new ClimbCommands(climb);
+
     private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
     private final DrivetrainCommands drivetrainCommands = new DrivetrainCommands(swerve);
@@ -272,7 +296,7 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     private final VisionController visionController =
-            new VisionController(swerve::addVisionData, swerve::shouldAddData, backRight);
+            new VisionController(swerve::addVisionData, swerve::shouldAddData);
 
     //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
@@ -300,7 +324,8 @@ public class RobotContainer {
                     wrist,
                     autoDrive::getPivotAngle,
                     targetingUtil.exitVelocity(),
-                    inverseKinematics::getWristHandoffAngleByPivot);
+                    inverseKinematics::getWristHandoffAngleByPivot,
+                    autoDrive::swerveAimed);
 
     public final AutoCommands autoCommands =
             new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
@@ -317,5 +342,5 @@ public class RobotContainer {
                     .or(mainController.buttonB);
 
     private final BooleanSupplier isIntaking =
-            () -> mainController.leftBumper.getAsBoolean() || DriverStation.isAutonomous();
+            () -> mainController.leftBumper.getAsBoolean() && !DriverStation.isAutonomous();
 }

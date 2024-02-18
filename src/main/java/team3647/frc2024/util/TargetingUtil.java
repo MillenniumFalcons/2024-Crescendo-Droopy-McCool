@@ -8,10 +8,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.Supplier;
+import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.PivotConstants;
 
 public class TargetingUtil {
@@ -21,11 +21,13 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
     private final Transform3d robotToShooter;
-    private final double shootSpeed = 25;
+    private final double shootSpeed = 5.5;
     private double offset = 0;
     double kDt = 0.02;
 
-    private final InterpolatingDoubleTreeMap pivotMap = PivotConstants.kMasterPivotMap;
+    private final InterpolatingDoubleTreeMap speakerMap = PivotConstants.kMasterSpeakerMap;
+
+    private final InterpolatingDoubleTreeMap ampMap = PivotConstants.kMasterAmpMap;
 
     public TargetingUtil(
             Pose3d speakerPose,
@@ -41,11 +43,11 @@ public class TargetingUtil {
     }
 
     public Command offsetUp() {
-        return Commands.runOnce(() -> offset += 0.1);
+        return Commands.runOnce(() -> offset += 1);
     }
 
     public Command offsetDown() {
-        return Commands.runOnce(() -> offset -= 0.1);
+        return Commands.runOnce(() -> offset -= 1);
     }
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
@@ -85,7 +87,7 @@ public class TargetingUtil {
         boolean shouldSubtract = Math.sin(newAngle) < 0;
         pi = shouldSubtract ? -pi : pi;
         newAngle = newAngle + pi;
-        SmartDashboard.putNumber("new anlge", newAngle);
+        // SmartDashboard.putNumber("new anlge", newAngle);
         return newAngle;
     }
 
@@ -106,7 +108,7 @@ public class TargetingUtil {
     public double robotAngleToPose(Pose3d pose) {
         final var currentPose = compensatedPose();
         var rot = currentPose.getRotation().getRadians();
-        SmartDashboard.putNumber("rot", rot);
+        // SmartDashboard.putNumber("rot", rot);
         final var fieldAngle = fieldAngleToPose(pose);
         var newAngle = rot - fieldAngle;
 
@@ -137,13 +139,16 @@ public class TargetingUtil {
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
         double shooterDistance = pose.toPose2d().minus(shooter2D).getTranslation().getNorm();
-        double pivotAngle = Math.toRadians(pivotMap.get(shooterDistance) + offset);
+        double pivotAngle = Math.toRadians(speakerMap.get(shooterDistance) + offset);
+        if (pose.getZ() == FieldConstants.kAmpHeight) {
+            pivotAngle = Math.toRadians(ampMap.get(shooterDistance) + offset);
+        }
         double newPivotAngle =
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotRelativeSpeeds.get().vxMetersPerSecond));
-        SmartDashboard.putNumber("new pibotr angle", newPivotAngle * 180 / Math.PI);
+                                        - robotRelativeSpeeds.get().vxMetersPerSecond * 1.5));
+        // SmartDashboard.putNumber("new pibotr angle", newPivotAngle * 180 / Math.PI);
         return newPivotAngle;
     }
 
@@ -157,7 +162,7 @@ public class TargetingUtil {
                         new Rotation3d(0, 0, currentPose.getRotation().getRadians()));
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
-        var shooterDistance = speakerPose.toPose2d().minus(shooter2D);
+        var shooterDistance = ampPose.toPose2d().minus(shooter2D);
         return shooterDistance.getTranslation().getNorm();
     }
 
@@ -173,7 +178,10 @@ public class TargetingUtil {
         var shooterPose = pose3D.transformBy(robotToShooter);
         var shooter2D = shooterPose.toPose2d();
         double shooterDistance = pose.toPose2d().minus(shooter2D).getTranslation().getNorm();
-        double pivotAngle = Math.toRadians(pivotMap.get(shooterDistance) + offset);
+        double pivotAngle = Math.toRadians(speakerMap.get(shooterDistance) + offset);
+        if (pose.getZ() == FieldConstants.kAmpHeight) {
+            pivotAngle = Math.toRadians(ampMap.get(shooterDistance) + offset);
+        }
         return pivotAngle;
     }
 
@@ -189,7 +197,7 @@ public class TargetingUtil {
         var shooter2D = shooterPose.toPose2d();
         var pose = speakerPose;
         double shooterDistance = pose.toPose2d().minus(shooter2D).getTranslation().getNorm();
-        double pivotAngle = Math.toRadians(pivotMap.get(shooterDistance) + offset);
+        double pivotAngle = Math.toRadians(speakerMap.get(shooterDistance) + offset);
         return pivotAngle;
     }
 

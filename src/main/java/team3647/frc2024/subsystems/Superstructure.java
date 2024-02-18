@@ -34,6 +34,8 @@ public class Superstructure {
 
     private final DoubleSupplier wristInverseKinematics;
 
+    private final BooleanSupplier swerveAimed;
+
     public Superstructure(
             Intake intake,
             Kicker kicker,
@@ -43,7 +45,8 @@ public class Superstructure {
             Wrist wrist,
             DoubleSupplier pivotAngleSupplier,
             double shootSpeed,
-            DoubleSupplier wristInverseKinematics) {
+            DoubleSupplier wristInverseKinematics,
+            BooleanSupplier swerveAimed) {
         this.intake = intake;
         this.kicker = kicker;
         this.shooterRight = shooterRight;
@@ -53,6 +56,7 @@ public class Superstructure {
         this.shootSpeed = shootSpeed;
         this.wrist = wrist;
         this.wristInverseKinematics = wristInverseKinematics;
+        this.swerveAimed = swerveAimed;
 
         intakeCommands = new IntakeCommands(intake);
         kickerCommands = new KickerCommands(kicker);
@@ -85,6 +89,10 @@ public class Superstructure {
         return hasPiece;
     }
 
+    public boolean currentYes() {
+        return intake.getMasterCurrent() > 32 && wrist.getAngle() < 5;
+    }
+
     public Command setPiece() {
         return Commands.runOnce(() -> this.hasPiece = true);
     }
@@ -99,7 +107,12 @@ public class Superstructure {
                 spinUp(),
                 Commands.sequence(
                         // Commands.waitSeconds(3),
-                        Commands.waitUntil(() -> shooterLeft.velocityReached(shootSpeed * 1.1, 1))
+                        Commands.waitUntil(
+                                        () ->
+                                                shooterLeft.velocityReached(shootSpeed * 1.1, 1)
+                                                        && pivot.angleReached(
+                                                                pivotAngleSupplier.getAsDouble(), 3)
+                                                        && swerveAimed.getAsBoolean())
                                 .withTimeout(2),
                         feed()));
     }
@@ -118,7 +131,8 @@ public class Superstructure {
 
     public Command prep() {
         // SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
-        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+        // return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+        return pivotCommands.setAngle(() -> SmartDashboard.getNumber("pivot interp", 35));
     }
 
     public Command prepManual() {
@@ -142,7 +156,7 @@ public class Superstructure {
                         intakeCommands.kill(),
                         kickerCommands.kick(),
                         wristCommands
-                                .setAngle(() -> this.getInverseKinematics())
+                                .setAngle(() -> wristInverseKinematics.getAsDouble())
                                 .until(() -> wrist.angleReached(this.getInverseKinematics(), 5)))
                 .withTimeout(0.5)
                 .andThen(shootThrough());
@@ -157,14 +171,19 @@ public class Superstructure {
     }
 
     public Command shootThrough() {
-        return Commands.parallel(intakeCommands.intake(), kickerCommands.slowFeed())
-                .until(() -> pivot.backPiece())
+        return Commands.parallel(intakeCommands.intake(), kickerCommands.kick())
+                .until(() -> pivot.frontPiece())
+                .andThen(slightReverse().withTimeout(0.1))
                 // .withTimeout(1)
-                .andThen(stowIntakeAndIndex());
+                .andThen(stowIntake());
     }
 
     public Command shootThroughNoKicker() {
-        return intakeCommands.intake().until(() -> pivot.backPiece()).andThen(stowIntake());
+        return intakeCommands
+                .intake()
+                .until(() -> pivot.backPiece())
+                .withTimeout(0.5)
+                .andThen(stowIntake());
     }
 
     public Command stowIntake() {
@@ -175,17 +194,30 @@ public class Superstructure {
                 intakeCommands.kill());
     }
 
+    public boolean wristAtStow() {
+        return wrist.angleReached(wristStowAngle, 5);
+    }
+
     public Command autoFeed(BooleanSupplier goodToGo) {
         return Commands.run(
                 () -> {
-                    if (goodToGo.getAsBoolean()) {
-                        feed();
+                    if (goodToGo.getAsBoolean() && pivot.backPiece()) {
+                        Commands.sequence(
+                                Commands.waitUntil(
+                                        () ->
+                                                pivot.angleReached(
+                                                        pivotAngleSupplier.getAsDouble(), 2)),
+                                feed());
                     } else if (!frontPiece() && !pivot.backPiece()) {
-                        feed();
+                        slightForwards();
                     } else {
-                        index();
+                        kickerCommands.kill();
                     }
                 });
+    }
+
+    public Command fastFeed() {
+        return kickerCommands.fastKick();
     }
 
     public Command index() {
@@ -205,11 +237,7 @@ public class Superstructure {
     }
 
     public Command slightForwards() {
-        return kickerCommands
-                .slowFeed()
-                .until(() -> pivot.frontPiece())
-                .withTimeout(0.4)
-                .andThen(kickerCommands.kill());
+        return kickerCommands.slowFeed();
     }
 
     public Command slightReverse() {

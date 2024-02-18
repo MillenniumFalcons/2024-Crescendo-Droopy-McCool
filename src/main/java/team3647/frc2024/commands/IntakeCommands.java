@@ -25,7 +25,7 @@ public class IntakeCommands {
     }
 
     public Command kill() {
-        return Commands.run(() -> intake.openLoop(0), intake);
+        return Commands.runOnce(() -> intake.openLoop(0), intake);
     }
 
     private final Set<Subsystem> requirements;

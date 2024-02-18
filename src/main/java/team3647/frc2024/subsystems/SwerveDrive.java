@@ -323,10 +323,9 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public double getVel() {
-        return Math.sqrt(
-                getChassisSpeeds().vxMetersPerSecond * getChassisSpeeds().vxMetersPerSecond
-                        + getChassisSpeeds().vyMetersPerSecond
-                                * getChassisSpeeds().vyMetersPerSecond);
+        return this.getChassisSpeeds().vxMetersPerSecond * this.getChassisSpeeds().vxMetersPerSecond
+                + this.getChassisSpeeds().vyMetersPerSecond
+                        * this.getChassisSpeeds().vyMetersPerSecond;
     }
 
     public double getMaxSpeedMpS() {

@@ -12,12 +12,16 @@ public class KickerCommands {
         return Commands.run(() -> kicker.openLoop(0.4), kicker);
     }
 
+    public Command fastKick() {
+        return Commands.run(() -> kicker.openLoop(0.7), kicker);
+    }
+
     public Command slowFeed() {
         return Commands.run(() -> kicker.openLoop(0.2), kicker);
     }
 
     public Command unkick() {
-        return Commands.run(() -> kicker.openLoop(-0.2), kicker);
+        return Commands.run(() -> kicker.openLoop(-0.1), kicker);
     }
 
     public Command oscillate() {

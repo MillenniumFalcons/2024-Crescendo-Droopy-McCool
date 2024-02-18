@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -62,7 +63,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
+        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE || DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.INTAKE_FLOOR_PIECE) {
@@ -75,6 +76,10 @@ public class AutoDrive extends VirtualSubsystem {
         SmartDashboard.putNumber(
                 "pivot setpoint",
                 targeting.getPivotAngle(FieldConstants.kBlueSpeaker) * 180 / Math.PI);
+    }
+
+    public boolean swerveAimed() {
+        return getRot() < 0.1;
     }
 
     private void setTargetPose(Pose2d targetPose) {
@@ -104,6 +109,9 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getPivotAngle() {
+        if (DriverStation.isAutonomous()) {
+            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+        }
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
                 return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);

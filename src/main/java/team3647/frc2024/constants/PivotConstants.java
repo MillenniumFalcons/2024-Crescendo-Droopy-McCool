@@ -34,7 +34,7 @@ public class PivotConstants {
     public static final double kMaxDegree = 61.2;
     public static final double kMaxDegreeUnderStage = 30;
 
-    private static final double masterKP = 0.6;
+    private static final double masterKP = 1.5;
     private static final double masterKI = 0;
     private static final double masterKD = 0;
 
@@ -57,25 +57,36 @@ public class PivotConstants {
             new TimeOfFlight(GlobalConstants.SensorIds.pivotFrontId);
 
     // distance squared vs pivot angle
-    public static final InterpolatingDoubleTreeMap kMasterPivotMap =
+    public static final InterpolatingDoubleTreeMap kMasterSpeakerMap =
+            new InterpolatingDoubleTreeMap();
+
+    public static final InterpolatingDoubleTreeMap kMasterAmpMap = new InterpolatingDoubleTreeMap();
+
+    public static final InterpolatingDoubleTreeMap kMasterTrapMap =
             new InterpolatingDoubleTreeMap();
 
     static {
-        kMasterPivotMap.put(0.0, 60.0);
-        kMasterPivotMap.put(1.26, 60.0);
-        kMasterPivotMap.put(2.0, 52.0);
-        kMasterPivotMap.put(2.43, 48.0);
-        kMasterPivotMap.put(3.0, 42.5);
-        kMasterPivotMap.put(3.5, 38.0);
-        kMasterPivotMap.put(4.0, 35.5);
-        kMasterPivotMap.put(4.5, 35.5);
-        kMasterPivotMap.put(20.0, 35.5);
+        kMasterSpeakerMap.put(0.0, 60.0);
+        kMasterSpeakerMap.put(1.26, 60.0);
+        kMasterSpeakerMap.put(2.0, 52.0);
+        kMasterSpeakerMap.put(2.5, 43.0);
+        kMasterSpeakerMap.put(3.0, 37.5);
+        kMasterSpeakerMap.put(3.5, 34.0);
+        kMasterSpeakerMap.put(4.0, 31.0);
+        kMasterSpeakerMap.put(4.5, 28.1);
+        kMasterSpeakerMap.put(5.0, 26.2);
+        kMasterSpeakerMap.put(5.5, 24.0);
+        kMasterSpeakerMap.put(6.0, 22.0);
+        kMasterSpeakerMap.put(20.0, 22.0);
+        kMasterAmpMap.put(0.0, 60.0);
+        kMasterAmpMap.put(100.0, 60.0);
         Slot0Configs kMasterSlot0 = new Slot0Configs();
         CurrentLimitsConfigs kMasterCurrent = new CurrentLimitsConfigs();
         MotionMagicConfigs kMasterMotionMagic = new MotionMagicConfigs();
         MotorOutputConfigs kMasterMotorOutput = new MotorOutputConfigs();
         SoftwareLimitSwitchConfigs kMasterSoftLimit = new SoftwareLimitSwitchConfigs();
         TalonFXConfigurator kMasterConfigurator = kMaster.getConfigurator();
+        TalonFXConfigurator kSlaveConfigurator = kSlave.getConfigurator();
         kMasterConfigurator.apply(kMasterConfig);
 
         kMasterSlot0.kP = masterKP;
@@ -85,8 +96,8 @@ public class PivotConstants {
         kMasterCurrent.StatorCurrentLimit = kMaxCurrent;
         kMasterMotionMagic.MotionMagicAcceleration = kMaxVelocityTicks * 1.8;
         kMasterMotionMagic.MotionMagicCruiseVelocity = kMaxAccelerationTicks * 1.8;
-        kMasterMotionMagic.MotionMagicExpo_kA = 0.1;
-        kMasterMotionMagic.MotionMagicExpo_kV = 0.12;
+        kMasterMotionMagic.MotionMagicExpo_kA = 0.06;
+        kMasterMotionMagic.MotionMagicExpo_kV = 0.09;
         kMasterMotorOutput.PeakReverseDutyCycle = -0.5;
         kMasterMotorOutput.NeutralMode = NeutralModeValue.Brake;
         kMasterMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -99,6 +110,10 @@ public class PivotConstants {
         kMasterConfigurator.apply(kMasterMotionMagic);
         kMasterConfigurator.apply(kMasterMotorOutput);
         kMasterConfigurator.apply(kMasterSoftLimit);
+        kSlaveConfigurator.apply(kMasterSlot0);
+        kSlaveConfigurator.apply(kMasterMotionMagic);
+        kSlaveConfigurator.apply(kMasterMotorOutput);
+        kSlaveConfigurator.apply(kMasterSoftLimit);
     }
 
     private PivotConstants() {}

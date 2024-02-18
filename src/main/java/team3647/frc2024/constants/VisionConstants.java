@@ -7,7 +7,7 @@ import edu.wpi.first.math.util.Units;
 
 public class VisionConstants {
     public static final String photonIP_back = "10.36.47.14"; // has left and back left
-    public static final String photonIP_left = "10.36.47.15"; // has driver
+    public static final String photonIP_left = "10.36.47.15"; // has driver and temp left
     public static final String photonIP_right = "10.36.47.16"; // has right and back right
 
     public static final String backLeft = "back left";
@@ -32,7 +32,7 @@ public class VisionConstants {
                             Units.inchesToMeters(-8),
                             Units.inchesToMeters(8.7885)),
                     new Rotation3d(0, -Math.PI / 180 * 28.12, 0)
-                            .rotateBy(new Rotation3d(0, 0, -Math.PI * 5 / 6)));
+                            .rotateBy(new Rotation3d(0, 0, -Math.PI * 5 / 6 - 0.2)));
 
     public static final Transform3d robotToLeft =
             new Transform3d(

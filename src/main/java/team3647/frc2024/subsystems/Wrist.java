@@ -1,7 +1,6 @@
 package team3647.frc2024.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.playingwithfusion.TimeOfFlight;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -14,7 +13,6 @@ public class Wrist extends TalonFXSubsystem {
     private final double minDegree;
     private final double maxDegree;
     private final double kG;
-    private final TimeOfFlight tof;
 
     public Wrist(
             TalonFX master,
@@ -24,13 +22,11 @@ public class Wrist extends TalonFXSubsystem {
             double maxDegree,
             double nominalVoltage,
             double kG,
-            double kDt,
-            TimeOfFlight tof) {
+            double kDt) {
         super(master, ticksToDegsPerSec, ticksToDegs, nominalVoltage, kDt);
         this.minDegree = minDegree;
         this.maxDegree = maxDegree;
         this.kG = kG;
-        this.tof = tof;
     }
 
     @Override
@@ -46,14 +42,6 @@ public class Wrist extends TalonFXSubsystem {
                 new Pose3d(
                         new Translation3d(),
                         new Rotation3d(0, -Units.degreesToRadians(getAngle()), 0)));
-    }
-
-    public boolean hasPiece() {
-        return this.tof.getRange() < 300;
-    }
-
-    public double tof() {
-        return tof.getRange();
     }
 
     public double getAngle() {
