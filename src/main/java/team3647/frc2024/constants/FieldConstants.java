@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /** Add your docs here. */
 public class FieldConstants {
@@ -27,9 +29,18 @@ public class FieldConstants {
 
     public static final Pose3d kBlueSpeaker = new Pose3d(0, 5.5, kSpeakerHeight, new Rotation3d());
 
+    public static final Pose3d kRedSpeaker =
+            new Pose3d(16.5, 5.5, kSpeakerHeight, new Rotation3d());
+
+    public static final Pose3d kSpeaker;
+
     public static final double kAmpHeight = Units.inchesToMeters(35);
 
     public static final Pose3d kBlueAmp = new Pose3d(1.957, 8.218, kAmpHeight, new Rotation3d());
+
+    public static final Pose3d kRedAmp = new Pose3d(14.630, 8.218, kAmpHeight, new Rotation3d());
+
+    public static final Pose3d kAmp;
 
     public static final Pose2d[] kBlueAutoNotePoses = {
         new Pose2d(2.912, 6.951, kZero), // n1
@@ -61,6 +72,11 @@ public class FieldConstants {
 
     public static Transform2d flipBlueTransform(Transform2d transform) {
         return new Transform2d(kOrigin, flipBluePose(kOrigin.transformBy(transform)));
+    }
+
+    static {
+        kSpeaker = DriverStation.getAlliance().get() == Alliance.Blue ? kBlueSpeaker : kRedSpeaker;
+        kAmp = DriverStation.getAlliance().get() == Alliance.Blue ? kBlueAmp : kRedAmp;
     }
 
     private FieldConstants() {}

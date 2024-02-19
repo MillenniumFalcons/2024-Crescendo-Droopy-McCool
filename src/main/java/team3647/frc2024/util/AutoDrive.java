@@ -108,6 +108,20 @@ public class AutoDrive extends VirtualSubsystem {
         return this.mode;
     }
 
+    public double getShootSpeed() {
+        if (DriverStation.isAutonomous()) {
+            return targeting.shootAtSpeaker().shootSpeed;
+        }
+        switch (mode) {
+            case SHOOT_ON_THE_MOVE:
+                return targeting.shootAtSpeaker().shootSpeed;
+            case SHOOT_AT_AMP:
+                return targeting.shootAtAmp().shootSpeed;
+            default:
+                return 25;
+        }
+    }
+
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
             return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);

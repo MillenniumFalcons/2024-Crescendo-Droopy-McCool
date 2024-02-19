@@ -6,9 +6,9 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 
 public class ClimbConstants {
-    public static final TalonFX kMaster =
+    public static final TalonFX kLeft =
             new TalonFX(GlobalConstants.ClimbIds.kLeftId, GlobalConstants.subsystemsLoopName);
-    public static final TalonFX kSlave =
+    public static final TalonFX kRight =
             new TalonFX(GlobalConstants.ClimbIds.kRightId, GlobalConstants.subsystemsLoopName);
 
     public static final boolean kMasterInvert = false;
@@ -43,8 +43,10 @@ public class ClimbConstants {
         Slot0Configs kMasterSlot0 = new Slot0Configs();
         MotorOutputConfigs kMasterMotorOutput = new MotorOutputConfigs();
         SoftwareLimitSwitchConfigs kMasterSoftLimit = new SoftwareLimitSwitchConfigs();
-        TalonFXConfigurator kMasterConfigurator = kMaster.getConfigurator();
-        kMasterConfigurator.apply(kMasterConfig);
+        TalonFXConfigurator kLeftConfigurator = kLeft.getConfigurator();
+        TalonFXConfigurator kRightConfigurator = kRight.getConfigurator();
+        kLeftConfigurator.apply(kMasterConfig);
+        kRightConfigurator.apply(kMasterConfig);
 
         kMasterSlot0.kP = masterKP;
         kMasterSlot0.kI = masterKI;
@@ -55,6 +57,13 @@ public class ClimbConstants {
         kMasterSoftLimit.ForwardSoftLimitThreshold = 90;
         kMasterSoftLimit.ReverseSoftLimitEnable = true;
         kMasterSoftLimit.ReverseSoftLimitThreshold = 0;
+
+        kLeftConfigurator.apply(kMasterSlot0);
+        kLeftConfigurator.apply(kMasterMotorOutput);
+        kLeftConfigurator.apply(kMasterSoftLimit);
+        kRightConfigurator.apply(kMasterSlot0);
+        kRightConfigurator.apply(kMasterMotorOutput);
+        kRightConfigurator.apply(kMasterSoftLimit);
     }
 
     private ClimbConstants() {}

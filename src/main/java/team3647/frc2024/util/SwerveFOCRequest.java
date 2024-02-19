@@ -31,10 +31,18 @@ public class SwerveFOCRequest implements SwerveRequest {
                 module.getSteerMotor().setControl(m_motionMagicControl);
 
                 // Command drive motor to torque
-                module.getDriveMotor().setControl(m_torqueCurrentFOC.withOutput(m_targetTorque));
+                module.getDriveMotor()
+                        .setControl(
+                                m_torqueCurrentFOC
+                                        .withOutput(m_targetTorque)
+                                        .withMaxAbsDutyCycle(0.7));
             } else {
                 // Command steer motor to torque
-                module.getSteerMotor().setControl(m_torqueCurrentFOC.withOutput(m_targetTorque));
+                module.getSteerMotor()
+                        .setControl(
+                                m_torqueCurrentFOC
+                                        .withOutput(m_targetTorque)
+                                        .withMaxAbsDutyCycle(0.7));
 
                 // Command drive motor to zero
                 module.getDriveMotor().setControl(m_motionMagicControl);

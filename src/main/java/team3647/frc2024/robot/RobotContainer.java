@@ -64,7 +64,6 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFive_S1N1F1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -194,6 +193,9 @@ public class RobotContainer {
         printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
         printer.addBoolean("wrist at stow", superstructure::wristAtStow);
         printer.addDouble("climb len", () -> climb.getLength());
+        printer.addBoolean("shooter ready", superstructure::flywheelReadY);
+        printer.addBoolean("pivot ready", superstructure::pivotReady);
+        printer.addBoolean("swerve ready", superstructure::swerveReady);
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -267,8 +269,8 @@ public class RobotContainer {
 
     private final Climb climb =
             new Climb(
-                    ClimbConstants.kMaster,
-                    ClimbConstants.kSlave,
+                    ClimbConstants.kLeft,
+                    ClimbConstants.kRight,
                     1,
                     1,
                     ClimbConstants.kMinLength,
@@ -304,8 +306,8 @@ public class RobotContainer {
 
     public final TargetingUtil targetingUtil =
             new TargetingUtil(
-                    FieldConstants.kBlueSpeaker,
-                    FieldConstants.kBlueAmp,
+                    FieldConstants.kSpeaker,
+                    FieldConstants.kAmp,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     PivotConstants.robotToPivot);
@@ -323,6 +325,7 @@ public class RobotContainer {
                     pivot,
                     wrist,
                     autoDrive::getPivotAngle,
+                    autoDrive::getShootSpeed,
                     targetingUtil.exitVelocity(),
                     inverseKinematics::getWristHandoffAngleByPivot,
                     autoDrive::swerveAimed);

@@ -26,6 +26,7 @@ public class Superstructure {
     public final WristCommands wristCommands;
 
     private final DoubleSupplier pivotAngleSupplier;
+    private final DoubleSupplier shooterSpeedSupplier;
     private final double pivotStowAngle = 40;
     private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
@@ -44,6 +45,7 @@ public class Superstructure {
             Pivot pivot,
             Wrist wrist,
             DoubleSupplier pivotAngleSupplier,
+            DoubleSupplier shooterSpeedSuppler,
             double shootSpeed,
             DoubleSupplier wristInverseKinematics,
             BooleanSupplier swerveAimed) {
@@ -53,6 +55,7 @@ public class Superstructure {
         this.shooterLeft = shooterLeft;
         this.pivot = pivot;
         this.pivotAngleSupplier = pivotAngleSupplier;
+        this.shooterSpeedSupplier = shooterSpeedSuppler;
         this.shootSpeed = shootSpeed;
         this.wrist = wrist;
         this.wristInverseKinematics = wristInverseKinematics;
@@ -70,7 +73,7 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        return shooterCommands.setVelocity(() -> shootSpeed);
+        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble());
     }
 
     public double getDesiredSpeed() {
@@ -99,6 +102,18 @@ public class Superstructure {
 
     public Command ejectPiece() {
         return Commands.runOnce(() -> this.hasPiece = false);
+    }
+
+    public boolean flywheelReadY() {
+        return shooterLeft.velocityReached(shootSpeed * 1.1, 1);
+    }
+
+    public boolean pivotReady() {
+        return pivot.angleReached(pivotAngleSupplier.getAsDouble(), 3);
+    }
+
+    public boolean swerveReady() {
+        return swerveAimed.getAsBoolean();
     }
 
     public Command shoot() {

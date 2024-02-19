@@ -21,7 +21,7 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
     private final Transform3d robotToShooter;
-    private final double shootSpeed = 5.5;
+    private final double shootSpeed = 25;
     private double offset = 0;
     double kDt = 0.02;
 
@@ -52,7 +52,11 @@ public class TargetingUtil {
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
     public AimingParameters shootAtPose(Pose3d pose) {
-        return new AimingParameters(robotAngleToPose(pose), getPivotAngle(pose));
+        return new AimingParameters(robotAngleToPose(pose), getPivotAngle(pose), shootSpeed);
+    }
+
+    public AimingParameters shootAtPose(Pose3d pose, double shootSpeed) {
+        return new AimingParameters(robotAngleToPose(pose), getPivotAngle(pose), shootSpeed);
     }
 
     // returns the parameters for aiming at the speaker
@@ -62,7 +66,7 @@ public class TargetingUtil {
 
     // returns the parameters for aiming at the speaker
     public AimingParameters shootAtAmp() {
-        return shootAtPose(ampPose);
+        return shootAtPose(ampPose, 5.5);
     }
 
     // returns the angle between the vector pointing straight back and the pose
@@ -222,10 +226,12 @@ public class TargetingUtil {
     public class AimingParameters {
         public double rotation;
         public double pivot;
+        public double shootSpeed;
 
-        public AimingParameters(double rotation, double pivot) {
+        public AimingParameters(double rotation, double pivot, double shootSpeed) {
             this.rotation = rotation;
             this.pivot = pivot;
+            this.shootSpeed = shootSpeed;
         }
     }
 }

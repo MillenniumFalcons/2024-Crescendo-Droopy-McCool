@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -77,6 +78,29 @@ public class AutoCommands {
 
     public void registerCommands() {}
 
+    public AutonomousMode getSix_S1N1F1N2N3ByColor(Alliance color) {
+        return new AutonomousMode(six_S1N1F1F2N2N3(color), getInitial(s1_to_n1_to_f1));
+    }
+
+    public AutonomousMode getFive_S1N1F1N2N3ByColor(Alliance color) {
+        return new AutonomousMode(five_S1N1F1N2N3(color), getInitial(s1_to_n1_to_f1));
+    }
+
+    public AutonomousMode getFour_S1N1F1N2N3ByColor(Alliance color) {
+        return new AutonomousMode(four_S1N1N2N3(color), getInitial(s1_to_n1));
+    }
+
+    public Command six_S1N1F1F2N2N3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(),
+                Commands.sequence(
+                        followChoreoPathWithOverride(s1_to_n1_to_f1, color),
+                        followChoreoPathWithOverride(f1_to_shoot1, color),
+                        followChoreoPathWithOverride(shoot1_to_f2, color),
+                        followChoreoPathWithOverride(f2_to_n2, color),
+                        followChoreoPathWithOverride(n2_to_n3, color)));
+    }
+
     public Command five_S1N1F1N2N3(Alliance color) {
         return Commands.parallel(
                 masterSuperstructureSequence(),
@@ -103,10 +127,14 @@ public class AutoCommands {
                         superstructure.prep(),
                         // superstructure.fastFeed(),
                         continuouslyIntakeForShoot().repeatedly(),
-                        superstructure.autoFeed(
-                                () ->
-                                        swerve.getOdoPose().getX()
-                                                < AutoConstants.kDrivetrainXShootingThreshold)));
+                        superstructure.autoFeed(() -> goodToGo())));
+    }
+
+    public boolean goodToGo() {
+        return DriverStation.getAlliance().get() == Alliance.Blue
+                ? swerve.getOdoPose().getX() < AutoConstants.kDrivetrainXShootingThreshold
+                : swerve.getOdoPose().getX()
+                        > FieldConstants.kFieldLength - AutoConstants.kDrivetrainXShootingThreshold;
     }
 
     public Command scorePreload() {
@@ -136,7 +164,7 @@ public class AutoCommands {
     }
 
     public double getPivotAngle() {
-        return targeting.getPivotAngle(FieldConstants.kBlueSpeaker) * 180 / Math.PI;
+        return targeting.getPivotAngle(FieldConstants.kSpeaker) * 180 / Math.PI;
     }
 
     public Command target() {
@@ -174,6 +202,24 @@ public class AutoCommands {
         return Commands.deadline(
                 followChoreoPathWithOverride(path, color),
                 superstructure.pivotCommands.setAngle(() -> getPivotAngle()));
+    }
+
+    public Command followChoreoPathWithOverrideFast(String path, Alliance color) {
+        ChoreoTrajectory traj = Choreo.getTrajectory(path);
+        boolean mirror = color == Alliance.Red;
+        return customChoreoFolloweForOverride(
+                traj,
+                swerve::getOdoPose,
+                choreoSwerveController(
+                        AutoConstants.kXController,
+                        AutoConstants.kYController,
+                        new PIDController(0, 0, 0)),
+                (ChassisSpeeds speeds) ->
+                        swerve.drive(
+                                speeds.vxMetersPerSecond * 0.7,
+                                speeds.vyMetersPerSecond * 0.7,
+                                deeThetaOnTheMove()),
+                () -> mirror);
     }
 
     public Command followChoreoPathWithOverride(String path, Alliance color) {
