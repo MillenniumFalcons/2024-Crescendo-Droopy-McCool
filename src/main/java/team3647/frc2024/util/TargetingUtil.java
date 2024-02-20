@@ -21,7 +21,7 @@ public class TargetingUtil {
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
     private final Transform3d robotToShooter;
-    private final double shootSpeed = 25;
+    private final double shootSpeed = 30;
     private double offset = 0;
     double kDt = 0.02;
 
@@ -151,7 +151,7 @@ public class TargetingUtil {
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angle))
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotRelativeSpeeds.get().vxMetersPerSecond * 1.5));
+                                        - robotRelativeSpeeds.get().vxMetersPerSecond * 1.2));
         // SmartDashboard.putNumber("new pibotr angle", newPivotAngle * 180 / Math.PI);
         return newPivotAngle;
     }

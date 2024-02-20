@@ -91,7 +91,7 @@ public class RobotContainer {
         mainController
                 .leftTrigger
                 .and(() -> superstructure.getPiece())
-                .whileTrue(superstructure.shoot())
+                .whileTrue(superstructure.shootAmp())
                 .onFalse(superstructure.stowFromShoot())
                 .onFalse(superstructure.ejectPiece());
         mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));

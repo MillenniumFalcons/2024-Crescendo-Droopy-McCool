@@ -121,8 +121,8 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(),
                 Commands.sequence(
-                        followChoreoPathWithOverride(s1_to_n1_to_f1, color),
-                        followChoreoPathWithOverride(f1_to_n2, color),
+                        followChoreoPathWithOverrideFast(s1_to_n1_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 

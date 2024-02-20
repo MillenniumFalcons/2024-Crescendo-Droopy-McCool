@@ -72,6 +72,10 @@ public class Superstructure {
         return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble());
     }
 
+    public Command spinUpAmp() {
+        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble() * 5.5 / 25);
+    }
+
     public double getDesiredSpeed() {
         return shootSpeed;
     }
@@ -97,7 +101,7 @@ public class Superstructure {
     }
 
     public boolean flywheelReadY() {
-        return shooterLeft.velocityReached(shootSpeed * 1.1, 1);
+        return shooterLeft.velocityReached(shootSpeed * 1.15, 1);
     }
 
     public boolean pivotReady() {
@@ -116,7 +120,24 @@ public class Superstructure {
                         // Commands.waitSeconds(3),
                         Commands.waitUntil(
                                         () ->
-                                                shooterLeft.velocityReached(shootSpeed * 1.1, 1)
+                                                shooterLeft.velocityReached(shootSpeed * 1.15, 1)
+                                                        && pivot.angleReached(
+                                                                pivotAngleSupplier.getAsDouble(), 5)
+                                                        && swerveAimed.getAsBoolean())
+                                .withTimeout(0.7),
+                        feed()));
+    }
+
+    public Command shootAmp() {
+        return Commands.parallel(
+                prep(),
+                spinUpAmp(),
+                Commands.sequence(
+                        // Commands.waitSeconds(3),
+                        Commands.waitUntil(
+                                        () ->
+                                                shooterLeft.velocityReached(
+                                                                shootSpeed * 5.5 / 25 * 1.15, 1)
                                                         && pivot.angleReached(
                                                                 pivotAngleSupplier.getAsDouble(), 5)
                                                         && swerveAimed.getAsBoolean())
@@ -132,7 +153,7 @@ public class Superstructure {
                         // Commands.waitSeconds(3),
                         Commands.waitUntil(
                                         () ->
-                                                shooterLeft.velocityReached(shootSpeed * 1.1, 1)
+                                                shooterLeft.velocityReached(shootSpeed * 1.15, 1)
                                                         && pivot.angleReached(60, 5))
                                 .withTimeout(0.5),
                         feed()));
@@ -232,7 +253,7 @@ public class Superstructure {
                                         () ->
                                                 pivot.angleReached(
                                                         pivotAngleSupplier.getAsDouble(), 2)),
-                                feed());
+                                kickerCommands.fastKick());
                     } else if (!frontPiece() && !pivot.backPiece()) {
                         slightForwards();
                     } else {
