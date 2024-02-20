@@ -33,8 +33,6 @@ public class Superstructure {
     private final double shootSpeed;
     private boolean hasPiece = false;
 
-    private final DoubleSupplier wristInverseKinematics;
-
     private final BooleanSupplier swerveAimed;
 
     public Superstructure(
@@ -47,7 +45,6 @@ public class Superstructure {
             DoubleSupplier pivotAngleSupplier,
             DoubleSupplier shooterSpeedSuppler,
             double shootSpeed,
-            DoubleSupplier wristInverseKinematics,
             BooleanSupplier swerveAimed) {
         this.intake = intake;
         this.kicker = kicker;
@@ -58,7 +55,6 @@ public class Superstructure {
         this.shooterSpeedSupplier = shooterSpeedSuppler;
         this.shootSpeed = shootSpeed;
         this.wrist = wrist;
-        this.wristInverseKinematics = wristInverseKinematics;
         this.swerveAimed = swerveAimed;
 
         intakeCommands = new IntakeCommands(intake);
@@ -78,10 +74,6 @@ public class Superstructure {
 
     public double getDesiredSpeed() {
         return shootSpeed;
-    }
-
-    public double getInverseKinematics() {
-        return wristInverseKinematics.getAsDouble();
     }
 
     public double getWantedPivot() {
@@ -126,9 +118,23 @@ public class Superstructure {
                                         () ->
                                                 shooterLeft.velocityReached(shootSpeed * 1.1, 1)
                                                         && pivot.angleReached(
-                                                                pivotAngleSupplier.getAsDouble(), 3)
+                                                                pivotAngleSupplier.getAsDouble(), 5)
                                                         && swerveAimed.getAsBoolean())
-                                .withTimeout(2),
+                                .withTimeout(0.7),
+                        feed()));
+    }
+
+    public Command batterShot() {
+        return Commands.parallel(
+                batterPrep(),
+                spinUp(),
+                Commands.sequence(
+                        // Commands.waitSeconds(3),
+                        Commands.waitUntil(
+                                        () ->
+                                                shooterLeft.velocityReached(shootSpeed * 1.1, 1)
+                                                        && pivot.angleReached(60, 5))
+                                .withTimeout(0.5),
                         feed()));
     }
 
@@ -147,7 +153,13 @@ public class Superstructure {
     public Command prep() {
         // SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
         // return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
-        return pivotCommands.setAngle(() -> SmartDashboard.getNumber("pivot interp", 35));
+        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+    }
+
+    public Command batterPrep() {
+        // SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
+        // return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+        return pivotCommands.setAngle(() -> 60);
     }
 
     public Command prepManual() {
@@ -170,17 +182,15 @@ public class Superstructure {
         return Commands.parallel(
                         intakeCommands.kill(),
                         kickerCommands.kick(),
-                        wristCommands
-                                .setAngle(() -> wristInverseKinematics.getAsDouble())
-                                .until(() -> wrist.angleReached(this.getInverseKinematics(), 5)))
-                .withTimeout(0.5)
+                        wristCommands.setAngle(() -> 110).until(() -> wrist.angleReached(110, 5)))
+                .withTimeout(0.3)
                 .andThen(shootThrough());
     }
 
     public Command passToShooterNoKicker() {
         return Commands.parallel(
                         intakeCommands.kill(),
-                        wristCommands.setAngle(() -> this.getInverseKinematics()))
+                        wristCommands.setAngle(() -> wrist.getInverseKinematics(pivot.getAngle())))
                 .withTimeout(0.5)
                 .andThen(shootThroughNoKicker());
     }

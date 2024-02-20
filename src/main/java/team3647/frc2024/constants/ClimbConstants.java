@@ -52,7 +52,7 @@ public class ClimbConstants {
         kMasterSlot0.kI = masterKI;
         kMasterSlot0.kD = masterKD;
         kMasterMotorOutput.NeutralMode = NeutralModeValue.Brake;
-        kMasterMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        kMasterMotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         kMasterSoftLimit.ForwardSoftLimitEnable = true;
         kMasterSoftLimit.ForwardSoftLimitThreshold = 90;
         kMasterSoftLimit.ReverseSoftLimitEnable = true;

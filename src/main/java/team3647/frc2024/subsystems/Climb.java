@@ -23,7 +23,7 @@ public class Climb extends TalonFXSubsystem {
             double nominalVoltage,
             double maxKG,
             double kDt) {
-        super(slave, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
+        super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
         super.addFollower(slave, false);
         this.minLength = minLength;
         this.maxLength = maxLength;

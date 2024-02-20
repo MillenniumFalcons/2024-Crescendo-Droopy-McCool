@@ -3,48 +3,36 @@ package team3647.frc2024.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import java.util.function.DoubleSupplier;
 import team3647.lib.GeomUtil;
 
 public class InverseKinematics {
 
-    private final DoubleSupplier pivotAngle;
-    private final double defaultAngle = 0;
-    private final double wristAngleoffSet = Math.toRadians(34);
-    private final double pivotLength = Units.inchesToMeters(7.9854);
-    private final double pivotHeight = Units.inchesToMeters(9);
-    private final double pivotX = Units.inchesToMeters(9.75);
-    private final double wristHeight = 0;
-    private final double wristX = 0;
-    private final double wristLength = Units.inchesToMeters(11.2);
-    private final double wristRollersAngle = Math.toRadians(28);
-    private final Pose2d wristOriginPos = new Pose2d(wristX, wristHeight, new Rotation2d());
-    private final double interestingOffset = Math.toRadians(5);
+    private static final double defaultAngle = 0;
+    private static final double wristAngleoffSet = Math.toRadians(34);
+    private static final double pivotLength = Units.inchesToMeters(7.9854);
+    private static final double pivotHeight = Units.inchesToMeters(9);
+    private static final double pivotX = Units.inchesToMeters(9.75);
+    private static final double wristHeight = 0;
+    private static final double wristX = 0;
+    private static final double wristLength = Units.inchesToMeters(11.2);
+    private static final double wristRollersAngle = Math.toRadians(28);
+    private static final Pose2d wristOriginPos = new Pose2d(wristX, wristHeight, new Rotation2d());
+    private static final double interestingOffset = Math.toRadians(5);
 
-    public InverseKinematics(DoubleSupplier pivotAngle) {
-        this.pivotAngle = pivotAngle;
-    }
+    public InverseKinematics() {}
 
     // all poses are from the side pov with the intake at the back, positive x is forward and
     // positive y is up, 0 rot is forward and positive is ccw
 
-    public Pose2d getPivotReceivingPosition() {
+    public static Pose2d getPivotReceivingPosition(double pivot) {
         return new Pose2d(
-                pivotX
-                        - pivotLength
-                                * Math.cos(
-                                        Math.toRadians(
-                                                pivotAngle.getAsDouble() + interestingOffset)),
-                pivotHeight
-                        - pivotLength
-                                * Math.sin(
-                                        Math.toRadians(
-                                                pivotAngle.getAsDouble() + interestingOffset)),
+                pivotX - pivotLength * Math.cos(Math.toRadians(pivot + interestingOffset)),
+                pivotHeight - pivotLength * Math.sin(Math.toRadians(pivot + interestingOffset)),
                 new Rotation2d());
     }
 
-    public double getWristHandoffAngleByPivot() {
-        Pose2d pivotReceivingPose = getPivotReceivingPosition();
+    public static double getWristHandoffAngleByPivot(double pivot) {
+        Pose2d pivotReceivingPose = getPivotReceivingPosition(pivot);
         double triangleBaseSqaured =
                 GeomUtil.distanceSquared(
                         wristOriginPos,
@@ -75,7 +63,7 @@ public class InverseKinematics {
         return Math.toDegrees(wristAngle);
     }
 
-    public Pose2d getCircleIntersection(Pose2d c1, double r1, Pose2d c2, double r2) {
+    public static Pose2d getCircleIntersection(Pose2d c1, double r1, Pose2d c2, double r2) {
         double distance = GeomUtil.distance(c1, c2);
         double d1 = (r1 * r1 - r2 * r2 + distance * distance) / (2 * distance);
         double h = Math.sqrt(r1 * r1 - d1 * d1);

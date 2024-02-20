@@ -35,7 +35,6 @@ import team3647.frc2024.subsystems.Wrist;
 import team3647.frc2024.util.AprilTagPhotonVision;
 import team3647.frc2024.util.AutoDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
-import team3647.frc2024.util.InverseKinematics;
 import team3647.frc2024.util.NeuralDetector;
 import team3647.frc2024.util.NeuralDetectorPhotonVision;
 import team3647.frc2024.util.TargetingUtil;
@@ -64,6 +63,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
+        runningMode = autoCommands.blueFive_S1N1F1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -78,8 +78,14 @@ public class RobotContainer {
         // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
-                .and(() -> superstructure.getPiece())
+                .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
                 .whileTrue(superstructure.shoot())
+                .onFalse(superstructure.stowFromShoot())
+                .onFalse(superstructure.ejectPiece());
+        mainController
+                .rightBumper
+                .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
+                .whileTrue(superstructure.batterShot())
                 .onFalse(superstructure.stowFromShoot())
                 .onFalse(superstructure.ejectPiece());
         mainController
@@ -90,6 +96,9 @@ public class RobotContainer {
                 .onFalse(superstructure.ejectPiece());
         mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
         mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
+
+        mainController.leftMidButton.onTrue(autoDrive.enable());
+        mainController.rightMidButton.onTrue(autoDrive.disable());
 
         mainController
                 .leftBumper
@@ -115,13 +124,13 @@ public class RobotContainer {
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());
 
-        mainController.dPadUp.onTrue(targetingUtil.offsetUp());
-        mainController.dPadDown.onTrue(targetingUtil.offsetDown());
+        mainController.dPadLeft.onTrue(targetingUtil.offsetUp());
+        mainController.dPadRight.onTrue(targetingUtil.offsetDown());
 
-        mainController.dPadLeft.whileTrue(climbCommands.goUp());
-        mainController.dPadLeft.onFalse(climbCommands.kill());
-        mainController.dPadRight.whileTrue(climbCommands.goDown());
-        mainController.dPadRight.onFalse(climbCommands.kill());
+        mainController.dPadUp.whileTrue(climbCommands.goUp());
+        mainController.dPadUp.onFalse(climbCommands.kill());
+        mainController.dPadDown.whileTrue(climbCommands.goDown());
+        mainController.dPadDown.onFalse(climbCommands.kill());
 
         // characterization
 
@@ -180,7 +189,6 @@ public class RobotContainer {
 
     public void configureSmartDashboardLogging() {
         SmartDashboard.putNumber("wrist kg", 0);
-        printer.addDouble("inverse kinematics", superstructure::getInverseKinematics);
         printer.addDouble("wanted pivot", superstructure::getWantedPivot);
         printer.addDouble("back tof", pivot::tofBack);
         printer.addBoolean("front tof", pivot::frontPiece);
@@ -196,6 +204,7 @@ public class RobotContainer {
         printer.addBoolean("shooter ready", superstructure::flywheelReadY);
         printer.addBoolean("pivot ready", superstructure::pivotReady);
         printer.addBoolean("swerve ready", superstructure::swerveReady);
+        printer.addDouble("tx", detector::getTX);
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -298,7 +307,7 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     private final VisionController visionController =
-            new VisionController(swerve::addVisionData, swerve::shouldAddData);
+            new VisionController(swerve::addVisionData, swerve::shouldAddData, backRight);
 
     //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
@@ -306,15 +315,13 @@ public class RobotContainer {
 
     public final TargetingUtil targetingUtil =
             new TargetingUtil(
-                    FieldConstants.kSpeaker,
-                    FieldConstants.kAmp,
+                    FieldConstants.kBlueSpeaker,
+                    FieldConstants.kBlueAmp,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     PivotConstants.robotToPivot);
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
-
-    public final InverseKinematics inverseKinematics = new InverseKinematics(pivot::getAngle);
 
     public final Superstructure superstructure =
             new Superstructure(
@@ -327,7 +334,6 @@ public class RobotContainer {
                     autoDrive::getPivotAngle,
                     autoDrive::getShootSpeed,
                     targetingUtil.exitVelocity(),
-                    inverseKinematics::getWristHandoffAngleByPivot,
                     autoDrive::swerveAimed);
 
     public final AutoCommands autoCommands =

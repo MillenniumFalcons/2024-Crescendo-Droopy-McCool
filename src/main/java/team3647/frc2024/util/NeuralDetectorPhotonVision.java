@@ -10,7 +10,11 @@ public class NeuralDetectorPhotonVision extends PhotonCamera implements NeuralDe
 
     public double getTX() {
         var result = this.getLatestResult();
-        return result.getBestTarget().getYaw();
+        if (result.hasTargets()) {
+            return result.getBestTarget().getYaw();
+        } else {
+            return 0;
+        }
     }
 
     public boolean hasTarget() {

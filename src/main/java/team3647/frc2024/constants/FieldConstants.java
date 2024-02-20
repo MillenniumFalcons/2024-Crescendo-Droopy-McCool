@@ -32,7 +32,7 @@ public class FieldConstants {
     public static final Pose3d kRedSpeaker =
             new Pose3d(16.5, 5.5, kSpeakerHeight, new Rotation3d());
 
-    public static final Pose3d kSpeaker;
+    public static final Pose3d kSpeaker = null;
 
     public static final double kAmpHeight = Units.inchesToMeters(35);
 
@@ -40,7 +40,7 @@ public class FieldConstants {
 
     public static final Pose3d kRedAmp = new Pose3d(14.630, 8.218, kAmpHeight, new Rotation3d());
 
-    public static final Pose3d kAmp;
+    public static final Pose3d kAmp = null;
 
     public static final Pose2d[] kBlueAutoNotePoses = {
         new Pose2d(2.912, 6.951, kZero), // n1
@@ -75,8 +75,8 @@ public class FieldConstants {
     }
 
     static {
-        kSpeaker = DriverStation.getAlliance().get() == Alliance.Blue ? kBlueSpeaker : kRedSpeaker;
-        kAmp = DriverStation.getAlliance().get() == Alliance.Blue ? kBlueAmp : kRedAmp;
+        // kSpeaker = DriverStation.getAlliance().get() == Alliance.Blue ? kBlueSpeaker : kRedSpeaker;
+        // kAmp = DriverStation.getAlliance().get() == Alliance.Blue ? kBlueAmp : kRedAmp;
     }
 
     private FieldConstants() {}

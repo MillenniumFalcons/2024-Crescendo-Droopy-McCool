@@ -51,6 +51,9 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getTranslation()
                         .toTranslation2d()
                         .getNorm();
+        if (targetDistance > 2.5) {
+            return Optional.empty();
+        }
         final var stdDevs = VecBuilder.fill(0.1, 0.1, 0.1).times(targetDistance);
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);

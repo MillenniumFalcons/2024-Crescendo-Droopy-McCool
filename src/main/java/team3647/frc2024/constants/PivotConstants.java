@@ -75,9 +75,9 @@ public class PivotConstants {
         kMasterSpeakerMap.put(4.0, 31.0);
         kMasterSpeakerMap.put(4.5, 28.1);
         kMasterSpeakerMap.put(5.0, 26.2);
-        kMasterSpeakerMap.put(5.5, 24.0);
-        kMasterSpeakerMap.put(6.0, 22.0);
-        kMasterSpeakerMap.put(20.0, 22.0);
+        kMasterSpeakerMap.put(5.5, 22.5);
+        kMasterSpeakerMap.put(6.0, 20.0);
+        kMasterSpeakerMap.put(20.0, 17.0);
         kMasterAmpMap.put(0.0, 60.0);
         kMasterAmpMap.put(100.0, 60.0);
         Slot0Configs kMasterSlot0 = new Slot0Configs();
