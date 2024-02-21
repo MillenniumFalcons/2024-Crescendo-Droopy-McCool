@@ -60,7 +60,7 @@ public class InverseKinematics {
             wristAngle += Math.PI;
         }
         wristAngle += wristAngleoffSet; // difference between measured angle and angle to rollers;
-        return Math.toDegrees(wristAngle);
+        return 0;
     }
 
     public static Pose2d getCircleIntersection(Pose2d c1, double r1, Pose2d c2, double r2) {

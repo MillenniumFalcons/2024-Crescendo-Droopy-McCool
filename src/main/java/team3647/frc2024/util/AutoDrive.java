@@ -73,9 +73,6 @@ public class AutoDrive extends VirtualSubsystem {
             targetRot = targeting.shootAtAmp().rotation;
         }
         SmartDashboard.putNumber("auto drive", getRot());
-        SmartDashboard.putNumber(
-                "pivot setpoint",
-                targeting.getPivotAngle(FieldConstants.kBlueSpeaker) * 180 / Math.PI);
     }
 
     public boolean swerveAimed() {

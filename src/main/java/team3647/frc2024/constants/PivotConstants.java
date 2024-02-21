@@ -5,8 +5,11 @@ import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import com.playingwithfusion.TimeOfFlight;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
@@ -34,7 +37,7 @@ public class PivotConstants {
     public static final double kMaxDegree = 61.2;
     public static final double kMaxDegreeUnderStage = 30;
 
-    private static final double masterKP = 1.5;
+    private static final double masterKP = 3;
     private static final double masterKI = 0;
     private static final double masterKD = 0;
 
@@ -50,6 +53,9 @@ public class PivotConstants {
             new Transform3d(
                     new Translation3d(Units.inchesToMeters(0.3), 0, Units.inchesToMeters(17.2)),
                     new Rotation3d());
+
+    public static final Transform2d robotToPivot2d =
+            new Transform2d(new Translation2d(Units.inchesToMeters(0.3), 0), new Rotation2d());
 
     public static final TimeOfFlight tofBack =
             new TimeOfFlight(GlobalConstants.SensorIds.pivotBackId);

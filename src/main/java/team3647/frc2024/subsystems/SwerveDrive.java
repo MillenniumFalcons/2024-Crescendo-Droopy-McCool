@@ -164,13 +164,13 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public boolean underStage() {
-        return ((getOdoPose().getX() > 3.5 && getOdoPose().getX() < 6.2)
-                        || (getOdoPose().getX() > 10.2 && getOdoPose().getX() < 12.9))
-                && ((Math.abs(getOdoPose().getY() - 4) < ((getOdoPose().getX() - 2.9) * 1 / 1.73)
-                                && getOdoPose().getX() < 6.2)
+        return ((getOdoPose().getX() > 3.2 && getOdoPose().getX() < 6.5)
+                        || (getOdoPose().getX() > 9.9 && getOdoPose().getX() < 13.3))
+                && ((Math.abs(getOdoPose().getY() - 4) < ((getOdoPose().getX() - 2.6) * 1 / 1.73)
+                                && getOdoPose().getX() < 6.5)
                         || (Math.abs(getOdoPose().getY() - 4)
-                                        < ((13.6 - getOdoPose().getX()) * 1 / 1.73)
-                                && getOdoPose().getX() > 10.2));
+                                        < ((13.9 - getOdoPose().getX()) * 1 / 1.73)
+                                && getOdoPose().getX() > 9.9));
     }
 
     public Command runDriveQuasiTest(Direction direction) {

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
+import team3647.frc2024.constants.ShooterConstants;
 import team3647.frc2024.subsystems.ShooterLeft;
 import team3647.frc2024.subsystems.ShooterRight;
 import team3647.lib.LinearRegression;
@@ -19,8 +20,9 @@ public class ShooterCommands {
     public Command openLoop(DoubleSupplier bill) {
         return Commands.run(
                 () -> {
-                    shooterRight.openLoop(bill.getAsDouble() * 0.8);
-                    shooterLeft.openLoop(MathUtil.clamp(bill.getAsDouble() * 1.2, 0, 1));
+                    shooterRight.openLoop(bill.getAsDouble() * ShooterConstants.kRightRatio);
+                    shooterLeft.openLoop(
+                            MathUtil.clamp(bill.getAsDouble() * ShooterConstants.kLeftRatio, 0, 1));
                 },
                 shooterRight,
                 shooterLeft);
@@ -29,8 +31,18 @@ public class ShooterCommands {
     public Command setVelocity(DoubleSupplier bill) {
         return Commands.run(
                 () -> {
-                    shooterRight.setVelocity(bill.getAsDouble() * 0.85);
-                    shooterLeft.setVelocity(bill.getAsDouble() * 1.15);
+                    shooterRight.setVelocity(bill.getAsDouble() * ShooterConstants.kRightRatio);
+                    shooterLeft.setVelocity(bill.getAsDouble() * ShooterConstants.kLeftRatio);
+                },
+                shooterRight,
+                shooterLeft);
+    }
+
+    public Command setVelocity(DoubleSupplier bill, DoubleSupplier ratio) {
+        return Commands.run(
+                () -> {
+                    shooterRight.setVelocity(bill.getAsDouble() * ratio.getAsDouble());
+                    shooterLeft.setVelocity(bill.getAsDouble() * (2 - ratio.getAsDouble()));
                 },
                 shooterRight,
                 shooterLeft);

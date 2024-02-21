@@ -10,6 +10,7 @@ import team3647.frc2024.commands.KickerCommands;
 import team3647.frc2024.commands.PivotCommands;
 import team3647.frc2024.commands.ShooterCommands;
 import team3647.frc2024.commands.WristCommands;
+import team3647.frc2024.constants.ShooterConstants;
 
 public class Superstructure {
 
@@ -69,11 +70,12 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble());
+        return shooterCommands.setVelocity(
+                () -> getDesiredSpeed(), () -> ShooterConstants.kLeftRatio);
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble() * 5.5 / 25);
+        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble() * 7 / 25);
     }
 
     public double getDesiredSpeed() {
@@ -101,7 +103,7 @@ public class Superstructure {
     }
 
     public boolean flywheelReadY() {
-        return shooterLeft.velocityReached(shootSpeed * 1.15, 1);
+        return shooterLeft.velocityReached(30, 1);
     }
 
     public boolean pivotReady() {
@@ -117,14 +119,14 @@ public class Superstructure {
                 prep(),
                 spinUp(),
                 Commands.sequence(
-                        // Commands.waitSeconds(3),
+                        // Commands.waitSeconds(2.5),
                         Commands.waitUntil(
                                         () ->
-                                                shooterLeft.velocityReached(shootSpeed * 1.15, 1)
+                                                shooterLeft.velocityReached(30, 1)
                                                         && pivot.angleReached(
                                                                 pivotAngleSupplier.getAsDouble(), 5)
                                                         && swerveAimed.getAsBoolean())
-                                .withTimeout(0.7),
+                                .withTimeout(1.2),
                         feed()));
     }
 
@@ -133,11 +135,16 @@ public class Superstructure {
                 prep(),
                 spinUpAmp(),
                 Commands.sequence(
-                        // Commands.waitSeconds(3),
+                        // Commands.waitSeconds(2.5),
                         Commands.waitUntil(
                                         () ->
                                                 shooterLeft.velocityReached(
-                                                                shootSpeed * 5.5 / 25 * 1.15, 1)
+                                                                shootSpeed
+                                                                        * 7
+                                                                        / getDesiredSpeed()
+                                                                        * ShooterConstants
+                                                                                .kLeftRatio,
+                                                                1)
                                                         && pivot.angleReached(
                                                                 pivotAngleSupplier.getAsDouble(), 5)
                                                         && swerveAimed.getAsBoolean())
@@ -150,10 +157,10 @@ public class Superstructure {
                 batterPrep(),
                 spinUp(),
                 Commands.sequence(
-                        // Commands.waitSeconds(3),
+                        Commands.waitSeconds(2.5),
                         Commands.waitUntil(
                                         () ->
-                                                shooterLeft.velocityReached(shootSpeed * 1.15, 1)
+                                                shooterLeft.velocityReached(30, 1)
                                                         && pivot.angleReached(60, 5))
                                 .withTimeout(0.5),
                         feed()));
@@ -172,14 +179,10 @@ public class Superstructure {
     }
 
     public Command prep() {
-        // SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
-        // return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
-        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+        return pivotCommands.setAngle(() -> SmartDashboard.getNumber("pivot interp angle", 35));
     }
 
     public Command batterPrep() {
-        // SmartDashboard.putNumber("pivot supplier", pivotAngleSupplier.getAsDouble());
-        // return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
         return pivotCommands.setAngle(() -> 60);
     }
 

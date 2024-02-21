@@ -6,4 +6,6 @@ public interface AprilTagCamera {
     public Optional<VisionMeasurement> QueueToInputs();
 
     public int getTagNum();
+
+    public String getName();
 }

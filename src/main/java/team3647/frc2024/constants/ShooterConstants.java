@@ -41,6 +41,9 @@ public class ShooterConstants {
     public static final double kStallCurrent = 55.0;
     public static final double kMaxCurrent = 40.0;
 
+    public static final double kLeftRatio = 1.5;
+    public static final double kRightRatio = 2 - kLeftRatio;
+
     static {
         Slot0Configs kRightSlot0 = new Slot0Configs();
         Slot0Configs kLeftSlot0 = new Slot0Configs();

@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import java.util.Optional;
 import org.photonvision.PhotonCamera;
@@ -17,6 +18,9 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
             AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator photonPoseEstimator;
     Transform3d robotToCam;
+    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
+    private final edu.wpi.first.math.Vector<N3> multiStdDevs =
+            VecBuilder.fill(0.00096, 0.00096, 0.02979);
 
     public AprilTagPhotonVision(String camera, Transform3d robotToCam) {
         super(NetworkTableInstance.getDefault(), camera);
@@ -29,7 +33,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         this.robotToCam = robotToCam;
     }
 
-    public static AprilTagId getId(int id) {
+    public AprilTagId getId(int id) {
         var adjustedId = id - 1;
         var possibleValues = AprilTagId.values();
         if (adjustedId < 0 || adjustedId > possibleValues.length) {
@@ -37,6 +41,10 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         }
 
         return possibleValues[adjustedId];
+    }
+
+    public String getName() {
+        return this.getName();
     }
 
     public Optional<VisionMeasurement> QueueToInputs() {
@@ -51,10 +59,10 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getTranslation()
                         .toTranslation2d()
                         .getNorm();
-        if (targetDistance > 2.5) {
+        if (targetDistance > 4) {
             return Optional.empty();
         }
-        final var stdDevs = VecBuilder.fill(0.1, 0.1, 0.1).times(targetDistance);
+        final var stdDevs = baseStdDevs.times(targetDistance).times(1 / result.getTargets().size());
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
         return Optional.of(measurement);

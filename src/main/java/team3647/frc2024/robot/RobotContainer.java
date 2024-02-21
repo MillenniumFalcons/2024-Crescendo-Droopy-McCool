@@ -175,7 +175,7 @@ public class RobotContainer {
                         autoDrive::getMode,
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
-        pivot.setDefaultCommand(superstructure.pivotCommands.holdPositionAtCall());
+        pivot.setDefaultCommand(superstructure.prep());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
         wrist.setDefaultCommand(superstructure.wristCommands.holdPositionAtCall());
@@ -188,23 +188,25 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
-        SmartDashboard.putNumber("wrist kg", 0);
-        printer.addDouble("wanted pivot", superstructure::getWantedPivot);
-        printer.addDouble("back tof", pivot::tofBack);
-        printer.addBoolean("front tof", pivot::frontPiece);
-        printer.addDouble("wrist", wrist::getAngle);
-        printer.addDouble("pivot", pivot::getAngle);
-        printer.addBoolean("under stage", swerve::underStage);
-        printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
-        SmartDashboard.putNumber("pivot interp", 35);
+        // SmartDashboard.putNumber("wrist kg", 0);
+        // printer.addDouble("wanted pivot", superstructure::getWantedPivot);
+        // printer.addDouble("back tof", pivot::tofBack);
+        // printer.addBoolean("front tof", pivot::frontPiece);
+        // printer.addDouble("wrist", wrist::getAngle);
+        // printer.addDouble("pivot", pivot::getAngle);
+        // printer.addBoolean("under stage", swerve::underStage);
+        // printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
+        SmartDashboard.putNumber("pivot interp angle", 35);
         printer.addDouble("shooter distance squared", targetingUtil::distance);
-        printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
-        printer.addBoolean("wrist at stow", superstructure::wristAtStow);
-        printer.addDouble("climb len", () -> climb.getLength());
-        printer.addBoolean("shooter ready", superstructure::flywheelReadY);
-        printer.addBoolean("pivot ready", superstructure::pivotReady);
-        printer.addBoolean("swerve ready", superstructure::swerveReady);
-        printer.addDouble("tx", detector::getTX);
+        // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
+        // printer.addBoolean("wrist at stow", superstructure::wristAtStow);
+        // printer.addDouble("climb len", () -> climb.getLength());
+        // printer.addBoolean("shooter ready", superstructure::flywheelReadY);
+        // printer.addBoolean("pivot ready", superstructure::pivotReady);
+        // printer.addBoolean("swerve ready", superstructure::swerveReady);
+        // printer.addDouble("tx", detector::getTX);
+        SmartDashboard.putNumber("shoot speed", 30);
+        SmartDashboard.putNumber("ratio", 1);
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -307,7 +309,8 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     private final VisionController visionController =
-            new VisionController(swerve::addVisionData, swerve::shouldAddData, backRight);
+            new VisionController(
+                    swerve::addVisionData, swerve::shouldAddData, backLeft, backRight, right, left);
 
     //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
@@ -319,7 +322,7 @@ public class RobotContainer {
                     FieldConstants.kBlueAmp,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
-                    PivotConstants.robotToPivot);
+                    PivotConstants.robotToPivot2d);
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 

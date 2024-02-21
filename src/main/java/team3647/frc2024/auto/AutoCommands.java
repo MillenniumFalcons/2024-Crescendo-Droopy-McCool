@@ -176,10 +176,6 @@ public class AutoCommands {
         return targeting.getPivotAngleByPose(pose.get()) * 180 / Math.PI;
     }
 
-    public double getPivotAngle() {
-        return targeting.getPivotAngle(FieldConstants.kBlueSpeaker) * 180 / Math.PI;
-    }
-
     public Command target() {
         return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()), swerve).withTimeout(2);
     }
@@ -209,12 +205,6 @@ public class AutoCommands {
     public Command pathAndShootWithOverride(String path, Alliance color) {
         return Commands.parallel(
                 superstructure.shootStow(), followChoreoPathWithOverride(path, color));
-    }
-
-    public Command followChoreoPathWithOverrideAndPivot(String path, Alliance color) {
-        return Commands.deadline(
-                followChoreoPathWithOverride(path, color),
-                superstructure.pivotCommands.setAngle(() -> getPivotAngle()));
     }
 
     public Command followChoreoPathWithOverrideFast(String path, Alliance color) {

@@ -24,7 +24,7 @@ public class VisionConstants {
                             Units.inchesToMeters(8),
                             Units.inchesToMeters(8.7885)),
                     new Rotation3d(0, -Math.PI / 180 * 28.12, 0)
-                            .rotateBy(new Rotation3d(0, 0, Math.PI * 5 / 6 - 0.2)));
+                            .rotateBy(new Rotation3d(0, 0, Math.PI * 5 / 6 + 0.2)));
 
     public static final Transform3d robotToBackRight =
             new Transform3d(
