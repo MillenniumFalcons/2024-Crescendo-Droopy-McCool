@@ -21,7 +21,7 @@ public class TargetingUtil {
     private final Transform2d robotToShooter;
     private final double shootSpeed = 30;
     private double offset = 0;
-    double kDt = 0.02;
+    double kDt = 0.1;
 
     private final InterpolatingDoubleTreeMap speakerMap = PivotConstants.kMasterSpeakerMap;
 
@@ -77,9 +77,9 @@ public class TargetingUtil {
         var newAngle =
                 Math.atan(
                         (exitVelocity() * Math.cos(pivotAngle) * Math.sin(angle)
-                                        + robotRelativeSpeeds.get().vyMetersPerSecond)
+                                        + robotRelativeSpeeds.get().vyMetersPerSecond * 2)
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angle)
-                                        + robotRelativeSpeeds.get().vxMetersPerSecond));
+                                        + robotRelativeSpeeds.get().vxMetersPerSecond * 2));
         boolean shouldAddPi = Math.cos(newAngle) < 0;
         double pi = shouldAddPi ? Math.PI : 0;
         boolean shouldSubtract = Math.sin(newAngle) < 0;
@@ -102,7 +102,7 @@ public class TargetingUtil {
                 Math.atan(
                         (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angleStationary))
                                 / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotRelativeSpeeds.get().vxMetersPerSecond * 1.2));
+                                        - robotRelativeSpeeds.get().vxMetersPerSecond * 2));
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 

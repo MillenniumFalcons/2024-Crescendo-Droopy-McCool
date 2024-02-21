@@ -310,7 +310,7 @@ public class RobotContainer {
 
     private final VisionController visionController =
             new VisionController(
-                    swerve::addVisionData, swerve::shouldAddData, backLeft, backRight, right, left);
+                    swerve::addVisionData, swerve::shouldAddData, backRight, backLeft, right, left);
 
     //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 

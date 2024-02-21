@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.SwerveDrive;
@@ -63,6 +64,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE || DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
@@ -129,7 +131,7 @@ public class AutoDrive extends VirtualSubsystem {
             case SHOOT_AT_AMP:
                 return Units.radiansToDegrees(targeting.shootAtAmp().pivot);
             default:
-                return 50;
+                return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
         }
     }
 

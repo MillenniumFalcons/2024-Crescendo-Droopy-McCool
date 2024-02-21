@@ -3,6 +3,7 @@ package team3647.frc2024.util;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,10 +27,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         super(NetworkTableInstance.getDefault(), camera);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
-                        aprilTagFieldLayout,
-                        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                        this,
-                        robotToCam);
+                        aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, this, robotToCam);
         this.robotToCam = robotToCam;
     }
 
@@ -44,7 +42,16 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
     }
 
     public String getName() {
-        return this.getName();
+        return this.toString();
+    }
+
+    public Optional<Pose3d> camPose() {
+        var update = photonPoseEstimator.update();
+        if (update.isEmpty()) {
+            return Optional.empty();
+        }
+        var bruh = update.get().estimatedPose;
+        return Optional.of(bruh.transformBy(robotToCam));
     }
 
     public Optional<VisionMeasurement> QueueToInputs() {
@@ -59,9 +66,8 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getTranslation()
                         .toTranslation2d()
                         .getNorm();
-        if (targetDistance > 4) {
-            return Optional.empty();
-        }
+        // Logger.recordOutput(
+        //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         final var stdDevs = baseStdDevs.times(targetDistance).times(1 / result.getTargets().size());
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);

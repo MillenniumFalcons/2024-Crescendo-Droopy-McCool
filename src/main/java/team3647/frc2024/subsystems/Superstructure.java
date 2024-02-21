@@ -157,7 +157,7 @@ public class Superstructure {
                 batterPrep(),
                 spinUp(),
                 Commands.sequence(
-                        Commands.waitSeconds(2.5),
+                        // Commands.waitSeconds(2.5),
                         Commands.waitUntil(
                                         () ->
                                                 shooterLeft.velocityReached(30, 1)
@@ -179,7 +179,7 @@ public class Superstructure {
     }
 
     public Command prep() {
-        return pivotCommands.setAngle(() -> SmartDashboard.getNumber("pivot interp angle", 35));
+        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
     }
 
     public Command batterPrep() {
@@ -192,10 +192,9 @@ public class Superstructure {
 
     public Command stowFromShoot() {
         return Commands.parallel(
-                        pivotCommands.setAngle(() -> pivotStowAngle),
-                        shooterCommands.kill(),
-                        kickerCommands.kill())
-                .until(() -> pivot.angleReached(pivotStowAngle, 5));
+                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                shooterCommands.kill(),
+                kickerCommands.kill());
     }
 
     public Command intake() {

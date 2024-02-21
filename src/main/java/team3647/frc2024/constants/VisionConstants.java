@@ -1,5 +1,6 @@
 package team3647.frc2024.constants;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -22,7 +23,7 @@ public class VisionConstants {
                     new Translation3d(
                             Units.inchesToMeters(-9.2193),
                             Units.inchesToMeters(8),
-                            Units.inchesToMeters(8.7885)),
+                            Units.inchesToMeters(8.7885 + 1.75)),
                     new Rotation3d(0, -Math.PI / 180 * 28.12, 0)
                             .rotateBy(new Rotation3d(0, 0, Math.PI * 5 / 6 + 0.2)));
 
@@ -31,7 +32,7 @@ public class VisionConstants {
                     new Translation3d(
                             Units.inchesToMeters(-9.2193),
                             Units.inchesToMeters(-8),
-                            Units.inchesToMeters(8.7885)),
+                            Units.inchesToMeters(8.7885 + 1.75)),
                     new Rotation3d(0, -Math.PI / 180 * 28.12, 0)
                             .rotateBy(new Rotation3d(0, 0, -Math.PI * 5 / 6 - 0.2)));
 
@@ -40,15 +41,17 @@ public class VisionConstants {
                     new Translation3d(
                             Units.inchesToMeters(1.4481),
                             Units.inchesToMeters(11.0043),
-                            Units.inchesToMeters(18.4375)),
+                            Units.inchesToMeters(18.4375 + 1.75)),
                     new Rotation3d(0, -Math.PI / 9, 0).rotateBy(new Rotation3d(0, 0, Math.PI / 2)));
 
     public static final Transform3d robotToRight =
             new Transform3d(
                     new Translation3d(
-                            Units.inchesToMeters(-1.4481),
+                            Units.inchesToMeters(1.4481),
                             Units.inchesToMeters(-11.0043),
-                            Units.inchesToMeters(18.4375)),
+                            Units.inchesToMeters(18.4375 + 1.75)),
                     new Rotation3d(0, -Math.PI / 9, 0)
                             .rotateBy(new Rotation3d(0, 0, -Math.PI / 2)));
+    public static final Pose3d randompose =
+            new Pose3d(new Translation3d(2, 2, 0), new Rotation3d());
 }
