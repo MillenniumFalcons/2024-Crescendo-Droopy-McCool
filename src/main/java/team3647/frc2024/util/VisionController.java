@@ -34,21 +34,21 @@ public class VisionController extends VirtualSubsystem {
 
             var getInputs = inputs.get();
 
-            Logger.recordOutput("Robot/Vision/" + camera.getName(), getInputs.pose);
+            // Logger.recordOutput("Robot/Vision/" + camera.getName(), getInputs.pose);
 
-            Logger.recordOutput("Test/Bot", VisionConstants.randompose);
-            Logger.recordOutput(
-                    "Test/BackRight",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToBackRight));
-            Logger.recordOutput(
-                    "Test/BackLeft",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToBackLeft));
-            Logger.recordOutput(
-                    "Test/Right",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToRight));
-            Logger.recordOutput(
-                    "Test/Left",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToLeft));
+            // Logger.recordOutput("Test/Bot", VisionConstants.randompose);
+            // Logger.recordOutput(
+            //         "Test/BackRight",
+            //         VisionConstants.randompose.transformBy(VisionConstants.robotToBackRight));
+            // Logger.recordOutput(
+            //         "Test/BackLeft",
+            //         VisionConstants.randompose.transformBy(VisionConstants.robotToBackLeft));
+            // Logger.recordOutput(
+            //         "Test/Right",
+            //         VisionConstants.randompose.transformBy(VisionConstants.robotToRight));
+            // Logger.recordOutput(
+            //         "Test/Left",
+            //         VisionConstants.randompose.transformBy(VisionConstants.robotToLeft));
 
             if (shouldAddData.apply(getInputs.pose)) {
                 botPoseAcceptor.accept(

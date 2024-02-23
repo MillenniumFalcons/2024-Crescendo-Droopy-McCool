@@ -37,11 +37,13 @@ public class AutoCommands {
     private final String n3_to_f5 = "n3 to f5";
     private final String n1_to_n2 = "n1 to n2";
     private final String n3_to_n2 = "n3 to n2";
+    private final String s1_to_f1 = "s1 to f1";
     private final String f1_to_n2 = "f1 to n2";
     private final String f1_to_shoot1 = "f1 to shoot1";
     private final String shoot1_to_f2 = "shoot1 to f2";
     private final String f2_to_n2 = "f2 to n2";
     private final String n2_to_f1 = "n2 to f1";
+    private final String f3_to_shoot1 = "f3 to shoot1";
     private final String f2_to_shoot1 = "f2 to shoot1";
     private final String shoot1_to_f3 = "shoot1 to f3";
     private final String f3_to_shoot2 = "f3 to shoot2";
@@ -56,6 +58,8 @@ public class AutoCommands {
     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
+
+    public final AutonomousMode blueFour_S1F1F2F3;
 
     public final AutonomousMode yes;
 
@@ -78,6 +82,9 @@ public class AutoCommands {
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+
+        this.blueFour_S1F1F2F3 =
+                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s1_to_f1));
     }
 
     public void registerCommands() {}
@@ -126,6 +133,20 @@ public class AutoCommands {
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
+    public Command four_S1F1F2F3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s1_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
+    }
+
     public Command four_S1N1N2N3(Alliance color) {
         return Commands.parallel(
                 masterSuperstructureSequence(),
@@ -143,7 +164,7 @@ public class AutoCommands {
                         superstructure.prep(),
                         // superstructure.fastFeed(),
                         continuouslyIntakeForShoot().repeatedly(),
-                        superstructure.autoFeed(() -> goodToGo())));
+                        superstructure.feed()));
     }
 
     public boolean goodToGo() {
@@ -172,10 +193,6 @@ public class AutoCommands {
         return Commands.parallel(superstructure.spinUp(), superstructure.feed());
     }
 
-    public double getPivotAngleByPose(Supplier<Pose2d> pose) {
-        return targeting.getPivotAngleByPose(pose.get()) * 180 / Math.PI;
-    }
-
     public Command target() {
         return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()), swerve).withTimeout(2);
     }
@@ -189,7 +206,12 @@ public class AutoCommands {
                 superstructure
                         .intake()
                         .until(currentYes)
-                        .andThen(superstructure.passToShooterNoKicker()));
+                        .andThen(
+                                superstructure.passToShooterNoKicker(
+                                        new Trigger(
+                                                () ->
+                                                        swerve.getVel() < 3
+                                                                && swerve.getPoseX() < 5))));
     }
 
     public Pose2d flipForPP(Pose2d pose) {
@@ -219,8 +241,8 @@ public class AutoCommands {
                         new PIDController(0, 0, 0)),
                 (ChassisSpeeds speeds) ->
                         swerve.drive(
-                                speeds.vxMetersPerSecond * 0.7,
-                                speeds.vyMetersPerSecond * 0.7,
+                                speeds.vxMetersPerSecond,
+                                speeds.vyMetersPerSecond,
                                 deeThetaOnTheMove()),
                 () -> mirror);
     }

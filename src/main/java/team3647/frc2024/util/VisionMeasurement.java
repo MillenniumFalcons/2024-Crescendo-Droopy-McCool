@@ -30,4 +30,10 @@ public class VisionMeasurement {
         return new VisionMeasurement(
                 estimatedPose.estimatedPose.toPose2d(), estimatedPose.timestampSeconds, stdDevs);
     }
+
+    public static VisionMeasurement fromEstimatedRobotPose(
+            EstimatedRobotPose estimatedPose, double timestampSeconds, Vector<N3> stdDevs) {
+        return new VisionMeasurement(
+                estimatedPose.estimatedPose.toPose2d(), timestampSeconds, stdDevs);
+    }
 }

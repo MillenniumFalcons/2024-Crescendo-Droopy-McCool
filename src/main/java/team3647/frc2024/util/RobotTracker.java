@@ -1,0 +1,83 @@
+package team3647.frc2024.util;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import java.util.function.Supplier;
+import team3647.lib.team6328.VirtualSubsystem;
+
+public class RobotTracker extends VirtualSubsystem {
+
+    private final Pose3d speakerPose;
+    private final Pose3d ampPose;
+
+    private final Supplier<Pose2d> drivePose;
+    private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
+
+    private final Transform2d robotToShooter;
+
+    private PeriodicIO periodicIO = new PeriodicIO();
+
+    public static class PeriodicIO {
+        private double distanceFromSpeaker = 0;
+        private Pose2d compensatedPose = new Pose2d();
+    }
+
+    public RobotTracker(
+            Pose3d speakerPose,
+            Pose3d ampPose,
+            Supplier<Pose2d> drivePose,
+            Supplier<ChassisSpeeds> robotRelativeSpeeds,
+            Transform2d robotToShooter) {
+        this.speakerPose = speakerPose;
+        this.ampPose = ampPose;
+        this.drivePose = drivePose;
+        this.robotRelativeSpeeds = robotRelativeSpeeds;
+        this.robotToShooter = robotToShooter;
+    }
+
+    @Override
+    public void periodic() {
+        setCompensatedPose();
+        setDistanceFromSpeaker();
+    }
+
+    public void setCompensatedPose() {
+        var speeds = robotRelativeSpeeds.get();
+        var twist =
+                new Twist2d(
+                        speeds.vxMetersPerSecond * 0.1,
+                        speeds.vyMetersPerSecond * 0.1,
+                        speeds.omegaRadiansPerSecond * 0.1);
+        periodicIO.compensatedPose = drivePose.get().exp(twist);
+    }
+
+    public void setDistanceFromSpeaker() {
+        var currentPose = periodicIO.compensatedPose;
+        var shooterPose = currentPose.transformBy(robotToShooter);
+        var shooterDistance = speakerPose.toPose2d().minus(shooterPose);
+        periodicIO.distanceFromSpeaker = shooterDistance.getTranslation().getNorm();
+    }
+
+    public double getDistanceFromSpeaker() {
+        return periodicIO.distanceFromSpeaker;
+    }
+
+    public Pose2d getCompensatedPose() {
+        return periodicIO.compensatedPose;
+    }
+
+    public ChassisSpeeds getChassisSpeeds() {
+        return this.robotRelativeSpeeds.get();
+    }
+
+    public Pose3d getAmp() {
+        return this.ampPose;
+    }
+
+    public Pose3d getSpeaker() {
+        return this.speakerPose;
+    }
+}

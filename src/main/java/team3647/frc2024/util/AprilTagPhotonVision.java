@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import java.util.Optional;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -55,12 +56,12 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
     }
 
     public Optional<VisionMeasurement> QueueToInputs() {
-        var update = photonPoseEstimator.update();
         var result = this.getLatestResult();
-        if (update.isEmpty() || !result.hasTargets()) {
+        if (!result.hasTargets()) {
             return Optional.empty();
         }
-        var targetDistance =
+        var update = photonPoseEstimator.update(result);
+        double targetDistance =
                 result.getBestTarget()
                         .getBestCameraToTarget()
                         .getTranslation()
@@ -68,9 +69,15 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getNorm();
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
-        final var stdDevs = baseStdDevs.times(targetDistance).times(1 / result.getTargets().size());
+        final var stdDevs =
+                baseStdDevs
+                        .times(targetDistance)
+                        .times(8 / Math.pow(result.getTargets().size(), 3));
         VisionMeasurement measurement =
-                VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
+                VisionMeasurement.fromEstimatedRobotPose(
+                        update.get(),
+                        Timer.getFPGATimestamp() - result.getLatencyMillis() / 1000,
+                        stdDevs);
         return Optional.of(measurement);
     }
 

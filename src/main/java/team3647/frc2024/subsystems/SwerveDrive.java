@@ -93,7 +93,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         this.m_driveSysIdRoutine =
                 new SysIdRoutine(
                         new SysIdRoutine.Config(
-                                Units.Volts.of(6).per(Units.Seconds.of(1)),
+                                Units.Volts.of(10).per(Units.Seconds.of(1)),
                                 Units.Volts.of(30),
                                 null,
                                 ModifiedSignalLogger.logState()),

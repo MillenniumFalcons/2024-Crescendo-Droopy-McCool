@@ -83,7 +83,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     private void setTargetPose(Pose2d targetPose) {
         this.targetPose = targetPose;
-        swerve.field.getObject("piece pose").setPose(targetPose);
+        // swerve.field.getObject("piece pose").setPose(targetPose);
         xController.setGoal(targetPose.getX());
     }
 
