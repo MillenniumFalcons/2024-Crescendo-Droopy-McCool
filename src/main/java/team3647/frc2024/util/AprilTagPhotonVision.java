@@ -28,7 +28,10 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         super(NetworkTableInstance.getDefault(), camera);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
-                        aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, this, robotToCam);
+                        aprilTagFieldLayout,
+                        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                        this,
+                        robotToCam);
         this.robotToCam = robotToCam;
     }
 
@@ -69,14 +72,15 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getNorm();
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
-        final var stdDevs =
-                baseStdDevs
-                        .times(targetDistance)
-                        .times(8 / Math.pow(result.getTargets().size(), 3));
+        double numTargets = result.getTargets().size();
+        final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
+        final double ambiguityScore =
+                numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity());
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(
                         update.get(),
                         Timer.getFPGATimestamp() - result.getLatencyMillis() / 1000,
+                        ambiguityScore,
                         stdDevs);
         return Optional.of(measurement);
     }

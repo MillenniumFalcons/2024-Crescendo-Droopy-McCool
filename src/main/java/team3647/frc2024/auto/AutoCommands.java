@@ -5,6 +5,7 @@ import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -37,6 +38,7 @@ public class AutoCommands {
     private final String n3_to_f5 = "n3 to f5";
     private final String n1_to_n2 = "n1 to n2";
     private final String n3_to_n2 = "n3 to n2";
+    private final String shoot1_to_n2 = "shoot1 to n2";
     private final String s1_to_f1 = "s1 to f1";
     private final String f1_to_n2 = "f1 to n2";
     private final String f1_to_shoot1 = "f1 to shoot1";
@@ -51,6 +53,7 @@ public class AutoCommands {
     private final String shoot3_to_f4 = "shoot3 to f4";
     private final String f4_to_shoot3 = "f4 to shoot3";
     private final String shoot3_to_f3 = "shoot3 to f3";
+    private final String n1_to_f1 = "n1 to f1";
     private final String s3_to_f5 = "s3 to f5";
 
     public final Trigger currentYes;
@@ -99,6 +102,25 @@ public class AutoCommands {
 
     public AutonomousMode getFour_S1N1F1N2N3ByColor(Alliance color) {
         return new AutonomousMode(four_S1N1N2N3(color), getInitial(s1_to_n1));
+    }
+
+    public Command seven_S1N1F1F2F3N2N3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s1_to_n1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(n1_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_n2, color),
+                        followChoreoPathWithOverrideFast(n2_to_n3, color)));
     }
 
     public Command six_S1N1F1F2N2N3(Alliance color) {
@@ -217,7 +239,7 @@ public class AutoCommands {
     public Pose2d flipForPP(Pose2d pose) {
         return new Pose2d(
                 new Translation2d(FieldConstants.kFieldLength - pose.getX(), pose.getY()),
-                pose.getRotation().rotateBy(FieldConstants.kOneEighty));
+                new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
     }
 
     public Command overrideChoreoPathWithIntake(String path, Alliance color) {

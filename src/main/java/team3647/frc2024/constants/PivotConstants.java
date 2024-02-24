@@ -62,7 +62,7 @@ public class PivotConstants {
     public static final TimeOfFlight tofFront =
             new TimeOfFlight(GlobalConstants.SensorIds.pivotFrontId);
 
-    // distance squared vs pivot angle
+    // distance vs pivot angle
     public static final InterpolatingDoubleTreeMap kMasterSpeakerMap =
             new InterpolatingDoubleTreeMap();
 

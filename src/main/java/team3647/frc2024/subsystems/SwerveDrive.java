@@ -26,7 +26,6 @@ import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.util.ModifiedSignalLogger;
 import team3647.frc2024.util.SwerveFOCRequest;
 import team3647.frc2024.util.VisionMeasurement;
-import team3647.lib.GeomUtil;
 import team3647.lib.PeriodicSubsystem;
 
 public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
@@ -95,7 +94,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
                         new SysIdRoutine.Config(
                                 Units.Volts.of(10).per(Units.Seconds.of(1)),
                                 Units.Volts.of(30),
-                                null,
+                                Units.Seconds.of(4),
                                 ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
                                 (Measure<Voltage> volts) ->
@@ -108,9 +107,9 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         this.m_steerSysIdRoutine =
                 new SysIdRoutine(
                         new SysIdRoutine.Config(
-                                Units.Volts.of(6).per(Units.Seconds.of(1)),
-                                Units.Volts.of(30),
-                                null,
+                                Units.Volts.of(3).per(Units.Seconds.of(1)),
+                                Units.Volts.of(10),
+                                Units.Seconds.of(4),
                                 ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
                                 (Measure<Voltage> volts) ->
@@ -284,8 +283,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public boolean shouldAddData(Pose2d visionPose) {
-        double distance = GeomUtil.distanceSquared(visionPose, getOdoPose());
-        return (distance < 1) ? true : true;
+        double distance = visionPose.minus(getOdoPose()).getTranslation().getNorm();
+        return (distance < 1) ? true : false;
     }
 
     public void addVisionData(VisionMeasurement data) {

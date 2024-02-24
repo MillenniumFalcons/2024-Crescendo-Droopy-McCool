@@ -49,9 +49,9 @@ public class TargetingUtil {
                         * Math.signum(toPose.getX()); // field angle to pose stationary
         var newAngle =
                 Math.atan(
-                        (exitVelocity() * Math.cos(pivotAngle) * Math.sin(angle)
+                        (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
                                         + robotTracker.getChassisSpeeds().vyMetersPerSecond)
-                                / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angle)
+                                / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
                                         + robotTracker.getChassisSpeeds().vxMetersPerSecond));
         boolean shouldAddPi = Math.cos(newAngle) < 0;
         double pi = shouldAddPi ? Math.PI : 0;
@@ -74,8 +74,8 @@ public class TargetingUtil {
         }
         double newPivotAngle =
                 Math.atan(
-                        (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angleStationary))
-                                / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
+                        (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
+                                / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
                                         - robotTracker.getChassisSpeeds().vxMetersPerSecond));
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
@@ -105,6 +105,10 @@ public class TargetingUtil {
     // returns shot exit velocity
     public double exitVelocity() {
         return shootSpeed;
+    }
+
+    public double adjustedExit() {
+        return shootSpeed * 3 / 4;
     }
 
     // for cleaner packaging

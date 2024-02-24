@@ -34,6 +34,7 @@ public class Superstructure {
     private final double wristIntakeAngle = 0;
     private final double shootSpeed;
     private boolean hasPiece = false;
+    private boolean isClimbing;
 
     private final BooleanSupplier swerveAimed;
 
@@ -70,13 +71,22 @@ public class Superstructure {
         return kickerCommands.kick();
     }
 
+    public Command setIsClimbing() {
+        return Commands.runOnce(() -> this.isClimbing = true);
+    }
+
+    public boolean isClimbing() {
+        return isClimbing;
+    }
+
     public Command spinUp() {
         return shooterCommands.setVelocity(
                 () -> getDesiredSpeed(), () -> ShooterConstants.kLeftRatio);
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble() * 7 / 25);
+        return shooterCommands.setVelocity(
+                () -> shooterSpeedSupplier.getAsDouble() * 7 / getDesiredSpeed());
     }
 
     public double getDesiredSpeed() {
@@ -129,6 +139,12 @@ public class Superstructure {
                                                         && swerveAimed.getAsBoolean())
                                 .withTimeout(1.2),
                         feed()));
+    }
+
+    public boolean aimedAtSpeaker() {
+        return shooterLeft.velocityReached(30, 1)
+                && pivot.angleReached(pivotAngleSupplier.getAsDouble(), 5)
+                && swerveAimed.getAsBoolean();
     }
 
     public Command shootAmp() {

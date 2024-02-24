@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Map;
 import team3647.frc2024.constants.LEDConstants;
+import team3647.frc2024.util.LEDTriggers;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class LEDs extends VirtualSubsystem {
@@ -22,8 +23,11 @@ public class LEDs extends VirtualSubsystem {
 
     private CANdle m_candle;
 
-    public LEDs(CANdle candle) {
+    private LEDTriggers triggers;
+
+    public LEDs(CANdle candle, LEDTriggers triggers) {
         this.m_candle = candle;
+        this.triggers = triggers;
     }
 
     private void setAnimation(Animation animation) {
