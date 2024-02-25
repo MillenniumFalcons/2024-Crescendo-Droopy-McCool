@@ -86,7 +86,7 @@ public class Superstructure {
 
     public Command spinUpAmp() {
         return shooterCommands.setVelocity(
-                () -> shooterSpeedSupplier.getAsDouble() * 7 / getDesiredSpeed());
+                () -> shooterSpeedSupplier.getAsDouble() * 2 / getDesiredSpeed());
     }
 
     public double getDesiredSpeed() {
@@ -157,7 +157,7 @@ public class Superstructure {
                                         () ->
                                                 shooterLeft.velocityReached(
                                                                 shootSpeed
-                                                                        * 7
+                                                                        * 2
                                                                         / getDesiredSpeed()
                                                                         * ShooterConstants
                                                                                 .kLeftRatio,
@@ -199,7 +199,7 @@ public class Superstructure {
     }
 
     public Command prepAmp() {
-        return pivotCommands.setAngle(() -> 45);
+        return pivotCommands.setAngle(() -> 35);
     }
 
     public Command batterPrep() {

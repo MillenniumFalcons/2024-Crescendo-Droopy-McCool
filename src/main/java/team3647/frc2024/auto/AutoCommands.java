@@ -69,6 +69,8 @@ public class AutoCommands {
 
     public final AutonomousMode redFour_S1F2F2F3;
 
+    public final AutonomousMode redFour_S3F5F4F3;
+
     public final AutonomousMode redFive_S1N1F1F2F3;
 
     public final AutonomousMode yes;
@@ -94,6 +96,10 @@ public class AutoCommands {
                 new AutonomousMode(
                         five_S1N1F1N2N3(Alliance.Red),
                         AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.redFour_S3F5F4F3 =
+                new AutonomousMode(
+                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s3_to_f5)));
 
         this.redFive_S1N1F1F2F3 =
                 new AutonomousMode(
@@ -174,6 +180,20 @@ public class AutoCommands {
                         followChoreoPathWithOverrideFast(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverrideFast(f1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
+    }
+
+    public Command four_S3F5F4F3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s3_to_f5, color),
+                        followChoreoPathWithOverrideFast(f5_to_shoot3, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot3_to_f4, color),
+                        followChoreoPathWithOverrideFast(f4_to_shoot3, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot3_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
     }
 
     public Command four_S1F1F2F3(Alliance color) {

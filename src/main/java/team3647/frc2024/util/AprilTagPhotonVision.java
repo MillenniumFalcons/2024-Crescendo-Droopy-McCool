@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.Timer;
 import java.util.Optional;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -81,10 +80,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                 numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity());
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(
-                        update.get(),
-                        Timer.getFPGATimestamp() - result.getLatencyMillis() / 1000,
-                        ambiguityScore,
-                        stdDevs);
+                        update.get(), update.get().timestampSeconds, ambiguityScore, stdDevs);
         return Optional.of(measurement);
     }
 
