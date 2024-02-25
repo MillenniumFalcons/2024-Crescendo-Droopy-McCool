@@ -106,7 +106,7 @@ public class AutoCommands {
 
     public Command seven_S1N1F1F2F3N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s1_to_n1, color),
                         Commands.waitSeconds(0.2),
@@ -125,7 +125,7 @@ public class AutoCommands {
 
     public Command six_S1N1F1F2N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverride(f1_to_shoot1, color),
@@ -136,7 +136,7 @@ public class AutoCommands {
 
     public Command four_S3N5N4N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s3_to_f5, color),
                         followChoreoPathWithOverride(f5_to_shoot3, color),
@@ -148,7 +148,7 @@ public class AutoCommands {
 
     public Command five_S1N1F1N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverrideFast(f1_to_n2, color),
@@ -157,7 +157,7 @@ public class AutoCommands {
 
     public Command four_S1F1F2F3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s1_to_f1, color),
                         followChoreoPathWithOverrideFast(f1_to_shoot1, color),
@@ -171,26 +171,31 @@ public class AutoCommands {
 
     public Command four_S1N1N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1, color),
                         followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
-    public Command masterSuperstructureSequence() {
+    public Command masterSuperstructureSequence(Alliance color) {
         return Commands.sequence(
                 scorePreload(),
                 Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.prep(),
                         // superstructure.fastFeed(),
-                        continuouslyIntakeForShoot().repeatedly(),
+                        continuouslyIntakeForShoot(color).repeatedly(),
                         superstructure.feed()));
     }
 
-    public boolean goodToGo() {
-        return swerve.getOdoPose().getX() < AutoConstants.kDrivetrainXShootingThreshold;
+    public boolean goodToGo(Alliance color) {
+        if (color == Alliance.Blue) {
+            return swerve.getOdoPose().getX() < AutoConstants.kDrivetrainXShootingThreshold;
+        } else {
+            return swerve.getOdoPose().getX()
+                    > FieldConstants.kFieldLength - AutoConstants.kDrivetrainXShootingThreshold;
+        }
     }
 
     public Command scorePreload() {
@@ -223,17 +228,14 @@ public class AutoCommands {
         return Commands.parallel(superstructure.shootStow());
     }
 
-    public Command continuouslyIntakeForShoot() {
+    public Command continuouslyIntakeForShoot(Alliance color) {
         return Commands.sequence(
                 superstructure
                         .intake()
                         .until(currentYes)
                         .andThen(
                                 superstructure.passToShooterNoKicker(
-                                        new Trigger(
-                                                () ->
-                                                        swerve.getVel() < 3
-                                                                && swerve.getPoseX() < 5))));
+                                        new Trigger(() -> goodToGo(color)))));
     }
 
     public Pose2d flipForPP(Pose2d pose) {

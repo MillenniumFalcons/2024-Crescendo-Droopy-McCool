@@ -14,4 +14,10 @@ public class AllianceFlip {
                 new Translation2d(FieldConstants.kFieldLength - pose.getX(), pose.getY()),
                 new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
     }
+
+    public static Pose2d flipForPP(Pose2d pose) {
+        return new Pose2d(
+                new Translation2d(FieldConstants.kFieldLength - pose.getX(), pose.getY()),
+                new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
+    }
 }

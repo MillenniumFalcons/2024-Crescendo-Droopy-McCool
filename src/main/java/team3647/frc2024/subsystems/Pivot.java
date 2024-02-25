@@ -6,7 +6,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class Pivot extends TalonFXSubsystem {
@@ -59,6 +61,12 @@ public class Pivot extends TalonFXSubsystem {
     @Override
     public void periodic() {
         super.periodic();
+        Logger.recordOutput(
+                "Pivot/Pose",
+                new Pose3d(
+                        new Translation3d(
+                                Units.inchesToMeters(0.3), 0, Units.inchesToMeters(17.2 + 1.75)),
+                        new Rotation3d(0, Units.degreesToRadians(getAngle()), 0)));
         if (underStage.getAsBoolean()) {
             this.maxAngle = maxAngleUnderStage;
         } else {

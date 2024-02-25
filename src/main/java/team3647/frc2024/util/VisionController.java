@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class VisionController extends VirtualSubsystem {
@@ -47,6 +48,8 @@ public class VisionController extends VirtualSubsystem {
             Collections.sort(list);
 
             botPoseAcceptor.accept(list.get(0));
+
+            Logger.recordOutput("Robot/Vision", list.get(0).pose);
         }
     }
 }

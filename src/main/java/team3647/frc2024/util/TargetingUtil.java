@@ -1,11 +1,9 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.PivotConstants;
 
 public class TargetingUtil {
@@ -32,17 +30,10 @@ public class TargetingUtil {
     }
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
-    public AimingParameters shootAtPose(Pose3d pose) {
+    public AimingParameters shootAtPose(Pose2d pose) {
         double pivotAngle =
                 Math.toRadians(speakerMap.get(robotTracker.getDistanceFromSpeaker()) + offset);
-        if (pose.getZ() == FieldConstants.kAmpHeight) {
-            pivotAngle =
-                    Math.toRadians(
-                            ampMap.get(robotTracker.getDistanceFromSpeaker())
-                                    + offset); // pivot angle stationary
-        }
-        final var toPose =
-                robotTracker.getCompensatedPose().minus(pose.toPose2d()).getTranslation();
+        final var toPose = robotTracker.getCompensatedPose().minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())
                         * Math.signum(toPose.getY())
@@ -80,7 +71,7 @@ public class TargetingUtil {
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 
-    public AimingParameters shootAtPose(Pose3d pose, double shootSpeed) {
+    public AimingParameters shootAtPose(Pose2d pose, double shootSpeed) {
         return shootAtPose(pose).withShootSpeed(shootSpeed);
     }
 

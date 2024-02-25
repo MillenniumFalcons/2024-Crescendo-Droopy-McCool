@@ -1,17 +1,18 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class RobotTracker extends VirtualSubsystem {
 
-    private final Pose3d speakerPose;
-    private final Pose3d ampPose;
+    private Pose2d speakerPose;
+    private Pose2d ampPose;
 
     private final Supplier<Pose2d> drivePose;
     private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
@@ -26,8 +27,8 @@ public class RobotTracker extends VirtualSubsystem {
     }
 
     public RobotTracker(
-            Pose3d speakerPose,
-            Pose3d ampPose,
+            Pose2d speakerPose,
+            Pose2d ampPose,
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> robotRelativeSpeeds,
             Transform2d robotToShooter) {
@@ -36,6 +37,22 @@ public class RobotTracker extends VirtualSubsystem {
         this.drivePose = drivePose;
         this.robotRelativeSpeeds = robotRelativeSpeeds;
         this.robotToShooter = robotToShooter;
+
+        DriverStation.getAlliance()
+                .ifPresent(
+                        (alliance) ->
+                                this.speakerPose =
+                                        alliance == Alliance.Red
+                                                ? AllianceFlip.flipForPP(speakerPose)
+                                                : speakerPose);
+
+        DriverStation.getAlliance()
+                .ifPresent(
+                        (alliance) ->
+                                this.ampPose =
+                                        alliance == Alliance.Red
+                                                ? AllianceFlip.flipForPP(ampPose)
+                                                : ampPose);
     }
 
     @Override
@@ -57,7 +74,7 @@ public class RobotTracker extends VirtualSubsystem {
     public void setDistanceFromSpeaker() {
         var currentPose = periodicIO.compensatedPose;
         var shooterPose = currentPose.transformBy(robotToShooter);
-        var shooterDistance = speakerPose.toPose2d().minus(shooterPose);
+        var shooterDistance = speakerPose.minus(shooterPose);
         periodicIO.distanceFromSpeaker = shooterDistance.getTranslation().getNorm();
     }
 
@@ -73,11 +90,11 @@ public class RobotTracker extends VirtualSubsystem {
         return this.robotRelativeSpeeds.get();
     }
 
-    public Pose3d getAmp() {
+    public Pose2d getAmp() {
         return this.ampPose;
     }
 
-    public Pose3d getSpeaker() {
+    public Pose2d getSpeaker() {
         return this.speakerPose;
     }
 }

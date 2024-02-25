@@ -4,6 +4,7 @@
 
 package team3647.frc2024.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -70,6 +71,8 @@ public class Robot extends LoggedRobot {
 
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
+
+        SignalLogger.stop();
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
