@@ -2,6 +2,8 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -40,11 +42,14 @@ public class TargetingUtil {
                         * Math.signum(toPose.getY())
                         * Math.signum(toPose.getX()); // field angle to pose stationary
 
-        if (toPose.getX() > 0) {
-            angle -= Math.PI;
-        }
+        double invert = 1;
 
-        double invert = -Math.signum(toPose.getX());
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                angle -= Math.PI;
+                invert = -1;
+            }
+        }
         var newAngle =
                 Math.atan2(
                         (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)

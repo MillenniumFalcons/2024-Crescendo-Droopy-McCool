@@ -66,7 +66,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFour_S3F5F4F3;
+        runningMode = autoCommands.blueFour_S1F1F2F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -330,7 +330,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            true));
+                            false));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
@@ -357,7 +357,7 @@ public class RobotContainer {
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
     private final Trigger setPiece =
-            new Trigger(() -> intake.getMasterCurrent() > 32 && wrist.getAngle() < 5)
+            new Trigger(() -> intake.getMasterCurrent() > 45 && wrist.getAngle() < 5)
                     .debounce(0.06)
                     .or(mainController.buttonB);
 

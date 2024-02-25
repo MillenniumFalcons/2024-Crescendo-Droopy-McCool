@@ -65,6 +65,8 @@ public class AutoCommands {
 
     public final AutonomousMode blueFour_S1F1F2F3;
 
+    public final AutonomousMode blueFour_S3F5F4F3;
+
     public final AutonomousMode redFive_S1N1F1N2N3;
 
     public final AutonomousMode redFour_S1F2F2F3;
@@ -85,7 +87,7 @@ public class AutoCommands {
         this.superstructure = superstructure;
         this.targeting = targeting;
 
-        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.1);
 
         this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
@@ -112,6 +114,9 @@ public class AutoCommands {
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+
+        this.blueFour_S3F5F4F3 =
+                new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
         this.blueFour_S1F1F2F3 =
                 new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s1_to_f1));

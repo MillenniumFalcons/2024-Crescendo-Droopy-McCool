@@ -102,7 +102,7 @@ public class Superstructure {
     }
 
     public boolean currentYes() {
-        return intake.getMasterCurrent() > 32 && wrist.getAngle() < 5;
+        return intake.getMasterCurrent() > 45 && wrist.getAngle() < 5;
     }
 
     public Command setPiece() {

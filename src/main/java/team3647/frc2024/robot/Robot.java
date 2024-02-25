@@ -71,6 +71,7 @@ public class Robot extends LoggedRobot {
 
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
+        SignalLogger.enableAutoLogging(false);
 
         SignalLogger.stop();
 

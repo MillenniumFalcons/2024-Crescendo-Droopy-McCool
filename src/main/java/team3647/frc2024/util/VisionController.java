@@ -38,9 +38,9 @@ public class VisionController extends VirtualSubsystem {
 
             var getInputs = inputs.get();
 
-            // if (shouldAddData.apply(getInputs.pose)) {
-            list.add(getInputs);
-            // }
+            if (shouldAddData.apply(getInputs.pose)) {
+                list.add(getInputs);
+            }
         }
 
         if (!list.isEmpty()) {
