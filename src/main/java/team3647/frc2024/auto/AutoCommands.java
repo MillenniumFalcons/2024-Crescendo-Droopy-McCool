@@ -21,6 +21,7 @@ import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
+import team3647.frc2024.util.AllianceFlip;
 import team3647.frc2024.util.TargetingUtil;
 
 public class AutoCommands {
@@ -64,6 +65,12 @@ public class AutoCommands {
 
     public final AutonomousMode blueFour_S1F1F2F3;
 
+    public final AutonomousMode redFive_S1N1F1N2N3;
+
+    public final AutonomousMode redFour_S1F2F2F3;
+
+    public final AutonomousMode redFive_S1N1F1F2F3;
+
     public final AutonomousMode yes;
 
     public AutoCommands(
@@ -82,6 +89,20 @@ public class AutoCommands {
 
         this.blueFive_S1N1F1N2N3 =
                 new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s1_to_n1_to_f1));
+
+        this.redFive_S1N1F1N2N3 =
+                new AutonomousMode(
+                        five_S1N1F1N2N3(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.redFive_S1N1F1F2F3 =
+                new AutonomousMode(
+                        five_S1N1F1N2N3(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.redFour_S1F2F2F3 =
+                new AutonomousMode(
+                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_f1)));
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
@@ -201,8 +222,8 @@ public class AutoCommands {
     public Command scorePreload() {
         return Commands.parallel(
                         superstructure.spinUp(),
-                        superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.3), superstructure.feed()))
+                        superstructure.pivotCommands.setAngle(() -> 42),
+                        Commands.sequence(Commands.waitSeconds(0.6), superstructure.feed()))
                 .withTimeout(0.6);
     }
 

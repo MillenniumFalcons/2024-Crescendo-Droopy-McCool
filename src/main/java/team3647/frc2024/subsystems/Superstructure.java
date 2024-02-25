@@ -133,7 +133,7 @@ public class Superstructure {
                         // Commands.waitSeconds(2.5),
                         Commands.waitUntil(
                                         () ->
-                                                shooterLeft.velocityReached(30, 1)
+                                                shooterLeft.velocityReached(30, 2)
                                                         && pivot.angleReached(
                                                                 pivotAngleSupplier.getAsDouble(), 5)
                                                         && swerveAimed.getAsBoolean())
@@ -149,7 +149,7 @@ public class Superstructure {
 
     public Command shootAmp() {
         return Commands.parallel(
-                prep(),
+                prepAmp(),
                 spinUpAmp(),
                 Commands.sequence(
                         // Commands.waitSeconds(2.5),
@@ -162,8 +162,7 @@ public class Superstructure {
                                                                         * ShooterConstants
                                                                                 .kLeftRatio,
                                                                 1)
-                                                        && pivot.angleReached(
-                                                                pivotAngleSupplier.getAsDouble(), 5)
+                                                        && pivot.angleReached(55, 5)
                                                         && swerveAimed.getAsBoolean())
                                 .withTimeout(0.7),
                         feed()));
@@ -197,6 +196,10 @@ public class Superstructure {
 
     public Command prep() {
         return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
+    }
+
+    public Command prepAmp() {
+        return pivotCommands.setAngle(() -> 45);
     }
 
     public Command batterPrep() {

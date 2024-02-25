@@ -2,6 +2,7 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import team3647.frc2024.constants.PivotConstants;
@@ -38,19 +39,33 @@ public class TargetingUtil {
                 Math.acos(toPose.getX() / toPose.getNorm())
                         * Math.signum(toPose.getY())
                         * Math.signum(toPose.getX()); // field angle to pose stationary
+
+        if (toPose.getX() > 0) {
+            angle -= Math.PI;
+        }
+
+        double invert = -Math.signum(toPose.getX());
         var newAngle =
-                Math.atan(
+                Math.atan2(
                         (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
-                                        + robotTracker.getChassisSpeeds().vyMetersPerSecond)
-                                / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
-                                        + robotTracker.getChassisSpeeds().vxMetersPerSecond));
-        boolean shouldAddPi = Math.cos(newAngle) < 0;
-        double pi = shouldAddPi ? Math.PI : 0;
-        boolean shouldSubtract = Math.sin(newAngle) < 0;
-        pi = shouldSubtract ? -pi : pi;
-        newAngle = newAngle + pi; // field angle to pose
+                                + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
+                        (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
+                                + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
+        SmartDashboard.putNumber("new anle", newAngle);
+        // boolean shouldAddPi = Math.cos(newAngle) < 0;
+        // double pi = shouldAddPi ? Math.PI : 0;
+        // boolean shouldSubtract = Math.sin(newAngle) < 0;
+        // pi = shouldSubtract ? -pi : pi;
+        // newAngle = newAngle + pi; // field angle to pose
         double robotAngleToPose =
                 robotTracker.getCompensatedPose().getRotation().getRadians() - newAngle;
+        if (robotAngleToPose > Math.PI) {
+            robotAngleToPose -= 2 * Math.PI;
+        }
+        if (robotAngleToPose < -Math.PI) {
+            robotAngleToPose += 2 * Math.PI;
+        }
+        SmartDashboard.putNumber("roobot angle", robotAngleToPose);
         double angleOnTheMove = newAngle;
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;
@@ -67,7 +82,8 @@ public class TargetingUtil {
                 Math.atan(
                         (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
                                 / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotTracker.getChassisSpeeds().vxMetersPerSecond));
+                                        - robotTracker.getChassisSpeeds().vxMetersPerSecond
+                                                * invert));
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 

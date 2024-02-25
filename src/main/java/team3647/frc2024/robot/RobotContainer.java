@@ -34,6 +34,7 @@ import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.subsystems.Wrist;
 import team3647.frc2024.util.AprilTagPhotonVision;
 import team3647.frc2024.util.AutoDrive;
+import team3647.frc2024.util.AutoDrive.DriveMode;
 import team3647.frc2024.util.NeuralDetector;
 import team3647.frc2024.util.NeuralDetectorPhotonVision;
 import team3647.frc2024.util.RobotTracker;
@@ -55,15 +56,17 @@ public class RobotContainer {
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
 
+        // to change side change both auto and stuff in robot tracker
+
         pdh.clearStickyFaults();
         scheduler.registerSubsystem(
-                swerve, shooterRight, intake, wrist, kicker, pivot, printer, climb);
+                swerve, shooterRight, shooterLeft, intake, wrist, kicker, pivot, printer, climb);
 
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1F1F2F3;
+        runningMode = autoCommands.redFour_S1F2F2F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -72,65 +75,65 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
-        // mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
-        // mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
-        // mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
-        // // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
-        // mainController
-        //         .rightTrigger
-        //         .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
-        //         .whileTrue(superstructure.shoot())
-        //         .onFalse(superstructure.stowFromShoot())
-        //         .onFalse(superstructure.ejectPiece());
-        // mainController
-        //         .rightBumper
-        //         .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
-        //         .whileTrue(superstructure.batterShot())
-        //         .onFalse(superstructure.stowFromShoot())
-        //         .onFalse(superstructure.ejectPiece());
-        // mainController
-        //         .leftTrigger
-        //         .and(() -> superstructure.getPiece())
-        //         .whileTrue(superstructure.shootAmp())
-        //         .onFalse(superstructure.stowFromShoot())
-        //         .onFalse(superstructure.ejectPiece());
-        // mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
-        // mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
+        mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
+        mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
+        mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
+        // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
+        mainController
+                .rightTrigger
+                .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
+                .whileTrue(superstructure.shoot())
+                .onFalse(superstructure.stowFromShoot())
+                .onFalse(superstructure.ejectPiece());
+        mainController
+                .rightBumper
+                .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
+                .whileTrue(superstructure.batterShot())
+                .onFalse(superstructure.stowFromShoot())
+                .onFalse(superstructure.ejectPiece());
+        mainController
+                .leftTrigger
+                .and(() -> superstructure.getPiece())
+                .whileTrue(superstructure.shootAmp())
+                .onFalse(superstructure.stowFromShoot())
+                .onFalse(superstructure.ejectPiece());
+        mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
+        mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
 
-        // mainController.leftMidButton.onTrue(autoDrive.enable());
-        // mainController.rightMidButton.onTrue(autoDrive.disable());
+        mainController.leftMidButton.onTrue(autoDrive.enable());
+        mainController.rightMidButton.onTrue(autoDrive.disable());
 
-        // mainController
-        //         .leftBumper
-        //         .and(() -> detector.hasTarget())
-        //         .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
-        // mainController
-        //         .leftBumper
-        //         .and(() -> !superstructure.getPiece())
-        //         .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)))
-        //         .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
-        // setPiece.and(isIntaking)
-        //         .onTrue(superstructure.setPiece())
-        //         .onTrue(superstructure.passToShooter());
-        // mainController
-        //         .leftBumper
-        //         .or(() -> superstructure.getPiece())
-        //         .onFalse(superstructure.stowIntake())
-        //         .onFalse(superstructure.kickerCommands.kill());
-        // mainController
-        //         .leftBumper
-        //         .and(() -> detector.hasTarget())
-        //         .onFalse(autoDrive.setMode(DriveMode.NONE));
+        mainController
+                .leftBumper
+                .and(() -> detector.hasTarget())
+                .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
+        mainController
+                .leftBumper
+                .and(() -> !superstructure.getPiece())
+                .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)))
+                .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
+        setPiece.and(isIntaking)
+                .onTrue(superstructure.setPiece())
+                .onTrue(superstructure.passToShooter());
+        mainController
+                .leftBumper
+                .or(() -> superstructure.getPiece())
+                .onFalse(superstructure.stowIntake())
+                .onFalse(superstructure.kickerCommands.kill());
+        mainController
+                .leftBumper
+                .and(() -> detector.hasTarget())
+                .onFalse(autoDrive.setMode(DriveMode.NONE));
 
-        // mainController.buttonA.onTrue(superstructure.ejectPiece());
+        mainController.buttonA.onTrue(superstructure.ejectPiece());
 
-        // mainController.dPadLeft.onTrue(targetingUtil.offsetUp());
-        // mainController.dPadRight.onTrue(targetingUtil.offsetDown());
+        mainController.dPadLeft.onTrue(targetingUtil.offsetUp());
+        mainController.dPadRight.onTrue(targetingUtil.offsetDown());
 
-        // mainController.dPadUp.whileTrue(climbCommands.goUp());
-        // mainController.dPadUp.onFalse(climbCommands.kill());
-        // mainController.dPadDown.whileTrue(climbCommands.goDown());
-        // mainController.dPadDown.onFalse(climbCommands.kill());
+        mainController.dPadUp.whileTrue(climbCommands.goUp());
+        mainController.dPadUp.onFalse(climbCommands.kill());
+        mainController.dPadDown.whileTrue(climbCommands.goDown());
+        mainController.dPadDown.onFalse(climbCommands.kill());
 
         // characterization
 
@@ -150,18 +153,18 @@ public class RobotContainer {
 
         // shooter
 
-        mainController.dPadUp.whileTrue(
-                shooterLeft.runQuasiTest(
-                        edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
-        mainController.dPadDown.whileTrue(
-                shooterLeft.runQuasiTest(
-                        edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
-        mainController.dPadLeft.whileTrue(
-                shooterLeft.runDynamTest(
-                        edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
-        mainController.dPadRight.whileTrue(
-                shooterLeft.runDynamTest(
-                        edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
+        // mainController.dPadUp.whileTrue(
+        //         shooterLeft.runQuasiTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
+        // mainController.dPadDown.whileTrue(
+        //         shooterLeft.runQuasiTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
+        // mainController.dPadLeft.whileTrue(
+        //         shooterLeft.runDynamTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kForward));
+        // mainController.dPadRight.whileTrue(
+        //         shooterLeft.runDynamTest(
+        //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
     }
 
     private void configureDefaultCommands() {
@@ -196,7 +199,10 @@ public class RobotContainer {
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addBoolean("under stage", swerve::underStage);
         // printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
-        SmartDashboard.putNumber("pivot interp angle", 35);
+        printer.addBoolean("swerve aimed", autoDrive::swerveAimed);
+        printer.addBoolean("spun up", superstructure::flywheelReadY);
+        printer.addBoolean("pviot ready", superstructure::pivotReady);
+        SmartDashboard.putNumber("pivot interp angle", 40);
         printer.addDouble("shooter distance squared", targetingUtil::distance);
         // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
         // printer.addBoolean("wrist at stow", superstructure::wristAtStow);
@@ -323,7 +329,8 @@ public class RobotContainer {
                             FieldConstants.kBlueAmp,
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
-                            PivotConstants.robotToPivot2d));
+                            PivotConstants.robotToPivot2d,
+                            true));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 

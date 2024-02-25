@@ -4,8 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
 import team3647.lib.team6328.VirtualSubsystem;
 
@@ -31,34 +29,40 @@ public class RobotTracker extends VirtualSubsystem {
             Pose2d ampPose,
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> robotRelativeSpeeds,
-            Transform2d robotToShooter) {
+            Transform2d robotToShooter,
+            boolean redSide) {
         this.speakerPose = speakerPose;
         this.ampPose = ampPose;
         this.drivePose = drivePose;
         this.robotRelativeSpeeds = robotRelativeSpeeds;
         this.robotToShooter = robotToShooter;
+        if (redSide) {
+            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
+            this.ampPose = AllianceFlip.flipForPP(ampPose);
+        }
 
-        DriverStation.getAlliance()
-                .ifPresent(
-                        (alliance) ->
-                                this.speakerPose =
-                                        alliance == Alliance.Red
-                                                ? AllianceFlip.flipForPP(speakerPose)
-                                                : speakerPose);
+        // DriverStation.getAlliance()
+        //         .ifPresent(
+        //                 (alliance) ->
+        //                         this.speakerPose =
+        //                                 alliance == Alliance.Red
+        //                                         ? AllianceFlip.flipForPP(speakerPose)
+        //                                         : speakerPose);
 
-        DriverStation.getAlliance()
-                .ifPresent(
-                        (alliance) ->
-                                this.ampPose =
-                                        alliance == Alliance.Red
-                                                ? AllianceFlip.flipForPP(ampPose)
-                                                : ampPose);
+        // DriverStation.getAlliance()
+        //         .ifPresent(
+        //                 (alliance) ->
+        //                         this.ampPose =
+        //                                 alliance == Alliance.Red
+        //                                         ? AllianceFlip.flipForPP(ampPose)
+        // : ampPose);
     }
 
     @Override
     public void periodic() {
         setCompensatedPose();
         setDistanceFromSpeaker();
+        // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }
 
     public void setCompensatedPose() {
