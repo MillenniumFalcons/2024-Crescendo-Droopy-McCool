@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
@@ -66,7 +67,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1F1F2F3;
+        runningMode = autoCommands.redFour_S3F5F4F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -81,24 +82,21 @@ public class RobotContainer {
         // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
-                .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
                 .whileTrue(superstructure.shoot())
-                .onFalse(superstructure.stowFromShoot())
-                .onFalse(superstructure.ejectPiece());
+                .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
+        // .onFalse(superstructure.ejectPiece());
         mainController
                 .rightBumper
-                .and(() -> superstructure.getPiece() || mainController.buttonY.getAsBoolean())
                 .whileTrue(superstructure.batterShot())
-                .onFalse(superstructure.stowFromShoot())
-                .onFalse(superstructure.ejectPiece());
+                .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
         mainController
                 .leftTrigger
-                .and(() -> superstructure.getPiece())
                 .whileTrue(superstructure.shootAmp())
-                .onFalse(superstructure.stowFromShoot())
-                .onFalse(superstructure.ejectPiece());
-        mainController.rightTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
-        mainController.leftTrigger.onFalse(autoDrive.setMode(DriveMode.NONE));
+                .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
+        mainController.rightTrigger.onFalse(
+                Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
+        mainController.leftTrigger.onFalse(
+                Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
 
         mainController.leftMidButton.onTrue(autoDrive.enable());
         mainController.rightMidButton.onTrue(autoDrive.disable());
@@ -202,6 +200,7 @@ public class RobotContainer {
         printer.addBoolean("swerve aimed", autoDrive::swerveAimed);
         printer.addBoolean("spun up", superstructure::flywheelReadY);
         printer.addBoolean("pviot ready", superstructure::pivotReady);
+        printer.addDouble("flywheel speed", shooterLeft::getVelocity);
         SmartDashboard.putNumber("pivot interp angle", 40);
         printer.addDouble("shooter distance squared", targetingUtil::distance);
         // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
@@ -330,7 +329,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            false));
+                            true));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
@@ -357,7 +356,7 @@ public class RobotContainer {
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
     private final Trigger setPiece =
-            new Trigger(() -> intake.getMasterCurrent() > 45 && wrist.getAngle() < 5)
+            new Trigger(() -> intake.getMasterCurrent() > 32 && wrist.getAngle() < 5) // 41
                     .debounce(0.06)
                     .or(mainController.buttonB);
 

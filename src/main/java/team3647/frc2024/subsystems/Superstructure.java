@@ -102,7 +102,7 @@ public class Superstructure {
     }
 
     public boolean currentYes() {
-        return intake.getMasterCurrent() > 45 && wrist.getAngle() < 5;
+        return intake.getMasterCurrent() > 32 && wrist.getAngle() < 5; // 41
     }
 
     public Command setPiece() {
@@ -114,7 +114,7 @@ public class Superstructure {
     }
 
     public boolean flywheelReadY() {
-        return shooterLeft.velocityReached(30, 1);
+        return shooterLeft.velocityReached(20, 1);
     }
 
     public boolean pivotReady() {
@@ -127,18 +127,19 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                prep(),
-                spinUp(),
-                Commands.sequence(
-                        // Commands.waitSeconds(2.5),
-                        Commands.waitUntil(
-                                        () ->
-                                                shooterLeft.velocityReached(30, 2)
-                                                        && pivot.angleReached(
-                                                                pivotAngleSupplier.getAsDouble(), 5)
-                                                        && swerveAimed.getAsBoolean())
-                                .withTimeout(1.2),
-                        feed()));
+                prep(), spinUp()
+                // Commands.sequence(
+                //         // Commands.waitSeconds(2.5),
+                //         Commands.waitUntil(
+                //                         () ->
+                //                                 shooterLeft.velocityReached(30, 2)
+                //                                         && pivot.angleReached(
+                //                                                 pivotAngleSupplier.getAsDouble(),
+                // 5)
+                //                                         && swerveAimed.getAsBoolean())
+                //                 .withTimeout(1.2),
+                //         feed())
+                );
     }
 
     public boolean aimedAtSpeaker() {
@@ -211,10 +212,13 @@ public class Superstructure {
     }
 
     public Command stowFromShoot() {
-        return Commands.parallel(
-                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
-                shooterCommands.kill(),
-                kickerCommands.kill());
+        return Commands.sequence(
+                Commands.parallel(prep(), spinUp(), feed()).withTimeout(1),
+                Commands.parallel(
+                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                                shooterCommands.kill(),
+                                kickerCommands.kill())
+                        .withTimeout(1));
     }
 
     public Command intake() {

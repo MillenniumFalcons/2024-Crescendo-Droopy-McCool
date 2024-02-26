@@ -50,12 +50,12 @@ public class TargetingUtil {
                 invert = -1;
             }
         }
-        var newAngle =
-                Math.atan2(
-                        (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
-                                + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
-                        (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
-                                + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
+        var newAngle = angle;
+        // Math.atan2(
+        //         (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
+        //                 + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
+        //         (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
+        //                 + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
         SmartDashboard.putNumber("new anle", newAngle);
         // boolean shouldAddPi = Math.cos(newAngle) < 0;
         // double pi = shouldAddPi ? Math.PI : 0;
@@ -83,12 +83,12 @@ public class TargetingUtil {
         } else {
             angleStationary -= Math.PI;
         }
-        double newPivotAngle =
-                Math.atan(
-                        (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
-                                / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotTracker.getChassisSpeeds().vxMetersPerSecond
-                                                * invert));
+        double newPivotAngle = pivotAngle;
+        // Math.atan(
+        //         (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
+        //                 / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
+        //                         - robotTracker.getChassisSpeeds().vxMetersPerSecond
+        //                                 * invert));
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 

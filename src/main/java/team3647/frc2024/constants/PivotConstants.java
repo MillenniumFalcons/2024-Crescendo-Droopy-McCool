@@ -89,7 +89,7 @@ public class PivotConstants {
         // kMasterSpeakerMap.put(6.0, 27.4);
         // kMasterSpeakerMap.put(20.0, 26.5);
         kMasterSpeakerMap.put(0.0, 60.0);
-        kMasterSpeakerMap.put(1.5, 60.0);
+        kMasterSpeakerMap.put(1.5, 55.0);
         kMasterSpeakerMap.put(2.0, 45.0);
         kMasterSpeakerMap.put(2.5, 40.0);
         kMasterSpeakerMap.put(3.0, 34.5);

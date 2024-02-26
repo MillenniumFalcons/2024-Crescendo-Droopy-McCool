@@ -153,7 +153,7 @@ public class AutoDrive extends VirtualSubsystem {
         rotController.setGoal(targetPose.getRotation().getRadians());
         double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
         k = quickerRotController.calculate(targetRot, 0);
-        double setpoint = Math.abs(k) < 0.03 ? 0 : k;
+        double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
     }
 

@@ -69,7 +69,7 @@ public class AutoCommands {
 
     public final AutonomousMode redFive_S1N1F1N2N3;
 
-    public final AutonomousMode redFour_S1F2F2F3;
+    public final AutonomousMode redFour_S1F1F2F3;
 
     public final AutonomousMode redFour_S3F5F4F3;
 
@@ -87,7 +87,7 @@ public class AutoCommands {
         this.superstructure = superstructure;
         this.targeting = targeting;
 
-        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.1);
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
         this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
@@ -108,7 +108,7 @@ public class AutoCommands {
                         five_S1N1F1N2N3(Alliance.Red),
                         AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
 
-        this.redFour_S1F2F2F3 =
+        this.redFour_S1F1F2F3 =
                 new AutonomousMode(
                         four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_f1)));
 
@@ -193,10 +193,10 @@ public class AutoCommands {
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s3_to_f5, color),
                         followChoreoPathWithOverrideFast(f5_to_shoot3, color),
-                        Commands.waitSeconds(0.2),
+                        Commands.waitSeconds(0.7),
                         followChoreoPathWithOverrideFast(shoot3_to_f4, color),
                         followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                        Commands.waitSeconds(0.2),
+                        Commands.waitSeconds(0.7),
                         followChoreoPathWithOverrideFast(shoot3_to_f3, color),
                         followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
     }
@@ -266,9 +266,10 @@ public class AutoCommands {
         return Commands.parallel(superstructure.spinUp(), superstructure.feed());
     }
 
-    public Command target() {
-        return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()), swerve).withTimeout(2);
-    }
+    //     public Command target() {
+    //         return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()),
+    // swerve).withTimeout(2);
+    //     }
 
     public Command shoot() {
         return Commands.parallel(superstructure.shootStow());

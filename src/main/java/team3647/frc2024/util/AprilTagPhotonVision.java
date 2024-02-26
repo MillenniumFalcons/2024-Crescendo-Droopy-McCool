@@ -19,7 +19,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
             AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator photonPoseEstimator;
     Transform3d robotToCam;
-    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.2, 0.2, 0.2);
+    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.1, 0.1, 5);
     private final edu.wpi.first.math.Vector<N3> multiStdDevs =
             VecBuilder.fill(0.00096, 0.00096, 0.02979);
 
@@ -78,9 +78,12 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         double numTargets = result.getTargets().size();
+        // if (numTargets < 2) {
+        //     return Optional.empty();
+        // }
         final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
         final double ambiguityScore =
-                numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity());
+                -(numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(
                         update.get(), update.get().timestampSeconds, ambiguityScore, stdDevs);
