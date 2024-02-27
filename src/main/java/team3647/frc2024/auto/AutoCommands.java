@@ -5,6 +5,7 @@ import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -20,6 +21,7 @@ import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
+import team3647.frc2024.util.AllianceFlip;
 import team3647.frc2024.util.TargetingUtil;
 
 public class AutoCommands {
@@ -37,11 +39,14 @@ public class AutoCommands {
     private final String n3_to_f5 = "n3 to f5";
     private final String n1_to_n2 = "n1 to n2";
     private final String n3_to_n2 = "n3 to n2";
+    private final String shoot1_to_n2 = "shoot1 to n2";
+    private final String s1_to_f1 = "s1 to f1";
     private final String f1_to_n2 = "f1 to n2";
     private final String f1_to_shoot1 = "f1 to shoot1";
     private final String shoot1_to_f2 = "shoot1 to f2";
     private final String f2_to_n2 = "f2 to n2";
     private final String n2_to_f1 = "n2 to f1";
+    private final String f3_to_shoot1 = "f3 to shoot1";
     private final String f2_to_shoot1 = "f2 to shoot1";
     private final String shoot1_to_f3 = "shoot1 to f3";
     private final String f3_to_shoot2 = "f3 to shoot2";
@@ -49,6 +54,7 @@ public class AutoCommands {
     private final String shoot3_to_f4 = "shoot3 to f4";
     private final String f4_to_shoot3 = "f4 to shoot3";
     private final String shoot3_to_f3 = "shoot3 to f3";
+    private final String n1_to_f1 = "n1 to f1";
     private final String s3_to_f5 = "s3 to f5";
 
     public final Trigger currentYes;
@@ -56,6 +62,18 @@ public class AutoCommands {
     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
+
+    public final AutonomousMode blueFour_S1F1F2F3;
+
+    public final AutonomousMode blueFour_S3F5F4F3;
+
+    public final AutonomousMode redFive_S1N1F1N2N3;
+
+    public final AutonomousMode redFour_S1F1F2F3;
+
+    public final AutonomousMode redFour_S3F5F4F3;
+
+    public final AutonomousMode redFive_S1N1F1F2F3;
 
     public final AutonomousMode yes;
 
@@ -76,8 +94,32 @@ public class AutoCommands {
         this.blueFive_S1N1F1N2N3 =
                 new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s1_to_n1_to_f1));
 
+        this.redFive_S1N1F1N2N3 =
+                new AutonomousMode(
+                        five_S1N1F1N2N3(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.redFour_S3F5F4F3 =
+                new AutonomousMode(
+                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s3_to_f5)));
+
+        this.redFive_S1N1F1F2F3 =
+                new AutonomousMode(
+                        five_S1N1F1N2N3(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.redFour_S1F1F2F3 =
+                new AutonomousMode(
+                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_f1)));
+
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+
+        this.blueFour_S3F5F4F3 =
+                new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
+
+        this.blueFour_S1F1F2F3 =
+                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s1_to_f1));
     }
 
     public void registerCommands() {}
@@ -94,9 +136,28 @@ public class AutoCommands {
         return new AutonomousMode(four_S1N1N2N3(color), getInitial(s1_to_n1));
     }
 
+    public Command seven_S1N1F1F2F3N2N3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s1_to_n1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(n1_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_n2, color),
+                        followChoreoPathWithOverrideFast(n2_to_n3, color)));
+    }
+
     public Command six_S1N1F1F2N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverride(f1_to_shoot1, color),
@@ -107,7 +168,7 @@ public class AutoCommands {
 
     public Command four_S3N5N4N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s3_to_f5, color),
                         followChoreoPathWithOverride(f5_to_shoot3, color),
@@ -119,42 +180,75 @@ public class AutoCommands {
 
     public Command five_S1N1F1N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverrideFast(f1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
+    public Command four_S3F5F4F3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s3_to_f5, color),
+                        followChoreoPathWithOverrideFast(f5_to_shoot3, color),
+                        Commands.waitSeconds(0.7),
+                        followChoreoPathWithOverrideFast(shoot3_to_f4, color),
+                        followChoreoPathWithOverrideFast(f4_to_shoot3, color),
+                        Commands.waitSeconds(0.7),
+                        followChoreoPathWithOverrideFast(shoot3_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
+    }
+
+    public Command four_S1F1F2F3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s1_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        Commands.waitSeconds(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
+    }
+
     public Command four_S1N1N2N3(Alliance color) {
         return Commands.parallel(
-                masterSuperstructureSequence(),
+                masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1, color),
                         followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
-    public Command masterSuperstructureSequence() {
+    public Command masterSuperstructureSequence(Alliance color) {
         return Commands.sequence(
                 scorePreload(),
                 Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.prep(),
                         // superstructure.fastFeed(),
-                        continuouslyIntakeForShoot().repeatedly(),
-                        superstructure.autoFeed(() -> goodToGo())));
+                        continuouslyIntakeForShoot(color).repeatedly(),
+                        superstructure.feed()));
     }
 
-    public boolean goodToGo() {
-        return swerve.getOdoPose().getX() < AutoConstants.kDrivetrainXShootingThreshold;
+    public boolean goodToGo(Alliance color) {
+        if (color == Alliance.Blue) {
+            return swerve.getOdoPose().getX() < AutoConstants.kDrivetrainXShootingThreshold;
+        } else {
+            return swerve.getOdoPose().getX()
+                    > FieldConstants.kFieldLength - AutoConstants.kDrivetrainXShootingThreshold;
+        }
     }
 
     public Command scorePreload() {
         return Commands.parallel(
                         superstructure.spinUp(),
-                        superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.3), superstructure.feed()))
+                        superstructure.pivotCommands.setAngle(() -> 42),
+                        Commands.sequence(Commands.waitSeconds(0.6), superstructure.feed()))
                 .withTimeout(0.6);
     }
 
@@ -172,30 +266,29 @@ public class AutoCommands {
         return Commands.parallel(superstructure.spinUp(), superstructure.feed());
     }
 
-    public double getPivotAngleByPose(Supplier<Pose2d> pose) {
-        return targeting.getPivotAngleByPose(pose.get()) * 180 / Math.PI;
-    }
-
-    public Command target() {
-        return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()), swerve).withTimeout(2);
-    }
+    //     public Command target() {
+    //         return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()),
+    // swerve).withTimeout(2);
+    //     }
 
     public Command shoot() {
         return Commands.parallel(superstructure.shootStow());
     }
 
-    public Command continuouslyIntakeForShoot() {
+    public Command continuouslyIntakeForShoot(Alliance color) {
         return Commands.sequence(
                 superstructure
                         .intake()
                         .until(currentYes)
-                        .andThen(superstructure.passToShooterNoKicker()));
+                        .andThen(
+                                superstructure.passToShooterNoKicker(
+                                        new Trigger(() -> goodToGo(color)))));
     }
 
     public Pose2d flipForPP(Pose2d pose) {
         return new Pose2d(
                 new Translation2d(FieldConstants.kFieldLength - pose.getX(), pose.getY()),
-                pose.getRotation().rotateBy(FieldConstants.kOneEighty));
+                new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
     }
 
     public Command overrideChoreoPathWithIntake(String path, Alliance color) {
@@ -219,8 +312,8 @@ public class AutoCommands {
                         new PIDController(0, 0, 0)),
                 (ChassisSpeeds speeds) ->
                         swerve.drive(
-                                speeds.vxMetersPerSecond * 0.7,
-                                speeds.vyMetersPerSecond * 0.7,
+                                speeds.vxMetersPerSecond,
+                                speeds.vyMetersPerSecond,
                                 deeThetaOnTheMove()),
                 () -> mirror);
     }

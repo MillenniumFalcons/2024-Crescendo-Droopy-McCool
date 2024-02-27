@@ -19,7 +19,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
             AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator photonPoseEstimator;
     Transform3d robotToCam;
-    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.3, 0.3, 0.3);
+    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.3, 0.3, 5);
     private final edu.wpi.first.math.Vector<N3> multiStdDevs =
             VecBuilder.fill(0.00096, 0.00096, 0.02979);
 
@@ -27,7 +27,10 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         super(NetworkTableInstance.getDefault(), camera);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
-                        aprilTagFieldLayout, PoseStrategy.LOWEST_AMBIGUITY, this, robotToCam);
+                        aprilTagFieldLayout,
+                        PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                        this,
+                        robotToCam);
         this.robotToCam = robotToCam;
     }
 
@@ -55,12 +58,15 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
     }
 
     public Optional<VisionMeasurement> QueueToInputs() {
-        var update = photonPoseEstimator.update();
         var result = this.getLatestResult();
-        if (update.isEmpty() || !result.hasTargets()) {
+        if (!result.hasTargets()) {
             return Optional.empty();
         }
-        var targetDistance =
+        var update = photonPoseEstimator.update(result);
+        if (update.isEmpty()) {
+            return Optional.empty();
+        }
+        double targetDistance =
                 result.getBestTarget()
                         .getBestCameraToTarget()
                         .getTranslation()
@@ -68,9 +74,13 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getNorm();
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
-        final var stdDevs = baseStdDevs.times(targetDistance).times(1 / result.getTargets().size());
+        double numTargets = result.getTargets().size();
+        final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
+        final double ambiguityScore =
+                1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
         VisionMeasurement measurement =
-                VisionMeasurement.fromEstimatedRobotPose(update.get(), stdDevs);
+                VisionMeasurement.fromEstimatedRobotPose(
+                        update.get(), update.get().timestampSeconds, ambiguityScore, stdDevs);
         return Optional.of(measurement);
     }
 

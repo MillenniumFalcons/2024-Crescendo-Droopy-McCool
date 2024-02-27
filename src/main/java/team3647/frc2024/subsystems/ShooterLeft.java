@@ -31,7 +31,7 @@ public class ShooterLeft extends TalonFXSubsystem {
                         new SysIdRoutine.Config(
                                 Units.Volts.of(6).per(Units.Seconds.of(1)),
                                 Units.Volts.of(30),
-                                null,
+                                Units.Seconds.of(4),
                                 ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
                                 (Measure<Voltage> volts) -> setTorque(volts.in(Units.Volts)),

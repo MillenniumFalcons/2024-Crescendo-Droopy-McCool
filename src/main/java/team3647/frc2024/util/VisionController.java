@@ -1,16 +1,18 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
-import team3647.frc2024.constants.VisionConstants;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class VisionController extends VirtualSubsystem {
     private final AprilTagCamera[] cameras;
     private final Consumer<VisionMeasurement> botPoseAcceptor;
     private final Function<Pose2d, Boolean> shouldAddData;
+    private final ArrayList<VisionMeasurement> list = new ArrayList<>();
 
     public VisionController(
             Consumer<VisionMeasurement> visionAcceptor,
@@ -24,6 +26,8 @@ public class VisionController extends VirtualSubsystem {
     @Override
     public void periodic() {
 
+        list.clear();
+
         for (AprilTagCamera camera : cameras) {
 
             var inputs = camera.QueueToInputs();
@@ -34,27 +38,18 @@ public class VisionController extends VirtualSubsystem {
 
             var getInputs = inputs.get();
 
-            Logger.recordOutput("Robot/Vision/" + camera.getName(), getInputs.pose);
-
-            Logger.recordOutput("Test/Bot", VisionConstants.randompose);
-            Logger.recordOutput(
-                    "Test/BackRight",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToBackRight));
-            Logger.recordOutput(
-                    "Test/BackLeft",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToBackLeft));
-            Logger.recordOutput(
-                    "Test/Right",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToRight));
-            Logger.recordOutput(
-                    "Test/Left",
-                    VisionConstants.randompose.transformBy(VisionConstants.robotToLeft));
-
             if (shouldAddData.apply(getInputs.pose)) {
-                botPoseAcceptor.accept(
-                        new VisionMeasurement(
-                                getInputs.pose, getInputs.timestamp, getInputs.stdDevs));
+                list.add(getInputs);
             }
+        }
+
+        if (!list.isEmpty()) {
+
+            Collections.sort(list);
+
+            botPoseAcceptor.accept(list.get(0));
+
+            Logger.recordOutput("Robot/Vision", list.get(0).pose);
         }
     }
 }

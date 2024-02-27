@@ -1,24 +1,17 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import java.util.function.Supplier;
-import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.PivotConstants;
 
 public class TargetingUtil {
 
-    private final Pose3d speakerPose;
-    private final Pose3d ampPose;
-    private final Supplier<Pose2d> drivePose;
-    private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
-    private final Transform2d robotToShooter;
+    private final RobotTracker robotTracker;
     private final double shootSpeed = 30;
     private double offset = 0;
     double kDt = 0.1;
@@ -27,17 +20,8 @@ public class TargetingUtil {
 
     private final InterpolatingDoubleTreeMap ampMap = PivotConstants.kMasterAmpMap;
 
-    public TargetingUtil(
-            Pose3d speakerPose,
-            Pose3d ampPose,
-            Supplier<Pose2d> drivePose,
-            Supplier<ChassisSpeeds> robotRelativeSpeeds,
-            Transform2d robotToShooter) {
-        this.speakerPose = speakerPose;
-        this.ampPose = ampPose;
-        this.drivePose = drivePose;
-        this.robotRelativeSpeeds = robotRelativeSpeeds;
-        this.robotToShooter = robotToShooter;
+    public TargetingUtil(RobotTracker robotTracker) {
+        this.robotTracker = robotTracker;
     }
 
     public Command offsetUp() {
@@ -48,44 +32,45 @@ public class TargetingUtil {
         return Commands.runOnce(() -> offset -= 1);
     }
 
-    public boolean underStage() {
-        return ((compensatedPose().getX() > 3.5 && compensatedPose().getX() < 6.2)
-                        || (compensatedPose().getX() > 10.2 && compensatedPose().getX() < 12.9))
-                && ((Math.abs(compensatedPose().getY() - 4)
-                                        < ((compensatedPose().getX() - 2.9) * 1 / 1.73)
-                                && compensatedPose().getX() < 6.2)
-                        || (Math.abs(compensatedPose().getY() - 4)
-                                        < ((13.6 - compensatedPose().getX()) * 1 / 1.73)
-                                && compensatedPose().getX() > 10.2));
-    }
-
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
-    public AimingParameters shootAtPose(Pose3d pose) {
-        final var currentPose = compensatedPose();
-        var shooterPose = currentPose.transformBy(robotToShooter);
-        double shooterDistance = pose.toPose2d().minus(shooterPose).getTranslation().getNorm();
-        double pivotAngle = Math.toRadians(speakerMap.get(shooterDistance) + offset);
-        if (pose.getZ() == FieldConstants.kAmpHeight) {
-            pivotAngle =
-                    Math.toRadians(ampMap.get(shooterDistance) + offset); // pivot angle stationary
-        }
-        final var toPose = currentPose.minus(pose.toPose2d()).getTranslation();
+    public AimingParameters shootAtPose(Pose2d pose) {
+        double pivotAngle =
+                Math.toRadians(speakerMap.get(robotTracker.getDistanceFromSpeaker()) + offset);
+        final var toPose = robotTracker.getCompensatedPose().minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())
                         * Math.signum(toPose.getY())
                         * Math.signum(toPose.getX()); // field angle to pose stationary
-        var newAngle =
-                Math.atan(
-                        (exitVelocity() * Math.cos(pivotAngle) * Math.sin(angle)
-                                        + robotRelativeSpeeds.get().vyMetersPerSecond * 2)
-                                / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angle)
-                                        + robotRelativeSpeeds.get().vxMetersPerSecond * 2));
-        boolean shouldAddPi = Math.cos(newAngle) < 0;
-        double pi = shouldAddPi ? Math.PI : 0;
-        boolean shouldSubtract = Math.sin(newAngle) < 0;
-        pi = shouldSubtract ? -pi : pi;
-        newAngle = newAngle + pi; // field angle to pose
-        double robotAngleToPose = currentPose.getRotation().getRadians() - newAngle;
+
+        double invert = 1;
+
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                angle -= Math.PI;
+                invert = -1;
+            }
+        }
+        var newAngle = angle;
+        // Math.atan2(
+        //         (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
+        //                 + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
+        //         (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
+        //                 + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
+        SmartDashboard.putNumber("new anle", newAngle);
+        // boolean shouldAddPi = Math.cos(newAngle) < 0;
+        // double pi = shouldAddPi ? Math.PI : 0;
+        // boolean shouldSubtract = Math.sin(newAngle) < 0;
+        // pi = shouldSubtract ? -pi : pi;
+        // newAngle = newAngle + pi; // field angle to pose
+        double robotAngleToPose =
+                robotTracker.getCompensatedPose().getRotation().getRadians() - newAngle;
+        if (robotAngleToPose > Math.PI) {
+            robotAngleToPose -= 2 * Math.PI;
+        }
+        if (robotAngleToPose < -Math.PI) {
+            robotAngleToPose += 2 * Math.PI;
+        }
+        SmartDashboard.putNumber("roobot angle", robotAngleToPose);
         double angleOnTheMove = newAngle;
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;
@@ -98,59 +83,44 @@ public class TargetingUtil {
         } else {
             angleStationary -= Math.PI;
         }
-        double newPivotAngle =
-                Math.atan(
-                        (exitVelocity() * Math.sin(pivotAngle) * Math.cos(angleStationary))
-                                / (exitVelocity() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotRelativeSpeeds.get().vxMetersPerSecond * 2));
+        double newPivotAngle = pivotAngle;
+        // Math.atan(
+        //         (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
+        //                 / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
+        //                         - robotTracker.getChassisSpeeds().vxMetersPerSecond
+        //                                 * invert));
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 
-    public AimingParameters shootAtPose(Pose3d pose, double shootSpeed) {
+    public AimingParameters shootAtPose(Pose2d pose, double shootSpeed) {
         return shootAtPose(pose).withShootSpeed(shootSpeed);
     }
 
     // returns the parameters for aiming at the speaker
     public AimingParameters shootAtSpeaker() {
-        return shootAtPose(speakerPose);
+        return shootAtPose(robotTracker.getSpeaker());
     }
 
     // returns the parameters for aiming at the speaker
     public AimingParameters shootAtAmp() {
-        return shootAtPose(ampPose, 5.5);
+        return shootAtPose(robotTracker.getAmp(), 5.5);
     }
 
     public double distance() {
-        var currentPose = compensatedPose();
-        var shooterPose = currentPose.transformBy(robotToShooter);
-        var shooterDistance = speakerPose.toPose2d().minus(shooterPose);
-        return shooterDistance.getTranslation().getNorm();
+        return robotTracker.getDistanceFromSpeaker();
     }
 
-    public double getPivotAngleByPose(Pose2d botPose) {
-        var currentPose = botPose;
-        var shooterPose = currentPose.transformBy(robotToShooter);
-        var pose = speakerPose;
-        double shooterDistance = pose.toPose2d().minus(shooterPose).getTranslation().getNorm();
-        double pivotAngle = Math.toRadians(speakerMap.get(shooterDistance) + offset);
-        return pivotAngle;
-    }
-
-    // returns latency compensated pose;
     public Pose2d compensatedPose() {
-        var speeds = robotRelativeSpeeds.get();
-        var twist =
-                new Twist2d(
-                        speeds.vxMetersPerSecond * kDt,
-                        speeds.vyMetersPerSecond * kDt,
-                        speeds.omegaRadiansPerSecond * kDt);
-        var newPose = drivePose.get().exp(twist);
-        return newPose;
+        return robotTracker.getCompensatedPose();
     }
 
     // returns shot exit velocity
     public double exitVelocity() {
         return shootSpeed;
+    }
+
+    public double adjustedExit() {
+        return shootSpeed * 3 / 4;
     }
 
     // for cleaner packaging

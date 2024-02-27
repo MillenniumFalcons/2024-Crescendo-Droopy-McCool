@@ -3,6 +3,7 @@ package team3647.frc2024.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import team3647.frc2024.commands.IntakeCommands;
@@ -33,6 +34,7 @@ public class Superstructure {
     private final double wristIntakeAngle = 0;
     private final double shootSpeed;
     private boolean hasPiece = false;
+    private boolean isClimbing;
 
     private final BooleanSupplier swerveAimed;
 
@@ -69,13 +71,22 @@ public class Superstructure {
         return kickerCommands.kick();
     }
 
+    public Command setIsClimbing() {
+        return Commands.runOnce(() -> this.isClimbing = true);
+    }
+
+    public boolean isClimbing() {
+        return isClimbing;
+    }
+
     public Command spinUp() {
         return shooterCommands.setVelocity(
                 () -> getDesiredSpeed(), () -> ShooterConstants.kLeftRatio);
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> shooterSpeedSupplier.getAsDouble() * 7 / 25);
+        return shooterCommands.setVelocity(
+                () -> shooterSpeedSupplier.getAsDouble() * 2 / getDesiredSpeed());
     }
 
     public double getDesiredSpeed() {
@@ -91,7 +102,7 @@ public class Superstructure {
     }
 
     public boolean currentYes() {
-        return intake.getMasterCurrent() > 32 && wrist.getAngle() < 5;
+        return intake.getMasterCurrent() > 32 && wrist.getAngle() < 5; // 41
     }
 
     public Command setPiece() {
@@ -103,7 +114,7 @@ public class Superstructure {
     }
 
     public boolean flywheelReadY() {
-        return shooterLeft.velocityReached(30, 1);
+        return shooterLeft.velocityReached(20, 1);
     }
 
     public boolean pivotReady() {
@@ -116,23 +127,30 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                prep(),
-                spinUp(),
-                Commands.sequence(
-                        // Commands.waitSeconds(2.5),
-                        Commands.waitUntil(
-                                        () ->
-                                                shooterLeft.velocityReached(30, 1)
-                                                        && pivot.angleReached(
-                                                                pivotAngleSupplier.getAsDouble(), 5)
-                                                        && swerveAimed.getAsBoolean())
-                                .withTimeout(1.2),
-                        feed()));
+                prep(), spinUp()
+                // Commands.sequence(
+                //         // Commands.waitSeconds(2.5),
+                //         Commands.waitUntil(
+                //                         () ->
+                //                                 shooterLeft.velocityReached(30, 2)
+                //                                         && pivot.angleReached(
+                //                                                 pivotAngleSupplier.getAsDouble(),
+                // 5)
+                //                                         && swerveAimed.getAsBoolean())
+                //                 .withTimeout(1.2),
+                //         feed())
+                );
+    }
+
+    public boolean aimedAtSpeaker() {
+        return shooterLeft.velocityReached(30, 1)
+                && pivot.angleReached(pivotAngleSupplier.getAsDouble(), 5)
+                && swerveAimed.getAsBoolean();
     }
 
     public Command shootAmp() {
         return Commands.parallel(
-                prep(),
+                prepAmp(),
                 spinUpAmp(),
                 Commands.sequence(
                         // Commands.waitSeconds(2.5),
@@ -140,13 +158,12 @@ public class Superstructure {
                                         () ->
                                                 shooterLeft.velocityReached(
                                                                 shootSpeed
-                                                                        * 7
+                                                                        * 2
                                                                         / getDesiredSpeed()
                                                                         * ShooterConstants
                                                                                 .kLeftRatio,
                                                                 1)
-                                                        && pivot.angleReached(
-                                                                pivotAngleSupplier.getAsDouble(), 5)
+                                                        && pivot.angleReached(55, 5)
                                                         && swerveAimed.getAsBoolean())
                                 .withTimeout(0.7),
                         feed()));
@@ -182,6 +199,10 @@ public class Superstructure {
         return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble());
     }
 
+    public Command prepAmp() {
+        return pivotCommands.setAngle(() -> 35);
+    }
+
     public Command batterPrep() {
         return pivotCommands.setAngle(() -> 60);
     }
@@ -191,10 +212,13 @@ public class Superstructure {
     }
 
     public Command stowFromShoot() {
-        return Commands.parallel(
-                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
-                shooterCommands.kill(),
-                kickerCommands.kill());
+        return Commands.sequence(
+                Commands.parallel(prep(), spinUp(), feed()).withTimeout(1),
+                Commands.parallel(
+                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                                shooterCommands.kill(),
+                                kickerCommands.kill())
+                        .withTimeout(1));
     }
 
     public Command intake() {
@@ -210,11 +234,11 @@ public class Superstructure {
                 .andThen(shootThrough());
     }
 
-    public Command passToShooterNoKicker() {
+    public Command passToShooterNoKicker(Trigger shouldGO) {
         return Commands.parallel(
                         intakeCommands.kill(),
                         wristCommands.setAngle(() -> wrist.getInverseKinematics(pivot.getAngle())))
-                .withTimeout(0.5)
+                .until(shouldGO)
                 .andThen(shootThroughNoKicker());
     }
 

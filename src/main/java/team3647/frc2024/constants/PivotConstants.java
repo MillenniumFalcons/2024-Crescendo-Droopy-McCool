@@ -62,7 +62,7 @@ public class PivotConstants {
     public static final TimeOfFlight tofFront =
             new TimeOfFlight(GlobalConstants.SensorIds.pivotFrontId);
 
-    // distance squared vs pivot angle
+    // distance vs pivot angle
     public static final InterpolatingDoubleTreeMap kMasterSpeakerMap =
             new InterpolatingDoubleTreeMap();
 
@@ -72,22 +72,35 @@ public class PivotConstants {
             new InterpolatingDoubleTreeMap();
 
     static {
+        // kMasterSpeakerMap.put(0.0, 60.0);
+        // kMasterSpeakerMap.put(1.3, 60.0);
+        // kMasterSpeakerMap.put(2.0, 48.0);
+        // kMasterSpeakerMap.put(2.5, 44.0);
+        // kMasterSpeakerMap.put(3.0, 37.0);
+        // kMasterSpeakerMap.put(3.5, 35.0);
+        // kMasterSpeakerMap.put(4.0, 32.0);
+        // kMasterSpeakerMap.put(4.25, 31.3);
+        // kMasterSpeakerMap.put(4.5, 30.1);
+        // kMasterSpeakerMap.put(4.75, 29.6);
+        // kMasterSpeakerMap.put(5.0, 28.9);
+        // kMasterSpeakerMap.put(5.25, 28.3);
+        // kMasterSpeakerMap.put(5.5, 28.0);
+        // kMasterSpeakerMap.put(5.75, 27.7);
+        // kMasterSpeakerMap.put(6.0, 27.4);
+        // kMasterSpeakerMap.put(20.0, 26.5);
         kMasterSpeakerMap.put(0.0, 60.0);
-        kMasterSpeakerMap.put(1.3, 60.0);
-        kMasterSpeakerMap.put(2.0, 48.0);
-        kMasterSpeakerMap.put(2.5, 44.0);
-        kMasterSpeakerMap.put(3.0, 37.0);
-        kMasterSpeakerMap.put(3.5, 35.0);
-        kMasterSpeakerMap.put(4.0, 32.0);
-        kMasterSpeakerMap.put(4.25, 31.3);
-        kMasterSpeakerMap.put(4.5, 30.1);
-        kMasterSpeakerMap.put(4.75, 29.6);
-        kMasterSpeakerMap.put(5.0, 28.9);
-        kMasterSpeakerMap.put(5.25, 28.3);
-        kMasterSpeakerMap.put(5.5, 28.0);
-        kMasterSpeakerMap.put(5.75, 27.7);
-        kMasterSpeakerMap.put(6.0, 27.4);
-        kMasterSpeakerMap.put(20.0, 26.5);
+        kMasterSpeakerMap.put(1.5, 55.0);
+        kMasterSpeakerMap.put(2.0, 45.0);
+        kMasterSpeakerMap.put(2.5, 40.0);
+        kMasterSpeakerMap.put(3.0, 34.5);
+        kMasterSpeakerMap.put(3.5, 30.0);
+        kMasterSpeakerMap.put(4.0, 28.0);
+        kMasterSpeakerMap.put(4.5, 26.0);
+        kMasterSpeakerMap.put(5.0, 24.5);
+        kMasterSpeakerMap.put(5.5, 23.5);
+        kMasterSpeakerMap.put(6.0, 22.0);
+        kMasterSpeakerMap.put(6.5, 21.5);
+        kMasterSpeakerMap.put(20.0, 21.5);
         kMasterAmpMap.put(0.0, 60.0);
         kMasterAmpMap.put(100.0, 60.0);
         Slot0Configs kMasterSlot0 = new Slot0Configs();
