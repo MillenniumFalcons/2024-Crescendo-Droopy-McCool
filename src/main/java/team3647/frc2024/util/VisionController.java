@@ -3,6 +3,7 @@ package team3647.frc2024.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
@@ -13,14 +14,17 @@ public class VisionController extends VirtualSubsystem {
     private final Consumer<VisionMeasurement> botPoseAcceptor;
     private final Function<Pose2d, Boolean> shouldAddData;
     private final ArrayList<VisionMeasurement> list = new ArrayList<>();
+    private final BooleanSupplier dataAddOverride;
 
     public VisionController(
             Consumer<VisionMeasurement> visionAcceptor,
             Function<Pose2d, Boolean> shouldAddData,
+            BooleanSupplier dataAddOverride,
             AprilTagCamera... cameras) {
         this.cameras = cameras;
         this.shouldAddData = shouldAddData;
         this.botPoseAcceptor = visionAcceptor;
+        this.dataAddOverride = dataAddOverride;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class VisionController extends VirtualSubsystem {
 
             var getInputs = inputs.get();
 
-            if (shouldAddData.apply(getInputs.pose)) {
+            if (shouldAddData.apply(getInputs.pose) || dataAddOverride.getAsBoolean()) {
                 list.add(getInputs);
             }
         }

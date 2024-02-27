@@ -65,7 +65,10 @@ public class AutoDrive extends VirtualSubsystem {
     @Override
     public void periodic() {
         Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
-        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE || DriverStation.isAutonomous()) {
+        if (DriverStation.isAutonomous()) {
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+        }
+        if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.INTAKE_FLOOR_PIECE) {
@@ -123,7 +126,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
-            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+            return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
         }
         switch (mode) {
             case SHOOT_ON_THE_MOVE:

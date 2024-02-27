@@ -182,7 +182,7 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverrideFast(s1_to_n1_to_f1, color),
+                        followChoreoPathWithOverride(s1_to_n1_to_f1, color),
                         followChoreoPathWithOverrideFast(f1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
@@ -330,8 +330,8 @@ public class AutoCommands {
                         new PIDController(0, 0, 0)),
                 (ChassisSpeeds speeds) ->
                         swerve.drive(
-                                speeds.vxMetersPerSecond * 0.4,
-                                speeds.vyMetersPerSecond * 0.4,
+                                speeds.vxMetersPerSecond * 0.5,
+                                speeds.vyMetersPerSecond * 0.5,
                                 deeThetaOnTheMove()),
                 () -> mirror);
     }

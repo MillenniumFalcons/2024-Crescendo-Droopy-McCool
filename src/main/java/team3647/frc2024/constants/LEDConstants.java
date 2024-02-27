@@ -68,11 +68,19 @@ public class LEDConstants {
     public static final Animation BREATHE_GREEN =
             new SingleFadeAnimation(0, 255, 0, 0, 0.65, LEDCOUNT);
 
+    public static final Animation BREATHE_YELLOW =
+            new StrobeAnimation(246, 190, 0, 128, 0.65, LEDCOUNT);
+
+    public static final Animation BREATHE_PINK =
+            new StrobeAnimation(255, 0, 255, 128, 0.65, LEDCOUNT);
+
     public static final Animation FLASH_PURPLE =
             new StrobeAnimation(162, 25, 255, 128, 0.3, LEDCOUNT);
 
     public static final Animation FLASH_YELLOW =
             new StrobeAnimation(246, 190, 0, 128, 0.3, LEDCOUNT);
+
+    public static final Animation FLASH_GREEN = new StrobeAnimation(0, 255, 0, 0, 0.3, LEDCOUNT);
 
     public static final Animation FLASH_BROWN =
             new StrobeAnimation(181, 101, 30, 128, 0.3, LEDCOUNT);

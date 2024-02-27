@@ -75,6 +75,10 @@ public class Superstructure {
         return Commands.runOnce(() -> this.isClimbing = true);
     }
 
+    public Command setIsNotClimbing() {
+        return Commands.runOnce(() -> this.isClimbing = false);
+    }
+
     public boolean isClimbing() {
         return isClimbing;
     }
@@ -102,7 +106,7 @@ public class Superstructure {
     }
 
     public boolean currentYes() {
-        return intake.getMasterCurrent() > 32 && wrist.getAngle() < 5; // 41
+        return intake.getMasterCurrent() > 38 && wrist.getAngle() < 5; // 41
     }
 
     public Command setPiece() {
@@ -254,7 +258,7 @@ public class Superstructure {
         return intakeCommands
                 .intake()
                 .until(() -> pivot.backPiece())
-                .withTimeout(0.5)
+                .withTimeout(0.6)
                 .andThen(stowIntake());
     }
 

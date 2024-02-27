@@ -33,6 +33,66 @@ public class TargetingUtil {
     }
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
+    public AimingParameters shootAtPoseOnTheMove(Pose2d pose) {
+        double pivotAngle =
+                Math.toRadians(speakerMap.get(robotTracker.getDistanceFromSpeaker()) + offset);
+        final var toPose = robotTracker.getCompensatedPose().minus(pose).getTranslation();
+        double angle =
+                Math.acos(toPose.getX() / toPose.getNorm())
+                        * Math.signum(toPose.getY())
+                        * Math.signum(toPose.getX()); // field angle to pose stationary
+
+        double invert = 1;
+
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                angle -= Math.PI;
+                invert = -1;
+            }
+        }
+        var newAngle =
+                Math.atan2(
+                        (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
+                                + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
+                        (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
+                                + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
+        SmartDashboard.putNumber("new anle", newAngle);
+        // boolean shouldAddPi = Math.cos(newAngle) < 0;
+        // double pi = shouldAddPi ? Math.PI : 0;
+        // boolean shouldSubtract = Math.sin(newAngle) < 0;
+        // pi = shouldSubtract ? -pi : pi;
+        // newAngle = newAngle + pi; // field angle to pose
+        double robotAngleToPose =
+                robotTracker.getCompensatedPose().getRotation().getRadians() - newAngle;
+        if (robotAngleToPose > Math.PI) {
+            robotAngleToPose -= 2 * Math.PI;
+        }
+        if (robotAngleToPose < -Math.PI) {
+            robotAngleToPose += 2 * Math.PI;
+        }
+        SmartDashboard.putNumber("roobot angle", robotAngleToPose);
+        double angleOnTheMove = newAngle;
+        if (angleOnTheMove < 0) {
+            angleOnTheMove += Math.PI;
+        } else {
+            angleOnTheMove -= Math.PI;
+        }
+        double angleStationary = angle;
+        if (angleStationary < 0) {
+            angleStationary += Math.PI;
+        } else {
+            angleStationary -= Math.PI;
+        }
+        double newPivotAngle =
+                Math.atan(
+                        (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
+                                / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
+                                        - robotTracker.getChassisSpeeds().vxMetersPerSecond
+                                                * invert));
+        return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
+    }
+
+    // returns an object storing a pair of doubles, swerve angle change and pivot angle
     public AimingParameters shootAtPose(Pose2d pose) {
         double pivotAngle =
                 Math.toRadians(speakerMap.get(robotTracker.getDistanceFromSpeaker()) + offset);
@@ -99,6 +159,10 @@ public class TargetingUtil {
     // returns the parameters for aiming at the speaker
     public AimingParameters shootAtSpeaker() {
         return shootAtPose(robotTracker.getSpeaker());
+    }
+
+    public AimingParameters shootAtSpeakerOnTheMove() {
+        return shootAtPoseOnTheMove(robotTracker.getSpeaker());
     }
 
     // returns the parameters for aiming at the speaker

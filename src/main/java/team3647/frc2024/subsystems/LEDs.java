@@ -14,10 +14,10 @@ public class LEDs extends VirtualSubsystem {
     /** Creates a new LEDSubsystem. */
     private Map<String, Animation> colors =
             Map.of(
-                    "none", LEDConstants.RAINBOW,
-                    "in", LEDConstants.SOLID_RED,
-                    "target", LEDConstants.FLASH_YELLOW,
-                    "ready", LEDConstants.BREATHE_GREEN);
+                    "none", LEDConstants.BREATHE_RED,
+                    "in", LEDConstants.BREATHE_YELLOW,
+                    "climb", LEDConstants.BREATHE_PINK,
+                    "ready", LEDConstants.FLASH_GREEN);
 
     String LEDState = "none";
 
@@ -28,6 +28,13 @@ public class LEDs extends VirtualSubsystem {
     public LEDs(CANdle candle, LEDTriggers triggers) {
         this.m_candle = candle;
         this.triggers = triggers;
+
+        triggers.inOutTrigger.onTrue(setState("in"));
+        triggers.inOutTrigger.onFalse(setState("none"));
+        triggers.targetTrigger.onTrue(setState("ready"));
+        triggers.targetTrigger.onFalse(setState("none"));
+        triggers.climbTrigger.onTrue(setState("climb"));
+        triggers.climbTrigger.onFalse(setState("none"));
     }
 
     private void setAnimation(Animation animation) {

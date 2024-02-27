@@ -3,7 +3,6 @@ package team3647.frc2024.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -67,7 +66,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFour_S3F5F4F3;
+        runningMode = autoCommands.blueFive_S1N1F1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -133,6 +132,9 @@ public class RobotContainer {
         mainController.dPadDown.whileTrue(climbCommands.goDown());
         mainController.dPadDown.onFalse(climbCommands.kill());
 
+        climbing.onTrue(superstructure.setIsClimbing());
+        climbing.onFalse(superstructure.setIsNotClimbing());
+
         // characterization
 
         // swerve
@@ -197,12 +199,12 @@ public class RobotContainer {
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addBoolean("under stage", swerve::underStage);
         // printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
-        printer.addBoolean("swerve aimed", autoDrive::swerveAimed);
-        printer.addBoolean("spun up", superstructure::flywheelReadY);
-        printer.addBoolean("pviot ready", superstructure::pivotReady);
-        printer.addDouble("flywheel speed", shooterLeft::getVelocity);
-        SmartDashboard.putNumber("pivot interp angle", 40);
-        printer.addDouble("shooter distance squared", targetingUtil::distance);
+        // printer.addBoolean("swerve aimed", autoDrive::swerveAimed);
+        // printer.addBoolean("spun up", superstructure::flywheelReadY);
+        // printer.addBoolean("pviot ready", superstructure::pivotReady);
+        // printer.addDouble("flywheel speed", shooterLeft::getVelocity);
+        // SmartDashboard.putNumber("pivot interp angle", 40);
+        // printer.addDouble("shooter distance squared", targetingUtil::distance);
         // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
         // printer.addBoolean("wrist at stow", superstructure::wristAtStow);
         // printer.addDouble("climb len", () -> climb.getLength());
@@ -210,8 +212,8 @@ public class RobotContainer {
         // printer.addBoolean("pivot ready", superstructure::pivotReady);
         // printer.addBoolean("swerve ready", superstructure::swerveReady);
         // printer.addDouble("tx", detector::getTX);
-        SmartDashboard.putNumber("shoot speed", 30);
-        SmartDashboard.putNumber("ratio", 1);
+        // SmartDashboard.putNumber("shoot speed", 30);
+        // SmartDashboard.putNumber("ratio", 1);
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
@@ -220,6 +222,7 @@ public class RobotContainer {
     }
 
     private final Joysticks mainController = new Joysticks(0);
+    private final Joysticks coController = new Joysticks(1);
 
     public final SwerveDrive swerve =
             new SwerveDrive(
@@ -315,7 +318,13 @@ public class RobotContainer {
 
     private final VisionController visionController =
             new VisionController(
-                    swerve::addVisionData, swerve::shouldAddData, backLeft, left, backRight, right);
+                    swerve::addVisionData,
+                    swerve::shouldAddData,
+                    coController.buttonA,
+                    backLeft,
+                    left,
+                    backRight,
+                    right);
 
     //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
 
@@ -329,7 +338,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            true));
+                            false));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
@@ -355,8 +364,10 @@ public class RobotContainer {
 
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
+    private final Trigger climbing = new Trigger(() -> climb.getPosition() > 1);
+
     private final Trigger setPiece =
-            new Trigger(() -> intake.getMasterCurrent() > 32 && wrist.getAngle() < 5) // 41
+            new Trigger(() -> intake.getMasterCurrent() > 38 && wrist.getAngle() < 5) // 41
                     .debounce(0.06)
                     .or(mainController.buttonB);
 
