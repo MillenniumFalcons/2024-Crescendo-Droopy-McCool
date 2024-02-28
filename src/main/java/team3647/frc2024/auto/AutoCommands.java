@@ -40,11 +40,12 @@ public class AutoCommands {
     private final String n1_to_n2 = "n1 to n2";
     private final String n3_to_n2 = "n3 to n2";
     private final String shoot1_to_n2 = "shoot1 to n2";
-    private final String s1_to_f1 = "s1 to f1";
+    private final String shoot1_to_n1 = "shoot1 to n1";
+    private final String s15_to_f1 = "s15 to f1";
     private final String f1_to_n2 = "f1 to n2";
     private final String f1_to_shoot1 = "f1 to shoot1";
     private final String shoot1_to_f2 = "shoot1 to f2";
-    private final String f2_to_n2 = "f2 to n2";
+    private final String f2_to_n2 = "f2 ton2";
     private final String n2_to_f1 = "n2 to f1";
     private final String f3_to_shoot1 = "f3 to shoot1";
     private final String f2_to_shoot1 = "f2 to shoot1";
@@ -56,6 +57,7 @@ public class AutoCommands {
     private final String shoot3_to_f3 = "shoot3 to f3";
     private final String n1_to_f1 = "n1 to f1";
     private final String s3_to_f5 = "s3 to f5";
+    private final String f2_to_n1 = "f2 to n1";
 
     public final Trigger currentYes;
 
@@ -66,6 +68,8 @@ public class AutoCommands {
     public final AutonomousMode blueFour_S1F1F2F3;
 
     public final AutonomousMode blueFour_S3F5F4F3;
+
+    public final AutonomousMode blueSix_S1F1F2N1N2N3;
 
     public final AutonomousMode redFive_S1N1F1N2N3;
 
@@ -110,22 +114,25 @@ public class AutoCommands {
 
         this.redFour_S1F1F2F3 =
                 new AutonomousMode(
-                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_f1)));
+                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+
+        this.blueSix_S1F1F2N1N2N3 =
+                new AutonomousMode(six_S1F1F2N1N2N3(Alliance.Blue), getInitial(s15_to_f1));
 
         this.blueFour_S3F5F4F3 =
                 new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
         this.blueFour_S1F1F2F3 =
-                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s1_to_f1));
+                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1));
     }
 
     public void registerCommands() {}
 
-    public AutonomousMode getSix_S1N1F1N2N3ByColor(Alliance color) {
-        return new AutonomousMode(six_S1N1F1F2N2N3(color), getInitial(s1_to_n1_to_f1));
+    public AutonomousMode getSix_S1F1F2N1N2N3ByColor(Alliance color) {
+        return new AutonomousMode(six_S1F1F2N1N2N3(color), getInitial(s1_to_n1_to_f1));
     }
 
     public AutonomousMode getFive_S1N1F1N2N3ByColor(Alliance color) {
@@ -155,14 +162,16 @@ public class AutoCommands {
                         followChoreoPathWithOverrideFast(n2_to_n3, color)));
     }
 
-    public Command six_S1N1F1F2N2N3(Alliance color) {
+    public Command six_S1F1F2N1N2N3(Alliance color) {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverride(s1_to_n1_to_f1, color),
-                        followChoreoPathWithOverride(f1_to_shoot1, color),
-                        followChoreoPathWithOverride(shoot1_to_f2, color),
-                        followChoreoPathWithOverride(f2_to_n2, color),
+                        followChoreoPathWithOverrideFast(s15_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        followChoreoPathWithOverride(shoot1_to_n1, color),
+                        followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
@@ -205,12 +214,10 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverrideFast(s1_to_f1, color),
+                        followChoreoPathWithOverrideFast(s15_to_f1, color),
                         followChoreoPathWithOverrideFast(f1_to_shoot1, color),
-                        Commands.waitSeconds(0.2),
                         followChoreoPathWithOverrideFast(shoot1_to_f2, color),
                         followChoreoPathWithOverrideFast(f2_to_shoot1, color),
-                        Commands.waitSeconds(0.2),
                         followChoreoPathWithOverrideFast(shoot1_to_f3, color),
                         followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
     }
@@ -247,8 +254,8 @@ public class AutoCommands {
     public Command scorePreload() {
         return Commands.parallel(
                         superstructure.spinUp(),
-                        superstructure.pivotCommands.setAngle(() -> 42),
-                        Commands.sequence(Commands.waitSeconds(0.6), superstructure.feed()))
+                        superstructure.prep(),
+                        Commands.sequence(Commands.waitSeconds(0.1), superstructure.feed()))
                 .withTimeout(0.6);
     }
 
@@ -304,36 +311,38 @@ public class AutoCommands {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         return customChoreoFolloweForOverride(
-                traj,
-                swerve::getOdoPose,
-                choreoSwerveController(
-                        AutoConstants.kXController,
-                        AutoConstants.kYController,
-                        new PIDController(0, 0, 0)),
-                (ChassisSpeeds speeds) ->
-                        swerve.drive(
-                                speeds.vxMetersPerSecond,
-                                speeds.vyMetersPerSecond,
-                                deeThetaOnTheMove()),
-                () -> mirror);
+                        traj,
+                        swerve::getOdoPose,
+                        choreoSwerveController(
+                                AutoConstants.kXController,
+                                AutoConstants.kYController,
+                                new PIDController(0, 0, 0)),
+                        (ChassisSpeeds speeds) ->
+                                swerve.drive(
+                                        speeds.vxMetersPerSecond,
+                                        speeds.vyMetersPerSecond,
+                                        deeThetaOnTheMove()),
+                        () -> mirror)
+                .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
 
     public Command followChoreoPathWithOverride(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         return customChoreoFolloweForOverride(
-                traj,
-                swerve::getOdoPose,
-                choreoSwerveController(
-                        AutoConstants.kXController,
-                        AutoConstants.kYController,
-                        new PIDController(0, 0, 0)),
-                (ChassisSpeeds speeds) ->
-                        swerve.drive(
-                                speeds.vxMetersPerSecond * 0.5,
-                                speeds.vyMetersPerSecond * 0.5,
-                                deeThetaOnTheMove()),
-                () -> mirror);
+                        traj,
+                        swerve::getOdoPose,
+                        choreoSwerveController(
+                                AutoConstants.kXController,
+                                AutoConstants.kYController,
+                                new PIDController(0, 0, 0)),
+                        (ChassisSpeeds speeds) ->
+                                swerve.drive(
+                                        speeds.vxMetersPerSecond * 0.5,
+                                        speeds.vyMetersPerSecond * 0.5,
+                                        deeThetaOnTheMove()),
+                        () -> mirror)
+                .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
 
     public Command customChoreoFolloweForOverride(
@@ -357,7 +366,14 @@ public class AutoCommands {
                     timer.stop();
                     outputChassisSpeeds.accept(new ChassisSpeeds());
                 },
-                () -> timer.hasElapsed(0.5) && swerve.getVel() < 0.1,
+                () ->
+                        timer.hasElapsed(1)
+                                && swerve.getVel() < 0.1
+                                        & swerve.getOdoPose()
+                                                        .minus(trajectory.getFinalPose())
+                                                        .getTranslation()
+                                                        .getNorm()
+                                                < 0.3,
                 swerve);
     }
 

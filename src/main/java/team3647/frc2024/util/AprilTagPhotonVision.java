@@ -19,7 +19,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
             AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator photonPoseEstimator;
     Transform3d robotToCam;
-    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.3, 0.3, 5);
+    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.1, 0.1, 5);
     private final edu.wpi.first.math.Vector<N3> multiStdDevs =
             VecBuilder.fill(0.00096, 0.00096, 0.02979);
 
