@@ -69,6 +69,10 @@ public final class GlobalConstants {
         public static final int kRightId = 28;
     }
 
+    public static final class ChurroIds {
+        public static final int kMasterId = 32;
+    }
+
     public static final class SensorIds {
         public static final int wristId = 29;
         public static final int pivotBackId = 30;

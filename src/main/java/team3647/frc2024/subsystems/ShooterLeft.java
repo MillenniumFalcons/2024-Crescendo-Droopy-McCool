@@ -67,6 +67,10 @@ public class ShooterLeft extends TalonFXSubsystem {
         return Math.abs(super.getVelocity() - setpoint) < threshold;
     }
 
+    public boolean velocityGreater(double setpoint) {
+        return super.getVelocity() > setpoint;
+    }
+
     @Override
     public String getName() {
         return "Shooter Left";

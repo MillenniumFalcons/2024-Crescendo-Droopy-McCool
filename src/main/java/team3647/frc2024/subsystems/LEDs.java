@@ -2,6 +2,9 @@ package team3647.frc2024.subsystems;
 
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Map;
@@ -14,12 +17,15 @@ public class LEDs extends VirtualSubsystem {
     /** Creates a new LEDSubsystem. */
     private Map<String, Animation> colors =
             Map.of(
-                    "none", LEDConstants.BREATHE_RED,
+                    "red", LEDConstants.SOLID_RED,
+                    "blue", LEDConstants.SOLID_BLUE,
                     "in", LEDConstants.BREATHE_YELLOW,
                     "climb", LEDConstants.BREATHE_PINK,
                     "ready", LEDConstants.FLASH_GREEN);
 
-    String LEDState = "none";
+    String defaultState = "red";
+
+    String LEDState = defaultState;
 
     private CANdle m_candle;
 
@@ -27,14 +33,16 @@ public class LEDs extends VirtualSubsystem {
 
     public LEDs(CANdle candle, LEDTriggers triggers) {
         this.m_candle = candle;
+        m_candle.configBrightnessScalar(1);
+        m_candle.configLEDType(LEDStripType.RGB);
         this.triggers = triggers;
 
         triggers.inOutTrigger.onTrue(setState("in"));
-        triggers.inOutTrigger.onFalse(setState("none"));
-        triggers.targetTrigger.onTrue(setState("ready"));
-        triggers.targetTrigger.onFalse(setState("none"));
-        triggers.climbTrigger.onTrue(setState("climb"));
-        triggers.climbTrigger.onFalse(setState("none"));
+        triggers.inOutTrigger.onFalse(setState(defaultState));
+        triggers.targetTrigger.whileTrue(setState("ready"));
+        triggers.targetTrigger.onFalse(setState(defaultState));
+        triggers.climbTrigger.whileTrue(setState("climb"));
+        triggers.climbTrigger.onFalse(setState(defaultState));
     }
 
     private void setAnimation(Animation animation) {
@@ -47,6 +55,11 @@ public class LEDs extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        DriverStation.getAlliance()
+                .ifPresent((alliance) -> defaultState = alliance == Alliance.Blue ? "blue" : "red");
+        if (LEDState == "blue" || LEDState == "red") {
+            LEDState = defaultState;
+        }
         setAnimation(colors.get(LEDState));
     }
 }

@@ -20,7 +20,8 @@ import com.ctre.phoenix.led.StrobeAnimation;
 public class LEDConstants {
 
     public static final int CANdleID = 17;
-    public static final CANdle m_candle = new CANdle(LEDConstants.CANdleID, "drive");
+    public static final CANdle m_candle =
+            new CANdle(LEDConstants.CANdleID, GlobalConstants.subsystemsLoopName);
     // LED Counts
     public static final int candleLEDS = 8;
     public static final int stripLEDS = 144;
@@ -69,7 +70,7 @@ public class LEDConstants {
             new SingleFadeAnimation(0, 255, 0, 0, 0.65, LEDCOUNT);
 
     public static final Animation BREATHE_YELLOW =
-            new StrobeAnimation(246, 190, 0, 128, 0.65, LEDCOUNT);
+            new StrobeAnimation(246, 190, 0, 128, 0.8, LEDCOUNT);
 
     public static final Animation BREATHE_PINK =
             new StrobeAnimation(255, 0, 255, 128, 0.65, LEDCOUNT);

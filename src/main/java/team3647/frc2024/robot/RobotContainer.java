@@ -12,17 +12,20 @@ import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
+import team3647.frc2024.constants.ChurroConstants;
 import team3647.frc2024.constants.ClimbConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.GlobalConstants;
 import team3647.frc2024.constants.IntakeConstants;
 import team3647.frc2024.constants.KickerConstants;
+import team3647.frc2024.constants.LEDConstants;
 import team3647.frc2024.constants.PivotConstants;
 import team3647.frc2024.constants.ShooterConstants;
 import team3647.frc2024.constants.SwerveDriveConstants;
 import team3647.frc2024.constants.TunerConstants;
 import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
+import team3647.frc2024.subsystems.Churro;
 import team3647.frc2024.subsystems.Climb;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
@@ -35,6 +38,7 @@ import team3647.frc2024.subsystems.Wrist;
 import team3647.frc2024.util.AprilTagPhotonVision;
 import team3647.frc2024.util.AutoDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
+import team3647.frc2024.util.LEDTriggers;
 import team3647.frc2024.util.NeuralDetector;
 import team3647.frc2024.util.NeuralDetectorPhotonVision;
 import team3647.frc2024.util.RobotTracker;
@@ -60,16 +64,26 @@ public class RobotContainer {
 
         pdh.clearStickyFaults();
         scheduler.registerSubsystem(
-                swerve, shooterRight, shooterLeft, intake, wrist, kicker, pivot, printer, climb);
+                swerve,
+                shooterRight,
+                shooterLeft,
+                intake,
+                wrist,
+                kicker,
+                pivot,
+                printer,
+                climb,
+                churro);
 
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1F1F2F3;
+        runningMode = autoCommands.redFour_S1F1F2F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
+        churro.setEncoder(ChurroConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
     }
 
@@ -87,11 +101,11 @@ public class RobotContainer {
         mainController
                 .rightBumper
                 .whileTrue(superstructure.batterShot())
-                .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
+                .onFalse(superstructure.stowFromBatterShoot().andThen(superstructure.ejectPiece()));
         mainController
                 .leftTrigger
                 .whileTrue(superstructure.shootAmp())
-                .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
+                .onFalse(superstructure.stowFromAmpShoot().andThen(superstructure.ejectPiece()));
         mainController.rightTrigger.onFalse(
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController.leftTrigger.onFalse(
@@ -298,6 +312,17 @@ public class RobotContainer {
                     0,
                     0.02);
 
+    public final Churro churro =
+            new Churro(
+                    ChurroConstants.kMaster,
+                    ChurroConstants.kNativeVelToDPS,
+                    ChurroConstants.kNativePosToDegrees,
+                    ChurroConstants.kMinDegree,
+                    ChurroConstants.kMaxDegree,
+                    ChurroConstants.nominalVoltage,
+                    ChurroConstants.kG,
+                    0.02);
+
     private final ClimbCommands climbCommands = new ClimbCommands(climb);
 
     private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
@@ -326,8 +351,6 @@ public class RobotContainer {
                     backRight,
                     right);
 
-    //     private final LEDs LEDs = new LEDs(LEDConstants.m_candle);
-
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 
     public final TargetingUtil targetingUtil =
@@ -338,7 +361,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            false));
+                            true));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
@@ -350,10 +373,15 @@ public class RobotContainer {
                     shooterLeft,
                     pivot,
                     wrist,
+                    churro,
                     autoDrive::getPivotAngle,
                     autoDrive::getShootSpeed,
                     targetingUtil.exitVelocity(),
                     autoDrive::swerveAimed);
+
+    private final team3647.frc2024.subsystems.LEDs LEDs =
+            new team3647.frc2024.subsystems.LEDs(
+                    LEDConstants.m_candle, new LEDTriggers(superstructure));
 
     public final AutoCommands autoCommands =
             new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
