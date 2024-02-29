@@ -11,7 +11,7 @@ public class LEDTriggers {
         this.superstructure = superstructure;
     }
 
-    public final Trigger inOutTrigger = new Trigger(() -> superstructure.getPiece());
+    public final Trigger inOutTrigger = new Trigger(() -> superstructure.hasPiece());
 
     public final Trigger targetTrigger = new Trigger(() -> superstructure.aimedAtSpeaker());
 

@@ -81,7 +81,7 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public boolean swerveAimed() {
-        return getRot() < 0.3;
+        return targetRot < 0.1;
     }
 
     private void setTargetPose(Pose2d targetPose) {

@@ -79,7 +79,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFour_S1F1F2F3;
+        runningMode = autoCommands.blueFour_S1F1F2F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -114,10 +114,10 @@ public class RobotContainer {
         mainController.leftMidButton.onTrue(autoDrive.enable());
         mainController.rightMidButton.onTrue(autoDrive.disable());
 
-        mainController
-                .leftBumper
-                .and(() -> detector.hasTarget())
-                .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
+        // mainController
+        //         .leftBumper
+        //         .and(() -> detector.hasTarget())
+        //         .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
         mainController
                 .leftBumper
                 .and(() -> !superstructure.getPiece())
@@ -131,10 +131,10 @@ public class RobotContainer {
                 .or(() -> superstructure.getPiece())
                 .onFalse(superstructure.stowIntake())
                 .onFalse(superstructure.kickerCommands.kill());
-        mainController
-                .leftBumper
-                .and(() -> detector.hasTarget())
-                .onFalse(autoDrive.setMode(DriveMode.NONE));
+        // mainController
+        //         .leftBumper
+        //         .and(() -> detector.hasTarget())
+        //         .onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());
 
@@ -361,7 +361,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            true));
+                            false));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
