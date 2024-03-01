@@ -79,7 +79,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFour_S1F1F2F3;
+        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -89,21 +89,27 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
+        coController.buttonY.whileTrue(superstructure.churroCommands.setAngle(() -> 120));
+        coController.buttonY.onFalse(superstructure.stowChurro());
+
         mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
+                .and(() -> !pivot.frontPiece() || mainController.buttonY.getAsBoolean())
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
         // .onFalse(superstructure.ejectPiece());
         mainController
                 .rightBumper
+                .and(() -> !pivot.frontPiece() || mainController.buttonY.getAsBoolean())
                 .whileTrue(superstructure.batterShot())
                 .onFalse(superstructure.stowFromBatterShoot().andThen(superstructure.ejectPiece()));
         mainController
                 .leftTrigger
+                .and(() -> !pivot.frontPiece() || mainController.buttonY.getAsBoolean())
                 .whileTrue(superstructure.shootAmp())
                 .onFalse(superstructure.stowFromAmpShoot().andThen(superstructure.ejectPiece()));
         mainController.rightTrigger.onFalse(
@@ -361,7 +367,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            false));
+                            true));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 

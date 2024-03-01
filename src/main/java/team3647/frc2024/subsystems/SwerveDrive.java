@@ -285,7 +285,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     public boolean shouldAddData(Pose2d visionPose) {
         double distance = visionPose.minus(getOdoPose()).getTranslation().getNorm();
         double angle = visionPose.getRotation().minus(getOdoPose().getRotation()).getDegrees();
-        return (distance < 1 && Math.abs(angle) < 15) ? true : false;
+        return (distance < 1.5 && Math.abs(angle) < 15) ? true : false;
     }
 
     public void addVisionData(VisionMeasurement data) {

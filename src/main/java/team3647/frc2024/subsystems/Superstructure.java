@@ -97,7 +97,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 8.5);
+        return shooterCommands.setVelocity(() -> 6);
     }
 
     public double getDesiredSpeed() {
@@ -297,7 +297,7 @@ public class Superstructure {
                         kickerCommands.kick(),
                         pivotCommands.setAngle(() -> 20))
                 .until(() -> pivot.frontPiece())
-                .andThen(slightReverse().withTimeout(0.1))
+                .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.5))
                 // .withTimeout(1)
                 .andThen(Commands.deadline(stowIntake(), kickerCommands.kill()));
     }

@@ -58,10 +58,12 @@ public class AutoCommands {
     private final String n1_to_f1 = "n1 to f1";
     private final String s3_to_f5 = "s3 to f5";
     private final String f2_to_n1 = "f2 to n1";
+    private final String s35_to_f5 = "s35 to f5";
+    private final String s2_to_f3 = "s2 to f3";
 
     public final Trigger currentYes;
 
-    public final AutonomousMode blueFive_S1N1F1N2N3;
+    //     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
 
@@ -71,15 +73,21 @@ public class AutoCommands {
 
     public final AutonomousMode blueSix_S1F1F2N1N2N3;
 
-    public final AutonomousMode redFive_S1N1F1N2N3;
+    //     public final AutonomousMode redFive_S1N1F1N2N3;
 
     public final AutonomousMode redFour_S1F1F2F3;
 
+    public final AutonomousMode redFour_S1N1N2N3;
+
+    public final AutonomousMode redTwo_S2F3;
+
     public final AutonomousMode redFour_S3F5F4F3;
 
-    public final AutonomousMode redFive_S1N1F1F2F3;
+    //     public final AutonomousMode redFive_S1N1F1F2F3;
 
-    public final AutonomousMode yes;
+    public final AutonomousMode redSix_S1F1F2N1N2N3;
+
+    //     public final AutonomousMode yes;
 
     public AutoCommands(
             SwerveDrive swerve,
@@ -93,28 +101,40 @@ public class AutoCommands {
 
         currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
-        this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
+        // this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
-        this.blueFive_S1N1F1N2N3 =
-                new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s1_to_n1_to_f1));
+        // this.blueFive_S1N1F1N2N3 = // DONT USE
+        //         new AutonomousMode(five_S1N1F1N2N3(Alliance.Blue), getInitial(s1_to_n1_to_f1));
 
-        this.redFive_S1N1F1N2N3 =
+        // this.redFive_S1N1F1N2N3 = // DONT USE
+        //         new AutonomousMode(
+        //                 five_S1N1F1N2N3(Alliance.Red),
+        //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.redTwo_S2F3 =
                 new AutonomousMode(
-                        five_S1N1F1N2N3(Alliance.Red),
-                        AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
-
+                        two_S2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s2_to_f3)));
         this.redFour_S3F5F4F3 =
                 new AutonomousMode(
-                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s3_to_f5)));
+                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)));
 
-        this.redFive_S1N1F1F2F3 =
+        this.redFour_S1N1N2N3 =
                 new AutonomousMode(
-                        five_S1N1F1N2N3(Alliance.Red),
-                        AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+                        four_S1N1N2N3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_n1)));
+
+        // this.redFive_S1N1F1F2F3 = // DONT USE
+        //         new AutonomousMode(
+        //                 five_S1N1F1N2N3(Alliance.Red),
+        //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
 
         this.redFour_S1F1F2F3 =
                 new AutonomousMode(
                         four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+
+        this.redSix_S1F1F2N1N2N3 =
+                new AutonomousMode(
+                        six_S1F1F2N1N2N3(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s15_to_f1)));
 
         this.blueFour_S1N1N2N3 =
                 new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
@@ -123,7 +143,7 @@ public class AutoCommands {
                 new AutonomousMode(six_S1F1F2N1N2N3(Alliance.Blue), getInitial(s15_to_f1));
 
         this.blueFour_S3F5F4F3 =
-                new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
+                new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s35_to_f5));
 
         this.blueFour_S1F1F2F3 =
                 new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1));
@@ -179,12 +199,20 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverride(s3_to_f5, color),
+                        followChoreoPathWithOverride(s35_to_f5, color),
                         followChoreoPathWithOverride(f5_to_shoot3, color),
                         followChoreoPathWithOverride(shoot3_to_f4, color),
                         followChoreoPathWithOverride(f4_to_shoot3, color),
                         followChoreoPathWithOverride(shoot3_to_f3, color),
                         followChoreoPathWithOverride(f3_to_shoot2, color)));
+    }
+
+    public Command two_S2F3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverride(s2_to_f3, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
     }
 
     public Command five_S1N1F1N2N3(Alliance color) {
@@ -200,12 +228,10 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverrideFast(s3_to_f5, color),
+                        followChoreoPathWithOverrideFast(s35_to_f5, color),
                         followChoreoPathWithOverrideFast(f5_to_shoot3, color),
-                        Commands.waitSeconds(0.7),
                         followChoreoPathWithOverrideFast(shoot3_to_f4, color),
                         followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                        Commands.waitSeconds(0.7),
                         followChoreoPathWithOverrideFast(shoot3_to_f3, color),
                         followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
     }
@@ -255,7 +281,7 @@ public class AutoCommands {
         return Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.1), superstructure.feed()))
+                        Commands.sequence(Commands.waitSeconds(0.4), superstructure.feed()))
                 .withTimeout(0.6);
     }
 
@@ -370,7 +396,13 @@ public class AutoCommands {
                         timer.hasElapsed(1)
                                 && swerve.getVel() < 0.1
                                         & swerve.getOdoPose()
-                                                        .minus(trajectory.getFinalPose())
+                                                        .minus(
+                                                                mirrorTrajectory.getAsBoolean()
+                                                                                == false
+                                                                        ? trajectory.getFinalPose()
+                                                                        : AllianceFlip.flipForPP(
+                                                                                trajectory
+                                                                                        .getFinalPose()))
                                                         .getTranslation()
                                                         .getNorm()
                                                 < 0.3,

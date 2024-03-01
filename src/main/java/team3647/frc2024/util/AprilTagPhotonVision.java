@@ -72,6 +72,9 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getTranslation()
                         .toTranslation2d()
                         .getNorm();
+        if (targetDistance > 5.5) {
+            return Optional.empty();
+        }
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         double numTargets = result.getTargets().size();
