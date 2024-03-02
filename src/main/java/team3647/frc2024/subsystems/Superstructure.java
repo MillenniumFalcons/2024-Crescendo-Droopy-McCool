@@ -236,7 +236,7 @@ public class Superstructure {
 
     public Command stowFromShoot() {
         return Commands.sequence(
-                Commands.parallel(prep(), spinUp(), feed()).withTimeout(0.6),
+                Commands.parallel(prep(), spinUp(), feed()).withTimeout(0.8),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
@@ -246,7 +246,7 @@ public class Superstructure {
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(
-                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(0.6),
+                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(1),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
@@ -261,7 +261,7 @@ public class Superstructure {
 
     public Command stowFromBatterShoot() {
         return Commands.sequence(
-                Commands.parallel(batterPrep(), spinUp(), feed()).withTimeout(0.6),
+                Commands.parallel(batterPrep(), spinUp(), feed()).withTimeout(0.8),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
@@ -297,7 +297,7 @@ public class Superstructure {
                         kickerCommands.kick(),
                         pivotCommands.setAngle(() -> 20))
                 .until(() -> pivot.frontPiece())
-                .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.5))
+                .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.7))
                 // .withTimeout(1)
                 .andThen(Commands.deadline(stowIntake(), kickerCommands.kill()));
     }

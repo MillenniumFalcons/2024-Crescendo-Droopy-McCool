@@ -79,7 +79,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -98,18 +98,18 @@ public class RobotContainer {
         // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
-                .and(() -> !pivot.frontPiece() || mainController.buttonY.getAsBoolean())
+                .and(() -> (!pivot.frontPiece() || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
         // .onFalse(superstructure.ejectPiece());
         mainController
                 .rightBumper
-                .and(() -> !pivot.frontPiece() || mainController.buttonY.getAsBoolean())
+                .and(() -> (!pivot.frontPiece() || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.batterShot())
                 .onFalse(superstructure.stowFromBatterShoot().andThen(superstructure.ejectPiece()));
         mainController
                 .leftTrigger
-                .and(() -> !pivot.frontPiece() || mainController.buttonY.getAsBoolean())
+                .and(() -> (!pivot.frontPiece() || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.shootAmp())
                 .onFalse(superstructure.stowFromAmpShoot().andThen(superstructure.ejectPiece()));
         mainController.rightTrigger.onFalse(
@@ -367,7 +367,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            true));
+                            false));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 

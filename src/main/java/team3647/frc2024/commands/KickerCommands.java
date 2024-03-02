@@ -21,7 +21,7 @@ public class KickerCommands {
     }
 
     public Command unkick() {
-        return Commands.run(() -> kicker.openLoop(-0.3), kicker);
+        return Commands.run(() -> kicker.openLoop(-0.2), kicker);
     }
 
     public Command oscillate() {

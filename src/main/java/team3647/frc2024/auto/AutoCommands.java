@@ -233,7 +233,7 @@ public class AutoCommands {
                         followChoreoPathWithOverrideFast(shoot3_to_f4, color),
                         followChoreoPathWithOverrideFast(f4_to_shoot3, color),
                         followChoreoPathWithOverrideFast(shoot3_to_f3, color),
-                        followChoreoPathWithOverrideFast(f3_to_shoot1, color)));
+                        followChoreoPathWithOverrideFast(f3_to_shoot2, color)));
     }
 
     public Command four_S1F1F2F3(Alliance color) {
