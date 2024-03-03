@@ -89,8 +89,14 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
-        coController.buttonY.whileTrue(superstructure.churroCommands.setAngle(() -> 120));
+        coController.buttonY.whileTrue(superstructure.churroCommands.setAngle(() -> 110));
         coController.buttonY.onFalse(superstructure.stowChurro());
+
+        coController.dPadUp.onTrue(superstructure.currentUp());
+        coController.dPadDown.onTrue(superstructure.currentDown());
+
+        coController.leftBumper.whileTrue(superstructure.sourceIntake());
+        coController.leftBumper.onFalse(superstructure.stowFromSourceIntake());
 
         mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
@@ -98,18 +104,27 @@ public class RobotContainer {
         // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
-                .and(() -> (!pivot.frontPiece() || mainController.buttonY.getAsBoolean()))
+                .and(
+                        () ->
+                                (!superstructure.getIsIntaking()
+                                        || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
         // .onFalse(superstructure.ejectPiece());
         mainController
                 .rightBumper
-                .and(() -> (!pivot.frontPiece() || mainController.buttonY.getAsBoolean()))
+                .and(
+                        () ->
+                                (!superstructure.getIsIntaking()
+                                        || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.batterShot())
                 .onFalse(superstructure.stowFromBatterShoot().andThen(superstructure.ejectPiece()));
         mainController
                 .leftTrigger
-                .and(() -> (!pivot.frontPiece() || mainController.buttonY.getAsBoolean()))
+                .and(
+                        () ->
+                                (!superstructure.getIsIntaking()
+                                        || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.shootAmp())
                 .onFalse(superstructure.stowFromAmpShoot().andThen(superstructure.ejectPiece()));
         mainController.rightTrigger.onFalse(
@@ -401,7 +416,7 @@ public class RobotContainer {
     private final Trigger climbing = new Trigger(() -> climb.getPosition() > 1);
 
     private final Trigger setPiece =
-            new Trigger(() -> intake.getMasterCurrent() > 38 && wrist.getAngle() < 5) // 41
+            new Trigger(() -> superstructure.current() && wrist.getAngle() < 5) // 41
                     .debounce(0.06)
                     .or(mainController.buttonB);
 

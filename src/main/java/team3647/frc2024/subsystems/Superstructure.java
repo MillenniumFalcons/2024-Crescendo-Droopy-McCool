@@ -38,8 +38,10 @@ public class Superstructure {
     private final double churroDeployAngle = 65;
     private final double churroStowAngle = 160;
     private final double shootSpeed;
+    private double currentLimit = 38;
     private boolean hasPiece = false;
     private boolean isClimbing;
+    private boolean isIntaking = false;
 
     private final BooleanSupplier swerveAimed;
 
@@ -79,12 +81,32 @@ public class Superstructure {
         return kickerCommands.kick();
     }
 
+    public Command setIsIntaking() {
+        return Commands.runOnce(() -> this.isIntaking = true);
+    }
+
+    public Command setIsNotIntaking() {
+        return Commands.runOnce(() -> this.isIntaking = false);
+    }
+
+    public Command currentUp() {
+        return Commands.runOnce(() -> this.currentLimit += 1);
+    }
+
+    public Command currentDown() {
+        return Commands.runOnce(() -> this.currentLimit -= 1);
+    }
+
     public Command setIsClimbing() {
         return Commands.runOnce(() -> this.isClimbing = true);
     }
 
     public Command setIsNotClimbing() {
         return Commands.runOnce(() -> this.isClimbing = false);
+    }
+
+    public boolean getIsIntaking() {
+        return this.isIntaking;
     }
 
     public boolean isClimbing() {
@@ -114,6 +136,10 @@ public class Superstructure {
 
     public boolean currentYes() {
         return intake.getMasterCurrent() > 42 && wrist.getAngle() < 5; // 41
+    }
+
+    public boolean current() {
+        return intake.getMasterCurrent() > currentLimit;
     }
 
     public Command setPiece() {
@@ -236,7 +262,7 @@ public class Superstructure {
 
     public Command stowFromShoot() {
         return Commands.sequence(
-                Commands.parallel(prep(), spinUp(), feed()).withTimeout(0.8),
+                Commands.parallel(prep(), spinUp(), feed()).withTimeout(0.6),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
@@ -246,7 +272,7 @@ public class Superstructure {
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(
-                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(1),
+                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(0.8),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
@@ -261,7 +287,7 @@ public class Superstructure {
 
     public Command stowFromBatterShoot() {
         return Commands.sequence(
-                Commands.parallel(batterPrep(), spinUp(), feed()).withTimeout(0.8),
+                Commands.parallel(batterPrep(), spinUp(), feed()).withTimeout(0.6),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
@@ -275,6 +301,7 @@ public class Superstructure {
 
     public Command passToShooter() {
         return Commands.parallel(
+                        setIsIntaking(),
                         intakeCommands.kill(),
                         kickerCommands.kick(),
                         pivotCommands.setAngle(() -> 20),
@@ -297,9 +324,23 @@ public class Superstructure {
                         kickerCommands.kick(),
                         pivotCommands.setAngle(() -> 20))
                 .until(() -> pivot.frontPiece())
-                .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.7))
+                .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.3))
                 // .withTimeout(1)
-                .andThen(Commands.deadline(stowIntake(), kickerCommands.kill()));
+                .andThen(
+                        Commands.deadline(stowIntake(), setIsNotIntaking(), kickerCommands.kill()));
+    }
+
+    public Command sourceIntake() {
+        return Commands.parallel(
+                        pivotCommands.setAngle(() -> 60),
+                        kickerCommands.unkick(),
+                        shooterCommands.setVelocity(() -> -8, () -> 1))
+                .until(() -> pivot.backPiece())
+                .andThen(stowFromSourceIntake());
+    }
+
+    public Command stowFromSourceIntake() {
+        return Commands.parallel(prep(), kickerCommands.kill(), shooterCommands.kill());
     }
 
     public Command shootThroughNoKicker() {
