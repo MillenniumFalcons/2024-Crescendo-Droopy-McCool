@@ -41,7 +41,7 @@ public class LEDConstants {
     public static final Animation COLOR_FLOW =
             new ColorFlowAnimation(255, 0, 0, 0, 0.7, LEDCOUNT, Direction.Forward);
 
-    // Solid Colors
+    // Solid Color
 
     public static final Animation SOLID_YELLOW = new StrobeAnimation(246, 190, 0, 128, 1, LEDCOUNT);
 

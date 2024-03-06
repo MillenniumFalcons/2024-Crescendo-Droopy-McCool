@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import team3647.frc2024.commands.ChurroCommands;
 import team3647.frc2024.commands.IntakeCommands;
 import team3647.frc2024.commands.KickerCommands;
 import team3647.frc2024.commands.PivotCommands;
@@ -22,21 +21,17 @@ public class Superstructure {
     private final ShooterLeft shooterLeft;
     private final Pivot pivot;
     private final Wrist wrist;
-    private final Churro churro;
     public final IntakeCommands intakeCommands;
     public final KickerCommands kickerCommands;
     public final ShooterCommands shooterCommands;
     public final PivotCommands pivotCommands;
     public final WristCommands wristCommands;
-    public final ChurroCommands churroCommands;
 
     private final DoubleSupplier pivotAngleSupplier;
     private final DoubleSupplier shooterSpeedSupplier;
     private final double pivotStowAngle = 40;
     private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
-    private final double churroDeployAngle = 65;
-    private final double churroStowAngle = 160;
     private final double shootSpeed;
     private double currentLimit = 38;
     private boolean hasPiece = false;
@@ -52,7 +47,6 @@ public class Superstructure {
             ShooterLeft shooterLeft,
             Pivot pivot,
             Wrist wrist,
-            Churro churro,
             DoubleSupplier pivotAngleSupplier,
             DoubleSupplier shooterSpeedSuppler,
             double shootSpeed,
@@ -62,7 +56,6 @@ public class Superstructure {
         this.shooterRight = shooterRight;
         this.shooterLeft = shooterLeft;
         this.pivot = pivot;
-        this.churro = churro;
         this.pivotAngleSupplier = pivotAngleSupplier;
         this.shooterSpeedSupplier = shooterSpeedSuppler;
         this.shootSpeed = shootSpeed;
@@ -74,7 +67,6 @@ public class Superstructure {
         shooterCommands = new ShooterCommands(shooterRight, shooterLeft);
         pivotCommands = new PivotCommands(pivot);
         wristCommands = new WristCommands(wrist);
-        churroCommands = new ChurroCommands(churro);
     }
 
     public Command feed() {
@@ -146,24 +138,16 @@ public class Superstructure {
         return Commands.runOnce(() -> this.hasPiece = true);
     }
 
+    public Command geegeePrepForAuto() {
+        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble() + 6);
+    }
+
     public Command ejectPiece() {
         return Commands.runOnce(() -> this.hasPiece = false);
     }
 
     public boolean flywheelReadY() {
         return shooterLeft.velocityReached(15, 1);
-    }
-
-    public Command deployChurro() {
-        return Commands.sequence(
-                churroCommands
-                        .setAngle(churroDeployAngle)
-                        .until(() -> churro.angleReached(churroDeployAngle, 5)),
-                churroCommands.setAngleSpringy(churroDeployAngle));
-    }
-
-    public Command stowChurro() {
-        return churroCommands.setAngle(churroStowAngle);
     }
 
     public boolean pivotReady() {
@@ -199,7 +183,7 @@ public class Superstructure {
 
     public Command shootAmp() {
         return Commands.parallel(
-                prepAmp(), spinUpAmp(), deployChurro()
+                prepAmp(), spinUpAmp()
                 // Commands.sequence(
                 //         // Commands.waitSeconds(2.5),
                 //         Commands.waitUntil(
@@ -276,8 +260,7 @@ public class Superstructure {
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
-                                kickerCommands.kill(),
-                                stowChurro())
+                                kickerCommands.kill())
                         .withTimeout(0.2));
     }
 

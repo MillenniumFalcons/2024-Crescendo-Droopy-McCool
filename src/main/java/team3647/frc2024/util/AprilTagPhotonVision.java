@@ -66,6 +66,9 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         if (update.isEmpty()) {
             return Optional.empty();
         }
+        if (result.getBestTarget().getFiducialId() == 11) {
+            return Optional.empty();
+        }
         double targetDistance =
                 result.getBestTarget()
                         .getBestCameraToTarget()
