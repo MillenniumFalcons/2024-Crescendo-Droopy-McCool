@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 public class ModifiedSignalLogger extends SignalLogger {
     public static Consumer<SysIdRoutineLog.State> logState() {
-        // start(); // Start logging if we get the consumer, so we have some data before the start
+        start(); // Start logging if we get the consumer, so we have some data before the start
         // of
         // the motion
         return (SysIdRoutineLog.State state) -> writeString("State", state.toString());

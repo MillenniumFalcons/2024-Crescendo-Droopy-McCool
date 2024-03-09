@@ -73,10 +73,13 @@ public class AutoCommands implements AllianceUpdatedObserver {
             Supplier<Twist2d> autoDriveVelocities,
             Superstructure superstructure,
             TargetingUtil targeting) {
+
         this.swerve = swerve;
         this.autoDriveVelocities = autoDriveVelocities;
         this.superstructure = superstructure;
         this.targeting = targeting;
+
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
         redModes.add(getFour_S1F1F2F3ByColor(Alliance.Red));
         redModes.add(getFour_S1N1N2N3ByColor(Alliance.Red));
@@ -85,8 +88,6 @@ public class AutoCommands implements AllianceUpdatedObserver {
         blueModes.add(getFour_S1F1F2F3ByColor(Alliance.Blue));
         blueModes.add(getFour_S1N1N2N3ByColor(Alliance.Blue));
         blueModes.add(getFour_S3F5F4F3ByColor(Alliance.Blue));
-
-        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
         // this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
@@ -157,7 +158,7 @@ public class AutoCommands implements AllianceUpdatedObserver {
     public AutonomousMode getSix_S1F1F2N1N2N3ByColor() {
         return new AutonomousMode(
                 six_S1F1F2N1N2N3(this.alliance),
-                AllianceFlip.flipForPP(getInitial(s15_to_f1), this.alliance == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), this.alliance == Alliance.Blue),
                 "six");
     }
 
@@ -171,28 +172,28 @@ public class AutoCommands implements AllianceUpdatedObserver {
     public AutonomousMode getFour_S1N1N2N3ByColor() {
         return new AutonomousMode(
                 four_S1N1N2N3(this.alliance),
-                AllianceFlip.flipForPP(getInitial(s1_to_n1), this.alliance == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s1_to_n1), this.alliance == Alliance.Blue),
                 "four front");
     }
 
     public AutonomousMode getFour_S3F5F4F3ByColor() {
         return new AutonomousMode(
                 four_S3F5F4F3(this.alliance),
-                AllianceFlip.flipForPP(getInitial(s35_to_f5), this.alliance == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s35_to_f5), this.alliance == Alliance.Blue),
                 "four far");
     }
 
     public AutonomousMode getFour_S1F1F2F3ByColor() {
         return new AutonomousMode(
                 four_S1F1F2F3(this.alliance),
-                AllianceFlip.flipForPP(getInitial(s15_to_f1), this.alliance == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), this.alliance == Alliance.Blue),
                 "four short");
     }
 
     public AutonomousMode getSix_S1F1F2N1N2N3ByColor(Alliance color) {
         return new AutonomousMode(
                 six_S1F1F2N1N2N3(color),
-                AllianceFlip.flipForPP(getInitial(s15_to_f1), color == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), color == Alliance.Blue),
                 "six");
     }
 
@@ -206,21 +207,21 @@ public class AutoCommands implements AllianceUpdatedObserver {
     public AutonomousMode getFour_S1N1N2N3ByColor(Alliance color) {
         return new AutonomousMode(
                 four_S1N1N2N3(color),
-                AllianceFlip.flipForPP(getInitial(s1_to_n1), color == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s1_to_n1), color == Alliance.Blue),
                 "four front");
     }
 
     public AutonomousMode getFour_S3F5F4F3ByColor(Alliance color) {
         return new AutonomousMode(
                 four_S3F5F4F3(color),
-                AllianceFlip.flipForPP(getInitial(s35_to_f5), color == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s35_to_f5), color == Alliance.Blue),
                 "four far");
     }
 
     public AutonomousMode getFour_S1F1F2F3ByColor(Alliance color) {
         return new AutonomousMode(
                 four_S1F1F2F3(color),
-                AllianceFlip.flipForPP(getInitial(s15_to_f1), color == Alliance.Red),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), color == Alliance.Blue),
                 "four short");
     }
 
