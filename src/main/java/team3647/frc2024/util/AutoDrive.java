@@ -38,7 +38,7 @@ public class AutoDrive extends VirtualSubsystem {
                     new TrapezoidProfile.Constraints(1, 2)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
-            new PIDController(4, 0, 0); // new PIDController(0.4, 0, 0);
+            new PIDController(8, 1, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
             new PIDController(12, 0, 1.2); // new PIDController(0.4, 0, 0);
@@ -64,9 +64,6 @@ public class AutoDrive extends VirtualSubsystem {
     @Override
     public void periodic() {
         Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
-        if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
-        }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
@@ -76,6 +73,11 @@ public class AutoDrive extends VirtualSubsystem {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             targetRot = targeting.shootAtAmp().rotation;
         }
+        if (DriverStation.isAutonomous()) {
+            targetRot = targeting.shootAtSpeaker().rotation;
+        }
+        // SmartDashboard.putNumber("target rot", targeting.shootAtSpeaker().rotation);
+        // targetRot = targeting.shootAtSpeaker().rotation;
         // SmartDashboard.putNumber("auto drive", getRot());
     }
 
@@ -152,9 +154,9 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getRot() {
-        rotController.setGoal(targetPose.getRotation().getRadians());
-        double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
-        k = quickerRotController.calculate(targetRot, 0);
+        // rotController.setGoal(targetPose.getRotation().getRadians());
+        // double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
+        double k = quickRotController.calculate(targetRot, 0);
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
     }

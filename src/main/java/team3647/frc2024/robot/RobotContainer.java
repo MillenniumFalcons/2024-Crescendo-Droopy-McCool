@@ -336,8 +336,8 @@ public class RobotContainer {
     public final AprilTagPhotonVision left =
             new AprilTagPhotonVision(VisionConstants.left, VisionConstants.robotToLeft);
 
-    public final AprilTagPhotonVision right =
-            new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
+    //     public final AprilTagPhotonVision right =
+    //             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     private final VisionController visionController =
             new VisionController(
@@ -346,8 +346,7 @@ public class RobotContainer {
                     coController.buttonA,
                     backLeft,
                     left,
-                    backRight,
-                    right);
+                    backRight);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 

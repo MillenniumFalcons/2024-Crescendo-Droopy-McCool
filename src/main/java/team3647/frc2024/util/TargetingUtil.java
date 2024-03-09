@@ -183,7 +183,7 @@ public class TargetingUtil {
     }
 
     public double adjustedExit() {
-        return shootSpeed * 1 / 2;
+        return shootSpeed * 5 / 6;
     }
 
     // for cleaner packaging

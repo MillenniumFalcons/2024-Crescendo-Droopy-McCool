@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
+import team3647.frc2024.constants.FieldConstants;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class RobotTracker extends VirtualSubsystem implements AllianceUpdatedObserver {
@@ -58,14 +60,15 @@ public class RobotTracker extends VirtualSubsystem implements AllianceUpdatedObs
     public void periodic() {
         setCompensatedPose();
         setDistanceFromSpeaker();
+        Logger.recordOutput("target", speakerPose);
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }
 
     @Override
     public void onAllianceFound(Alliance alliance) {
         if (alliance == Alliance.Red) {
-            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
-            this.ampPose = AllianceFlip.flipForPP(ampPose);
+            this.speakerPose = AllianceFlip.flipForPP(FieldConstants.kBlueSpeaker);
+            this.ampPose = AllianceFlip.flipForPP(FieldConstants.kBlueAmp);
         }
     }
 
@@ -73,9 +76,9 @@ public class RobotTracker extends VirtualSubsystem implements AllianceUpdatedObs
         var speeds = robotRelativeSpeeds.get();
         var twist =
                 new Twist2d(
-                        speeds.vxMetersPerSecond * 0.1,
-                        speeds.vyMetersPerSecond * 0.1,
-                        speeds.omegaRadiansPerSecond * 0.1);
+                        speeds.vxMetersPerSecond * 0.02,
+                        speeds.vyMetersPerSecond * 0.02,
+                        speeds.omegaRadiansPerSecond * 0.02);
         periodicIO.compensatedPose = drivePose.get().exp(twist);
     }
 
