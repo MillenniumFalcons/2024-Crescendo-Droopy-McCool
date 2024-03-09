@@ -5,8 +5,6 @@ import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -14,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -22,13 +21,18 @@ import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AllianceFlip;
+import team3647.frc2024.util.AllianceUpdatedObserver;
 import team3647.frc2024.util.TargetingUtil;
 
-public class AutoCommands {
+public class AutoCommands implements AllianceUpdatedObserver {
+    private Alliance alliance = Alliance.Blue;
     private final SwerveDrive swerve;
     private final Supplier<Twist2d> autoDriveVelocities;
     private final Superstructure superstructure;
     private final TargetingUtil targeting;
+
+    private final ArrayList<AutonomousMode> redModes = new ArrayList<>();
+    private final ArrayList<AutonomousMode> blueModes = new ArrayList<>();
 
     private final String s1_to_n1 = "s1 to n1";
     private final String s1_to_n1_to_f1 = "s1 to n1 to f1";
@@ -64,32 +68,6 @@ public class AutoCommands {
 
     public final Trigger currentYes;
 
-    //     public final AutonomousMode blueFive_S1N1F1N2N3;
-
-    public final AutonomousMode blueFour_S1N1N2N3;
-
-    public final AutonomousMode blueFour_S1F1F2F3;
-
-    public final AutonomousMode blueFour_S3F5F4F3;
-
-    public final AutonomousMode blueSix_S1F1F2N1N2N3;
-
-    //     public final AutonomousMode redFive_S1N1F1N2N3;
-
-    public final AutonomousMode redFour_S1F1F2F3;
-
-    public final AutonomousMode redFour_S1N1N2N3;
-
-    public final AutonomousMode redTwo_S2F3;
-
-    public final AutonomousMode redFour_S3F5F4F3;
-
-    //     public final AutonomousMode redFive_S1N1F1F2F3;
-
-    public final AutonomousMode redSix_S1F1F2N1N2N3;
-
-    //     public final AutonomousMode yes;
-
     public AutoCommands(
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
@@ -99,6 +77,14 @@ public class AutoCommands {
         this.autoDriveVelocities = autoDriveVelocities;
         this.superstructure = superstructure;
         this.targeting = targeting;
+
+        redModes.add(getFour_S1F1F2F3ByColor(Alliance.Red));
+        redModes.add(getFour_S1N1N2N3ByColor(Alliance.Red));
+        redModes.add(getFour_S3F5F4F3ByColor(Alliance.Red));
+
+        blueModes.add(getFour_S1F1F2F3ByColor(Alliance.Blue));
+        blueModes.add(getFour_S1N1N2N3ByColor(Alliance.Blue));
+        blueModes.add(getFour_S3F5F4F3ByColor(Alliance.Blue));
 
         currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
@@ -112,56 +98,130 @@ public class AutoCommands {
         //                 five_S1N1F1N2N3(Alliance.Red),
         //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
 
-        this.redTwo_S2F3 =
-                new AutonomousMode(
-                        two_S2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s2_to_f3)));
-        this.redFour_S3F5F4F3 =
-                new AutonomousMode(
-                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)));
+        // this.redTwo_S2F3 =
+        //         new AutonomousMode(
+        //                 two_S2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s2_to_f3)));
+        // this.redFour_S3F5F4F3 =
+        //         new AutonomousMode(
+        //                 four_S3F5F4F3(Alliance.Red),
+        // AllianceFlip.flipForPP(getInitial(s35_to_f5)));
 
-        this.redFour_S1N1N2N3 =
-                new AutonomousMode(
-                        four_S1N1N2N3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_n1)));
+        // this.redFour_S1N1N2N3 =
+        //         new AutonomousMode(
+        //                 four_S1N1N2N3(Alliance.Red),
+        // AllianceFlip.flipForPP(getInitial(s1_to_n1)));
 
         // this.redFive_S1N1F1F2F3 = // DONT USE
         //         new AutonomousMode(
         //                 five_S1N1F1N2N3(Alliance.Red),
         //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
 
-        this.redFour_S1F1F2F3 =
-                new AutonomousMode(
-                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+        // this.redFour_S1F1F2F3 =
+        //         new AutonomousMode(
+        //                 four_S1F1F2F3(Alliance.Red),
+        // AllianceFlip.flipForPP(getInitial(s15_to_f1)));
 
-        this.redSix_S1F1F2N1N2N3 =
-                new AutonomousMode(
-                        six_S1F1F2N1N2N3(Alliance.Red),
-                        AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+        // this.redSix_S1F1F2N1N2N3 =
+        //         new AutonomousMode(
+        //                 six_S1F1F2N1N2N3(Alliance.Red),
+        //                 AllianceFlip.flipForPP(getInitial(s15_to_f1)));
 
-        this.blueFour_S1N1N2N3 =
-                new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+        // this.blueFour_S1N1N2N3 =
+        //         new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
 
-        this.blueSix_S1F1F2N1N2N3 =
-                new AutonomousMode(six_S1F1F2N1N2N3(Alliance.Blue), getInitial(s15_to_f1));
+        // this.blueSix_S1F1F2N1N2N3 =
+        //         new AutonomousMode(six_S1F1F2N1N2N3(Alliance.Blue), getInitial(s15_to_f1));
 
-        this.blueFour_S3F5F4F3 =
-                new AutonomousMode(four_S3F5F4F3(Alliance.Blue), getInitial(s35_to_f5));
+        // this.blueFour_S3F5F4F3 =
+        //         new AutonomousMode(four_S3F5F4F3(Alliance.Blue), getInitial(s35_to_f5));
 
-        this.blueFour_S1F1F2F3 =
-                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1));
+        // this.blueFour_S1F1F2F3 =
+        //         new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1));
+    }
+
+    @Override
+    public void onAllianceFound(Alliance alliance) {
+        this.alliance = alliance;
     }
 
     public void registerCommands() {}
 
+    public ArrayList<AutonomousMode> getRedModes() {
+        return redModes;
+    }
+
+    public ArrayList<AutonomousMode> getBlueModes() {
+        return blueModes;
+    }
+
+    public AutonomousMode getSix_S1F1F2N1N2N3ByColor() {
+        return new AutonomousMode(
+                six_S1F1F2N1N2N3(this.alliance),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), this.alliance == Alliance.Red),
+                "six");
+    }
+
+    //     public AutonomousMode getFive_S1N1F1N2N3ByColor() {
+    //         return new AutonomousMode(
+    //                 five_S1N1F1N2N3(this.alliance),
+    //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1), this.alliance ==
+    // Alliance.Red));
+    //     }
+
+    public AutonomousMode getFour_S1N1N2N3ByColor() {
+        return new AutonomousMode(
+                four_S1N1N2N3(this.alliance),
+                AllianceFlip.flipForPP(getInitial(s1_to_n1), this.alliance == Alliance.Red),
+                "four front");
+    }
+
+    public AutonomousMode getFour_S3F5F4F3ByColor() {
+        return new AutonomousMode(
+                four_S3F5F4F3(this.alliance),
+                AllianceFlip.flipForPP(getInitial(s35_to_f5), this.alliance == Alliance.Red),
+                "four far");
+    }
+
+    public AutonomousMode getFour_S1F1F2F3ByColor() {
+        return new AutonomousMode(
+                four_S1F1F2F3(this.alliance),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), this.alliance == Alliance.Red),
+                "four short");
+    }
+
     public AutonomousMode getSix_S1F1F2N1N2N3ByColor(Alliance color) {
-        return new AutonomousMode(six_S1F1F2N1N2N3(color), getInitial(s1_to_n1_to_f1));
+        return new AutonomousMode(
+                six_S1F1F2N1N2N3(color),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), color == Alliance.Red),
+                "six");
     }
 
-    public AutonomousMode getFive_S1N1F1N2N3ByColor(Alliance color) {
-        return new AutonomousMode(five_S1N1F1N2N3(color), getInitial(s1_to_n1_to_f1));
+    //     public AutonomousMode getFive_S1N1F1N2N3ByColor() {
+    //         return new AutonomousMode(
+    //                 five_S1N1F1N2N3(this.alliance),
+    //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1), this.alliance ==
+    // Alliance.Red));
+    //     }
+
+    public AutonomousMode getFour_S1N1N2N3ByColor(Alliance color) {
+        return new AutonomousMode(
+                four_S1N1N2N3(color),
+                AllianceFlip.flipForPP(getInitial(s1_to_n1), color == Alliance.Red),
+                "four front");
     }
 
-    public AutonomousMode getFour_S1N1F1N2N3ByColor(Alliance color) {
-        return new AutonomousMode(four_S1N1N2N3(color), getInitial(s1_to_n1));
+    public AutonomousMode getFour_S3F5F4F3ByColor(Alliance color) {
+        return new AutonomousMode(
+                four_S3F5F4F3(color),
+                AllianceFlip.flipForPP(getInitial(s35_to_f5), color == Alliance.Red),
+                "four far");
+    }
+
+    public AutonomousMode getFour_S1F1F2F3ByColor(Alliance color) {
+        return new AutonomousMode(
+                four_S1F1F2F3(color),
+                AllianceFlip.flipForPP(getInitial(s15_to_f1), color == Alliance.Red),
+                "four short");
     }
 
     public Command seven_S1N1F1F2F3N2N3(Alliance color) {
@@ -279,7 +339,7 @@ public class AutoCommands {
     public Command scorePreload() {
         return Commands.parallel(
                         superstructure.spinUp(),
-                        superstructure.geegeePrepForAuto(),
+                        superstructure.prep(),
                         Commands.sequence(Commands.waitSeconds(0.6), superstructure.feed()))
                 .withTimeout(0.6);
     }
@@ -317,11 +377,11 @@ public class AutoCommands {
                                         new Trigger(() -> goodToGo(color)))));
     }
 
-    public Pose2d flipForPP(Pose2d pose) {
-        return new Pose2d(
-                new Translation2d(FieldConstants.kFieldLength - pose.getX(), pose.getY()),
-                new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
-    }
+    //     public Pose2d flipForPP(Pose2d pose) {
+    //         return new Pose2d(
+    //                 new Translation2d(FieldConstants.kFieldLength - pose.getX(), pose.getY()),
+    //                 new Rotation2d(-pose.getRotation().getCos(), pose.getRotation().getSin()));
+    //     }
 
     public Command overrideChoreoPathWithIntake(String path, Alliance color) {
         return Commands.deadline(pathAndShootWithOverride(path, color), superstructure.intake());

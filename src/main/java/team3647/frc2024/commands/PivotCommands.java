@@ -1,6 +1,5 @@
 package team3647.frc2024.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -17,15 +16,6 @@ public class PivotCommands {
 
     public Command setAngle(DoubleSupplier setpoint) {
         return Commands.run(() -> pivot.setAngle(setpoint.getAsDouble()), pivot);
-    }
-
-    public Command characterizeKG() {
-        return Commands.run(
-                () -> {
-                    double voltage = SmartDashboard.getNumber("pivot characterization voltage", 0);
-                    pivot.setVoltage(voltage);
-                },
-                pivot);
     }
 
     public Command holdPositionAtCall() {

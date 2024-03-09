@@ -4,10 +4,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
 import team3647.lib.team6328.VirtualSubsystem;
 
-public class RobotTracker extends VirtualSubsystem {
+public class RobotTracker extends VirtualSubsystem implements AllianceUpdatedObserver {
 
     private Pose2d speakerPose;
     private Pose2d ampPose;
@@ -29,17 +30,12 @@ public class RobotTracker extends VirtualSubsystem {
             Pose2d ampPose,
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> robotRelativeSpeeds,
-            Transform2d robotToShooter,
-            boolean redSide) {
+            Transform2d robotToShooter) {
         this.speakerPose = speakerPose;
         this.ampPose = ampPose;
         this.drivePose = drivePose;
         this.robotRelativeSpeeds = robotRelativeSpeeds;
         this.robotToShooter = robotToShooter;
-        if (redSide) {
-            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
-            this.ampPose = AllianceFlip.flipForPP(ampPose);
-        }
 
         // DriverStation.getAlliance()
         //         .ifPresent(
@@ -63,6 +59,14 @@ public class RobotTracker extends VirtualSubsystem {
         setCompensatedPose();
         setDistanceFromSpeaker();
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
+    }
+
+    @Override
+    public void onAllianceFound(Alliance alliance) {
+        if (alliance == Alliance.Red) {
+            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
+            this.ampPose = AllianceFlip.flipForPP(ampPose);
+        }
     }
 
     public void setCompensatedPose() {

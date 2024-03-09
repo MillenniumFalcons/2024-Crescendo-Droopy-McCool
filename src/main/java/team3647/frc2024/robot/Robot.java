@@ -29,6 +29,7 @@ public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     public static final double kTenMSLoopTime = 0.01;
     public static final double kTwentyMSLoopTime = 0.02;
+    private boolean previousWasNothing = true;
 
     private RobotContainer robotContainer = new RobotContainer();
 
@@ -105,13 +106,18 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        if (previousWasNothing) {
+            robotContainer.allianceChecker.periodic();
+        }
+    }
 
     /**
      * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
      */
     @Override
     public void autonomousInit() {
+        previousWasNothing = false;
         robotContainer.swerve.zeroPitch();
         autonomousCommand = robotContainer.getAutonomousCommand();
         // schedule the autonomous command (example)
@@ -126,6 +132,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        previousWasNothing = false;
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove

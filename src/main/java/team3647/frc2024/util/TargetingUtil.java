@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import team3647.frc2024.constants.PivotConstants;
@@ -56,7 +55,7 @@ public class TargetingUtil {
                                 + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
                         (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
                                 + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
-        SmartDashboard.putNumber("new anle", newAngle);
+        // SmartDashboard.putNumber("new anle", newAngle);
         // boolean shouldAddPi = Math.cos(newAngle) < 0;
         // double pi = shouldAddPi ? Math.PI : 0;
         // boolean shouldSubtract = Math.sin(newAngle) < 0;
@@ -70,7 +69,7 @@ public class TargetingUtil {
         if (robotAngleToPose < -Math.PI) {
             robotAngleToPose += 2 * Math.PI;
         }
-        SmartDashboard.putNumber("roobot angle", robotAngleToPose);
+        // SmartDashboard.putNumber("roobot angle", robotAngleToPose);
         double angleOnTheMove = newAngle;
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;
@@ -116,7 +115,7 @@ public class TargetingUtil {
         //                 + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
         //         (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
         //                 + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
-        SmartDashboard.putNumber("new anle", newAngle);
+        // SmartDashboard.putNumber("new anle", newAngle);
         // boolean shouldAddPi = Math.cos(newAngle) < 0;
         // double pi = shouldAddPi ? Math.PI : 0;
         // boolean shouldSubtract = Math.sin(newAngle) < 0;
@@ -130,7 +129,7 @@ public class TargetingUtil {
         if (robotAngleToPose < -Math.PI) {
             robotAngleToPose += 2 * Math.PI;
         }
-        SmartDashboard.putNumber("roobot angle", robotAngleToPose);
+        // SmartDashboard.putNumber("roobot angle", robotAngleToPose);
         double angleOnTheMove = newAngle;
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;
@@ -184,7 +183,7 @@ public class TargetingUtil {
     }
 
     public double adjustedExit() {
-        return shootSpeed * 3 / 4;
+        return shootSpeed * 1 / 2;
     }
 
     // for cleaner packaging

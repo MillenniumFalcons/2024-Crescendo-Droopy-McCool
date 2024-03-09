@@ -15,22 +15,24 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import team3647.frc2024.constants.FieldConstants;
+import team3647.frc2024.util.AllianceUpdatedObserver;
 import team3647.frc2024.util.ModifiedSignalLogger;
 import team3647.frc2024.util.SwerveFOCRequest;
 import team3647.frc2024.util.VisionMeasurement;
 import team3647.lib.PeriodicSubsystem;
 
-public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
+public class SwerveDrive extends SwerveDrivetrain
+        implements AllianceUpdatedObserver, PeriodicSubsystem {
 
-    public final Field2d field = new Field2d();
+    // public final Field2d field = new Field2d();
 
     private final double maxSpeedMpS;
     private final double maxRotRadPerSec;
@@ -138,16 +140,16 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         periodicIO.timestamp = Timer.getFPGATimestamp();
 
         // SmartDashboard.putNumber("characterization voltage", periodicIO.characterizationVoltage);
-        SmartDashboard.putData("field bruh", field);
+        // SmartDashboard.putData("field bruh", field);
 
-        SmartDashboard.putNumber("x", getPoseX());
-        SmartDashboard.putNumber("y", getPoseY());
+        // SmartDashboard.putNumber("x", getPoseX());
+        // SmartDashboard.putNumber("y", getPoseY());
     }
 
     @Override
     public void writePeriodicOutputs() {
         this.setControl(periodicIO.masterRequest);
-        SmartDashboard.putNumber("heading", getRawHeading());
+        // SmartDashboard.putNumber("heading", getRawHeading());
 
         // frontLeft.goForwardForCharacterization(periodicIO.characterizationVoltage);
         // frontRight.goForwardForCharacterization(periodicIO.characterizationVoltage);
@@ -160,6 +162,19 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         Logger.recordOutput("Robot/Output", this.m_odometry.getEstimatedPosition());
         readPeriodicInputs();
         writePeriodicOutputs();
+    }
+
+    @Override
+    public void onAllianceFound(Alliance alliance) {
+        switch (alliance) {
+            case Red:
+                this.setOperatorPerspectiveForward(FieldConstants.kOneEighty);
+                break;
+            case Blue:
+            default:
+                this.setOperatorPerspectiveForward(FieldConstants.kZero);
+                break;
+        }
     }
 
     public boolean underStage() {
@@ -290,7 +305,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     public void addVisionData(VisionMeasurement data) {
         periodicIO.visionPose = data.pose;
-        SmartDashboard.putNumber("timestamped viison", data.timestamp);
+        // SmartDashboard.putNumber("timestamped viison", data.timestamp);
         addVisionMeasurement(data.pose, data.timestamp, data.stdDevs);
     }
 

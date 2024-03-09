@@ -1,6 +1,5 @@
 package team3647.frc2024.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -138,10 +137,6 @@ public class Superstructure {
         return Commands.runOnce(() -> this.hasPiece = true);
     }
 
-    public Command geegeePrepForAuto() {
-        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble() + 6);
-    }
-
     public Command ejectPiece() {
         return Commands.runOnce(() -> this.hasPiece = false);
     }
@@ -241,7 +236,7 @@ public class Superstructure {
     }
 
     public Command prepManual() {
-        return pivotCommands.setAngle(() -> SmartDashboard.getNumber("pivot interp angle", 40));
+        return pivotCommands.setAngle(() -> 60);
     }
 
     public Command stowFromShoot() {

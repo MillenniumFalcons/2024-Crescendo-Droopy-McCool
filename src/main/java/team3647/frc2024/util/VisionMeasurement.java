@@ -16,7 +16,7 @@ public class VisionMeasurement implements Comparable<VisionMeasurement> {
     public final Matrix<N3, N1> stdDevs;
 
     public VisionMeasurement(Pose2d pose, double timestamp) {
-        this(pose, timestamp, 1, VecBuilder.fill(0.05, 0.05, 0.05));
+        this(pose, timestamp, 1, VecBuilder.fill(0.1, 0.1, 5));
     }
 
     public VisionMeasurement(

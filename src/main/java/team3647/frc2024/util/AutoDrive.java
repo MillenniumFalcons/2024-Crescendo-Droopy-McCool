@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
@@ -77,7 +76,7 @@ public class AutoDrive extends VirtualSubsystem {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             targetRot = targeting.shootAtAmp().rotation;
         }
-        SmartDashboard.putNumber("auto drive", getRot());
+        // SmartDashboard.putNumber("auto drive", getRot());
     }
 
     public boolean swerveAimed() {

@@ -4,9 +4,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutonomousMode {
-    public AutonomousMode(Command autoCommand, Pose2d ppinitial) {
+    public AutonomousMode(Command autoCommand, Pose2d ppinitial, String name) {
         this.autoCommand = autoCommand;
         this.ppInitial = ppinitial;
+        this.name = name;
     }
 
     private final Command autoCommand;
@@ -19,5 +20,11 @@ public class AutonomousMode {
 
     public Pose2d getPathplannerPose2d() {
         return ppInitial;
+    }
+
+    private final String name;
+
+    public String getName() {
+        return name;
     }
 }

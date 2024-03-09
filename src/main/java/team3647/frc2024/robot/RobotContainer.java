@@ -3,13 +3,14 @@ package team3647.frc2024.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
+import team3647.frc2024.auto.AutoChooser;
 import team3647.frc2024.auto.AutoCommands;
-import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
 import team3647.frc2024.constants.ClimbConstants;
@@ -33,6 +34,7 @@ import team3647.frc2024.subsystems.ShooterRight;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.subsystems.Wrist;
+import team3647.frc2024.util.AllianceChecker;
 import team3647.frc2024.util.AprilTagPhotonVision;
 import team3647.frc2024.util.AutoDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
@@ -53,8 +55,6 @@ import team3647.lib.inputs.Joysticks;
  */
 public class RobotContainer {
 
-    private AutonomousMode runningMode;
-
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
 
@@ -66,13 +66,12 @@ public class RobotContainer {
 
         configureDefaultCommands();
         configureButtonBindings();
-        configureSmartDashboardLogging();
+        // configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFour_S3F5F4F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
-        swerve.setRobotPose(runningMode.getPathplannerPose2d());
+        SmartDashboard.putData("auto", autoChooser);
     }
 
     private void configureButtonBindings() {
@@ -238,7 +237,11 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return runningMode.getAutoCommand();
+        final var selectedMode = autoChooser.getSelected();
+        if (selectedMode == null) {
+            return Commands.none();
+        }
+        return selectedMode.getAutoCommand();
     }
 
     private final Joysticks mainController = new Joysticks(0);
@@ -348,15 +351,15 @@ public class RobotContainer {
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 
-    public final TargetingUtil targetingUtil =
-            new TargetingUtil(
-                    new RobotTracker(
-                            FieldConstants.kBlueSpeaker,
-                            FieldConstants.kBlueAmp,
-                            swerve::getOdoPose,
-                            swerve::getChassisSpeeds,
-                            PivotConstants.robotToPivot2d,
-                            true));
+    public final RobotTracker robotTracker =
+            new RobotTracker(
+                    FieldConstants.kBlueSpeaker,
+                    FieldConstants.kBlueAmp,
+                    swerve::getOdoPose,
+                    swerve::getChassisSpeeds,
+                    PivotConstants.robotToPivot2d);
+
+    public final TargetingUtil targetingUtil = new TargetingUtil(robotTracker);
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
@@ -380,7 +383,16 @@ public class RobotContainer {
     public final AutoCommands autoCommands =
             new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
 
+    private final AutoChooser autoChooser = new AutoChooser(autoCommands, swerve::setRobotPose);
+
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
+
+    public final AllianceChecker allianceChecker =
+            new AllianceChecker()
+                    .withObserver(robotTracker)
+                    .withObserver(swerve)
+                    .withObserver(autoChooser)
+                    .withObserver(autoCommands);
 
     final GroupPrinter printer = GroupPrinter.getInstance();
 

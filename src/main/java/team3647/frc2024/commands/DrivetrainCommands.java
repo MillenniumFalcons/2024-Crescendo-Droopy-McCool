@@ -3,8 +3,6 @@ package team3647.frc2024.commands;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.BooleanSupplier;
@@ -30,12 +28,6 @@ public class DrivetrainCommands {
             ) {
         return Commands.run(
                 () -> {
-                    int invert = 1;
-                    if (DriverStation.getAlliance().isPresent()) {
-                        if (DriverStation.getAlliance().get() == Alliance.Red) {
-                            invert = -1;
-                        }
-                    }
                     boolean enabeld = autoDriveEnabled.getAsBoolean();
                     DriveMode mode = autoDriveMode.get();
                     Twist2d autoDriveTwist2d = autoDriveVelocities.get();
@@ -43,11 +35,9 @@ public class DrivetrainCommands {
                     // boolean autoSteer = enableAutoSteer.getAsBoolean();
                     boolean fieldOriented = getIsFieldOriented.getAsBoolean();
                     boolean openloop = true;
-                    var motionXComponent =
-                            ySpeedFunction.getAsDouble() * maxSpeed * triggerSlow * invert;
+                    var motionXComponent = ySpeedFunction.getAsDouble() * maxSpeed * triggerSlow;
                     // right stick X, (negative so that left positive)
-                    var motionYComponent =
-                            -xSpeedFunction.getAsDouble() * maxSpeed * triggerSlow * invert;
+                    var motionYComponent = -xSpeedFunction.getAsDouble() * maxSpeed * triggerSlow;
 
                     var motionTurnComponent =
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
