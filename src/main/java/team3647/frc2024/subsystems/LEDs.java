@@ -17,8 +17,8 @@ public class LEDs extends VirtualSubsystem {
     /** Creates a new LEDSubsystem. */
     private Map<String, Animation> colors =
             Map.of(
-                    "red", LEDConstants.SOLID_WHITE,
-                    "blue", LEDConstants.SOLID_WHITE,
+                    "red", LEDConstants.SOLID_RED,
+                    "blue", LEDConstants.SOLID_BLUE,
                     "in", LEDConstants.BREATHE_YELLOW,
                     "climb", LEDConstants.BREATHE_PINK,
                     "ready", LEDConstants.FLASH_GREEN);

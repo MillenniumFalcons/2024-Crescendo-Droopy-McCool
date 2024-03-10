@@ -72,7 +72,7 @@ public class AutoDrive extends VirtualSubsystem {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.INTAKE_FLOOR_PIECE) {
-            targetRot = -detector.getTX();
+            targetRot = Units.degreesToRadians(detector.getTX());
         }
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             targetRot = targeting.shootAtAmp().rotation;

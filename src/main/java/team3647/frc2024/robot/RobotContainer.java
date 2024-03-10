@@ -117,13 +117,13 @@ public class RobotContainer {
         mainController.leftTrigger.onFalse(
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
 
-        mainController.leftMidButton.onTrue(autoDrive.enable());
-        mainController.rightMidButton.onTrue(autoDrive.disable());
+        coController.leftMidButton.onTrue(autoDrive.enable());
+        coController.rightMidButton.onTrue(autoDrive.disable());
 
-        // mainController
-        //         .leftBumper
-        //         .and(() -> detector.hasTarget())
-        //         .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
+        mainController
+                .leftBumper
+                .and(() -> detector.hasTarget())
+                .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
         mainController
                 .leftBumper
                 .and(() -> !superstructure.getPiece())
@@ -137,10 +137,10 @@ public class RobotContainer {
                 .or(() -> superstructure.getPiece())
                 .onFalse(superstructure.stowIntake())
                 .onFalse(superstructure.kickerCommands.kill());
-        // mainController
-        //         .leftBumper
-        //         .and(() -> detector.hasTarget())
-        //         .onFalse(autoDrive.setMode(DriveMode.NONE));
+        mainController
+                .leftBumper
+                .and(() -> detector.hasTarget())
+                .onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());
 
@@ -333,18 +333,13 @@ public class RobotContainer {
     public final AprilTagPhotonVision left =
             new AprilTagPhotonVision(VisionConstants.left, VisionConstants.robotToLeft);
 
-    public final AprilTagPhotonVision right =
-            new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
-
     private final VisionController visionController =
             new VisionController(
                     swerve::addVisionData,
                     swerve::shouldAddData,
                     coController.buttonA,
                     backLeft,
-                    left,
-                    backRight,
-                    right);
+                    backRight);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 
