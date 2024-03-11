@@ -55,6 +55,8 @@ public class AutoConstants {
 
     public static final double kDrivetrainXShootingThreshold = 4.8;
 
+    public static final double kDrivetrainXIntakingThreshold = 6.5;
+
     static {
         kRotController.enableContinuousInput(-Math.PI, Math.PI);
 

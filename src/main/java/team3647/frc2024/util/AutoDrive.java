@@ -59,6 +59,7 @@ public class AutoDrive extends VirtualSubsystem {
         INTAKE_FLOOR_PIECE,
         SHOOT_AT_AMP,
         SHOOT_ON_THE_MOVE,
+        INTAKING_IN_AUTO,
         NONE
     }
 
@@ -67,6 +68,22 @@ public class AutoDrive extends VirtualSubsystem {
         Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+            if (this.getMode() == DriveMode.INTAKING_IN_AUTO && detector.hasTarget()) {
+                targetRot = Units.degreesToRadians(detector.getTX());
+            }
+            // if (DriverStation.getAlliance().isPresent()) {
+            //     if ((DriverStation.getAlliance().get() == Alliance.Blue
+            //                     && swerve.getOdoPose().getX()
+            //                             > AutoConstants.kDrivetrainXIntakingThreshold)
+            //             || (DriverStation.getAlliance().get() == Alliance.Red
+            //                     && swerve.getOdoPose().getX()
+            //                             < FieldConstants.kFieldLength
+            //                                     - AutoConstants.kDrivetrainXIntakingThreshold)) {
+            //         if (detector.hasTarget()) {
+            //             targetRot = Units.degreesToRadians(detector.getTX());
+            //         }
+            //     }
+            // }
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeaker().rotation;

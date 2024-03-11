@@ -373,7 +373,12 @@ public class RobotContainer {
                     LEDConstants.m_candle, new LEDTriggers(superstructure));
 
     public final AutoCommands autoCommands =
-            new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
+            new AutoCommands(
+                    swerve,
+                    autoDrive::getVelocities,
+                    superstructure,
+                    targetingUtil,
+                    autoDrive::setMode);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 

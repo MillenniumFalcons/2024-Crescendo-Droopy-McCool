@@ -22,6 +22,7 @@ import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AllianceFlip;
+import team3647.frc2024.util.AutoDrive.DriveMode;
 import team3647.frc2024.util.TargetingUtil;
 
 public class AutoCommands {
@@ -64,6 +65,8 @@ public class AutoCommands {
 
     public final Trigger currentYes;
 
+    private final Consumer<DriveMode> modeAcceptor;
+
     //     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
@@ -94,11 +97,13 @@ public class AutoCommands {
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
             Superstructure superstructure,
-            TargetingUtil targeting) {
+            TargetingUtil targeting,
+            Consumer<DriveMode> modeAcceptor) {
         this.swerve = swerve;
         this.autoDriveVelocities = autoDriveVelocities;
         this.superstructure = superstructure;
         this.targeting = targeting;
+        this.modeAcceptor = modeAcceptor;
 
         currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
@@ -309,9 +314,11 @@ public class AutoCommands {
 
     public Command continuouslyIntakeForShoot(Alliance color) {
         return Commands.sequence(
+                Commands.runOnce(() -> modeAcceptor.accept(DriveMode.INTAKING_IN_AUTO)),
                 superstructure
                         .intake()
                         .until(currentYes)
+                        .andThen(Commands.runOnce(() -> modeAcceptor.accept(DriveMode.NONE)))
                         .andThen(
                                 superstructure.passToShooterNoKicker(
                                         new Trigger(() -> goodToGo(color)))));

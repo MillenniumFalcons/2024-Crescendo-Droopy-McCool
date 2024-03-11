@@ -87,7 +87,7 @@ public class TargetingUtil {
                 Math.atan(
                         (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
                                 / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
-                                        - robotTracker.getChassisSpeeds().vxMetersPerSecond
+                                        + robotTracker.getChassisSpeeds().vxMetersPerSecond
                                                 * invert));
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
@@ -184,7 +184,7 @@ public class TargetingUtil {
     }
 
     public double adjustedExit() {
-        return shootSpeed * 3 / 4;
+        return shootSpeed * 1 / 2;
     }
 
     // for cleaner packaging
