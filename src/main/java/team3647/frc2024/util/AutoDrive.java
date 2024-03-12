@@ -42,12 +42,13 @@ public class AutoDrive extends VirtualSubsystem {
             new PIDController(4, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
-            new PIDController(12, 0, 1.2); // new PIDController(0.4, 0, 0);
+            new PIDController(12, 0, 3); // new PIDController(0.4, 0, 0);
 
-    private final ProfiledPIDController xController =
-            new ProfiledPIDController(2.5, 0, 0, new TrapezoidProfile.Constraints(2, 3));
-    private final ProfiledPIDController yController =
-            new ProfiledPIDController(2.5, 0, 0, new TrapezoidProfile.Constraints(2, 3));
+    private final PIDController xController =
+            new PIDController(1, 0, 0); // new PIDController(0.4, 0, 0);
+
+    private final PIDController yController =
+            new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
 
     public AutoDrive(SwerveDrive swerve, NeuralDetector detector, TargetingUtil targeting) {
         this.detector = detector;
@@ -59,6 +60,7 @@ public class AutoDrive extends VirtualSubsystem {
         INTAKE_FLOOR_PIECE,
         SHOOT_AT_AMP,
         SHOOT_ON_THE_MOVE,
+        INTAKE_IN_AUTO,
         NONE
     }
 
@@ -71,7 +73,7 @@ public class AutoDrive extends VirtualSubsystem {
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
-        if (this.mode == DriveMode.INTAKE_FLOOR_PIECE) {
+        if (this.mode == DriveMode.INTAKE_FLOOR_PIECE || this.mode == DriveMode.INTAKE_IN_AUTO) {
             targetRot = Units.degreesToRadians(detector.getTX());
         }
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
@@ -87,7 +89,7 @@ public class AutoDrive extends VirtualSubsystem {
     private void setTargetPose(Pose2d targetPose) {
         this.targetPose = targetPose;
         // swerve.field.getObject("piece pose").setPose(targetPose);
-        xController.setGoal(targetPose.getX());
+        // xController.setGoal(targetPose.getX());
     }
 
     public Command enable() {
@@ -139,16 +141,14 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getX() {
-        xController.setGoal(targetPose.getX());
-        double k = xController.calculate(swerve.getOdoPose().getX());
-        double setpoint = Math.abs(k) < 0.15 ? 0 : k;
+        double k = xController.calculate(-2, Units.degreesToRadians(detector.getTY()));
+        double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
     }
 
     public double getY() {
-        yController.setGoal(targetPose.getY());
-        double k = yController.calculate(swerve.getOdoPose().getY());
-        double setpoint = Math.abs(k) < 0.15 ? 0 : k;
+        double k = yController.calculate(Units.degreesToRadians(detector.getTX()), 0);
+        double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
     }
 

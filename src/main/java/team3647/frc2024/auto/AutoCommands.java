@@ -22,6 +22,7 @@ import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AllianceFlip;
+import team3647.frc2024.util.AutoDrive.DriveMode;
 import team3647.frc2024.util.TargetingUtil;
 
 public class AutoCommands {
@@ -61,8 +62,15 @@ public class AutoCommands {
     private final String s35_to_f5 = "s35 to f5";
     private final String s2_to_f3 = "s2 to f3";
     private final String shoot2_to_f4 = "shoot2 to f4";
+    private final String s15_straight_forward = "s15 straight forward";
 
     public final Trigger currentYes;
+
+    private boolean hasPiece = true;
+
+    private final BooleanSupplier hasTarget;
+
+    private final Supplier<DriveMode> getMode;
 
     //     public final AutonomousMode blueFive_S1N1F1N2N3;
 
@@ -88,19 +96,25 @@ public class AutoCommands {
 
     public final AutonomousMode redSix_S1F1F2N1N2N3;
 
+    public final AutonomousMode blueTest_S15;
+
     //     public final AutonomousMode yes;
 
     public AutoCommands(
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
             Superstructure superstructure,
-            TargetingUtil targeting) {
+            TargetingUtil targeting,
+            BooleanSupplier hasTarget,
+            Supplier<DriveMode> getMode) {
         this.swerve = swerve;
         this.autoDriveVelocities = autoDriveVelocities;
         this.superstructure = superstructure;
         this.targeting = targeting;
+        this.hasTarget = hasTarget;
+        this.getMode = getMode;
 
-        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.04);
 
         // this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
@@ -111,6 +125,9 @@ public class AutoCommands {
         //         new AutonomousMode(
         //                 five_S1N1F1N2N3(Alliance.Red),
         //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
+
+        this.blueTest_S15 =
+                new AutonomousMode(testS1(Alliance.Blue), getInitial(s15_straight_forward));
 
         this.redTwo_S2F3 =
                 new AutonomousMode(
@@ -183,14 +200,20 @@ public class AutoCommands {
                         followChoreoPathWithOverrideFast(n2_to_n3, color)));
     }
 
+    public Command testS1(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(followChoreoPathWithOverride(s15_straight_forward, color)));
+    }
+
     public Command six_S1F1F2N1N2N3(Alliance color) {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverrideFast(s15_to_f1, color),
-                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
-                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
-                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        followChoreoPathWithOverride(s15_to_f1, color),
+                        followChoreoPathWithOverride(f1_to_shoot1, color),
+                        followChoreoPathWithOverride(shoot1_to_f2, color),
+                        followChoreoPathWithOverride(f2_to_shoot1, color),
                         followChoreoPathWithOverride(shoot1_to_n1, color),
                         followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
@@ -309,9 +332,11 @@ public class AutoCommands {
 
     public Command continuouslyIntakeForShoot(Alliance color) {
         return Commands.sequence(
+                Commands.runOnce(() -> this.hasPiece = false),
                 superstructure
                         .intake()
                         .until(currentYes)
+                        .andThen(Commands.runOnce(() -> this.hasPiece = true))
                         .andThen(
                                 superstructure.passToShooterNoKicker(
                                         new Trigger(() -> goodToGo(color)))));
@@ -344,8 +369,12 @@ public class AutoCommands {
                                 new PIDController(0, 0, 0)),
                         (ChassisSpeeds speeds) ->
                                 swerve.drive(
-                                        speeds.vxMetersPerSecond,
-                                        speeds.vyMetersPerSecond,
+                                        (!hasPiece && hasTarget.getAsBoolean())
+                                                ? autoDriveVelocities.get().dx
+                                                : speeds.vxMetersPerSecond,
+                                        (!hasPiece && hasTarget.getAsBoolean())
+                                                ? autoDriveVelocities.get().dy
+                                                : speeds.vyMetersPerSecond,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
@@ -363,8 +392,12 @@ public class AutoCommands {
                                 new PIDController(0, 0, 0)),
                         (ChassisSpeeds speeds) ->
                                 swerve.drive(
-                                        speeds.vxMetersPerSecond * 0.6,
-                                        speeds.vyMetersPerSecond * 0.6,
+                                        (!this.hasPiece && hasTarget.getAsBoolean())
+                                                ? autoDriveVelocities.get().dx
+                                                : speeds.vxMetersPerSecond * 0.6,
+                                        (!this.hasPiece && hasTarget.getAsBoolean())
+                                                ? autoDriveVelocities.get().dy
+                                                : speeds.vyMetersPerSecond * 0.6,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
@@ -392,19 +425,23 @@ public class AutoCommands {
                     outputChassisSpeeds.accept(new ChassisSpeeds());
                 },
                 () ->
-                        timer.hasElapsed(1)
-                                && swerve.getVel() < 0.1
-                                        & swerve.getOdoPose()
-                                                        .minus(
-                                                                mirrorTrajectory.getAsBoolean()
-                                                                                == false
-                                                                        ? trajectory.getFinalPose()
-                                                                        : AllianceFlip.flipForPP(
-                                                                                trajectory
-                                                                                        .getFinalPose()))
-                                                        .getTranslation()
-                                                        .getNorm()
-                                                < 0.3,
+                        timer.hasElapsed(0.5)
+                                && ((swerve.getVel() < 0.3
+                                                & swerve.getOdoPose()
+                                                                .minus(
+                                                                        mirrorTrajectory
+                                                                                                .getAsBoolean()
+                                                                                        == false
+                                                                                ? trajectory
+                                                                                        .getFinalPose()
+                                                                                : AllianceFlip
+                                                                                        .flipForPP(
+                                                                                                trajectory
+                                                                                                        .getFinalPose()))
+                                                                .getTranslation()
+                                                                .getNorm()
+                                                        < 0.4)
+                                        || (currentYes.getAsBoolean())),
                 swerve);
     }
 

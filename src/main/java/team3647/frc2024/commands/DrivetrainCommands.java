@@ -52,14 +52,24 @@ public class DrivetrainCommands {
                     var motionTurnComponent =
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
 
-                    if (mode != DriveMode.NONE && enabeld) {
-                        motionTurnComponent = autoDriveTwist2d.dtheta;
+                    if (mode == DriveMode.INTAKE_IN_AUTO) {
+                        motionXComponent = autoDriveTwist2d.dx;
+                        motionYComponent = autoDriveTwist2d.dy;
+
+                        var translation = new Translation2d(motionXComponent, motionYComponent);
+
+                        var rotation = motionTurnComponent;
+                        swerve.drive(translation.getX(), translation.getY(), rotation);
+                    } else {
+                        if (mode != DriveMode.NONE && enabeld) {
+                            motionTurnComponent = autoDriveTwist2d.dtheta;
+                        }
+
+                        var translation = new Translation2d(motionXComponent, motionYComponent);
+
+                        var rotation = motionTurnComponent;
+                        swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
                     }
-
-                    var translation = new Translation2d(motionXComponent, motionYComponent);
-
-                    var rotation = motionTurnComponent;
-                    swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
                 },
                 swerve);
     }

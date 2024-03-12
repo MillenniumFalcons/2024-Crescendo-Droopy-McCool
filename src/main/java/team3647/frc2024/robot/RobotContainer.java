@@ -12,6 +12,7 @@ import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
+import team3647.frc2024.constants.ChurroConstants;
 import team3647.frc2024.constants.ClimbConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.constants.GlobalConstants;
@@ -24,6 +25,7 @@ import team3647.frc2024.constants.SwerveDriveConstants;
 import team3647.frc2024.constants.TunerConstants;
 import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
+import team3647.frc2024.subsystems.Churro;
 import team3647.frc2024.subsystems.Climb;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
@@ -68,7 +70,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFour_S3F5F4F3;
+        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -123,7 +125,7 @@ public class RobotContainer {
         mainController
                 .leftBumper
                 .and(() -> detector.hasTarget())
-                .whileTrue(autoDrive.setMode(DriveMode.INTAKE_FLOOR_PIECE));
+                .whileTrue(autoDrive.setMode(DriveMode.INTAKE_IN_AUTO));
         mainController
                 .leftBumper
                 .and(() -> !superstructure.getPiece())
@@ -318,6 +320,17 @@ public class RobotContainer {
                     0,
                     0.02);
 
+    public final Churro churro =
+            new Churro(
+                    ChurroConstants.kMaster,
+                    ChurroConstants.kNativeVelToDPS,
+                    ChurroConstants.kNativePosToDegrees,
+                    ChurroConstants.kMinDegree,
+                    ChurroConstants.kMaxDegree,
+                    ChurroConstants.nominalVoltage,
+                    ChurroConstants.kG,
+                    0.02);
+
     private final ClimbCommands climbCommands = new ClimbCommands(climb);
 
     private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
@@ -351,7 +364,7 @@ public class RobotContainer {
                             swerve::getOdoPose,
                             swerve::getChassisSpeeds,
                             PivotConstants.robotToPivot2d,
-                            true));
+                            false));
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 
@@ -363,6 +376,7 @@ public class RobotContainer {
                     shooterLeft,
                     pivot,
                     wrist,
+                    churro,
                     autoDrive::getPivotAngle,
                     autoDrive::getShootSpeed,
                     targetingUtil.exitVelocity(),
@@ -373,7 +387,13 @@ public class RobotContainer {
                     LEDConstants.m_candle, new LEDTriggers(superstructure));
 
     public final AutoCommands autoCommands =
-            new AutoCommands(swerve, autoDrive::getVelocities, superstructure, targetingUtil);
+            new AutoCommands(
+                    swerve,
+                    autoDrive::getVelocities,
+                    superstructure,
+                    targetingUtil,
+                    detector::hasTarget,
+                    autoDrive::getMode);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 
