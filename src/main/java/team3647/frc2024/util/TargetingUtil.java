@@ -178,6 +178,19 @@ public class TargetingUtil {
         return robotTracker.getCompensatedPose();
     }
 
+    public double rotToAmp() {
+        if (robotTracker.getCompensatedPose().getRotation().getRadians() > Math.PI / 2) {
+            return -Math.PI / 2
+                    - (robotTracker.getCompensatedPose().getRotation().getRadians() - 2 * Math.PI);
+        } else {
+            return -Math.PI / 2 - robotTracker.getCompensatedPose().getRotation().getRadians();
+        }
+    }
+
+    public double getAmpX() {
+        return robotTracker.getAmp().getX();
+    }
+
     // returns shot exit velocity
     public double exitVelocity() {
         return shootSpeed;

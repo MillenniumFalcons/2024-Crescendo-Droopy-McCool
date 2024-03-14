@@ -13,9 +13,10 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstantsFactory;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import team3647.lib.team254.geometry.Translation2d;
+import team3647.lib.team254.swerve.SwerveDriveKinematics;
+import team3647.lib.team254.swerve.SwerveKinematicLimits;
 
 public class SwerveDriveConstants {
     // default falcon rotates counter clockwise (CCW)
@@ -84,6 +85,15 @@ public class SwerveDriveConstants {
                     new Translation2d(kWheelBase / 2.0, -kTrackWidth / 2.0),
                     new Translation2d(-kWheelBase / 2.0, kTrackWidth / 2.0),
                     new Translation2d(-kWheelBase / 2.0, -kTrackWidth / 2.0));
+
+    public static final SwerveKinematicLimits kTeleopKinematicLimits = new SwerveKinematicLimits();
+
+    static {
+        kTeleopKinematicLimits.kMaxDriveVelocity = TunerConstants.kSpeedAt12VoltsMps;
+        kTeleopKinematicLimits.kMaxDriveAcceleration =
+                kTeleopKinematicLimits.kMaxDriveVelocity / 0.1;
+        kTeleopKinematicLimits.kMaxSteeringVelocity = Units.degreesToRadians(1500.0);
+    }
 
     // config conversion factors here for each module. in meters for postiion and
     // radians for

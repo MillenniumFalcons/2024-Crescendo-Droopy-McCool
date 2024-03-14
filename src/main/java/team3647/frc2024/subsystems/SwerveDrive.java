@@ -23,12 +23,20 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import team3647.frc2024.constants.SwerveDriveConstants;
 import team3647.frc2024.util.ModifiedSignalLogger;
 import team3647.frc2024.util.SwerveFOCRequest;
 import team3647.frc2024.util.VisionMeasurement;
 import team3647.lib.PeriodicSubsystem;
+import team3647.lib.team254.swerve.SwerveKinematicLimits;
+import team3647.lib.team254.swerve.SwerveSetpoint;
+import team3647.lib.team254.swerve.SwerveSetpointGenerator;
 
 public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
+
+    public final SwerveSetpointGenerator setpointGenerator;
+
+    public final SwerveKinematicLimits limits;
 
     public final Field2d field = new Field2d();
 
@@ -51,6 +59,13 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     public static class PeriodicIO {
         // inputs
+
+        public SwerveSetpoint setpoint =
+                new SwerveSetpoint(
+                        new team3647.lib.team254.swerve.ChassisSpeeds(),
+                        new team3647.lib.team254.swerve.SwerveModuleState
+                                [SwerveDriveConstants.kDriveKinematics.getNumModules()]);
+        ;
 
         public double characterizationVoltage = 0;
         public boolean isOpenloop = true;
@@ -88,6 +103,10 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         this.maxSpeedMpS = maxSpeedMpS;
         this.maxRotRadPerSec = maxRotRadPerSec;
         this.kDt = kDt;
+
+        this.setpointGenerator = new SwerveSetpointGenerator(SwerveDriveConstants.kDriveKinematics);
+
+        this.limits = SwerveDriveConstants.kTeleopKinematicLimits;
 
         this.m_driveSysIdRoutine =
                 new SysIdRoutine(
@@ -308,8 +327,20 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         periodicIO.masterRequest = periodicIO.robotCentric;
     }
 
+    public SwerveSetpoint generate(team3647.lib.team254.swerve.ChassisSpeeds newSpeeds) {
+        periodicIO.setpoint =
+                setpointGenerator.generateSetpoint(limits, periodicIO.setpoint, newSpeeds, kDt);
+        return periodicIO.setpoint;
+    }
+
     public void driveFieldOriented(double x, double y, double rotation) {
-        periodicIO.fieldCentric.withVelocityX(x).withVelocityY(y).withRotationalRate(rotation);
+        SwerveSetpoint setpoint =
+                generate(new team3647.lib.team254.swerve.ChassisSpeeds(x, y, rotation));
+        periodicIO
+                .fieldCentric
+                .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(setpoint.mChassisSpeeds.vyMetersPerSecond)
+                .withRotationalRate(setpoint.mChassisSpeeds.omegaRadiansPerSecond);
         periodicIO.masterRequest = periodicIO.fieldCentric;
     }
 
