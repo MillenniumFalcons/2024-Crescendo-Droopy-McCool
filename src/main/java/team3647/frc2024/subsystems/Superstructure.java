@@ -236,6 +236,22 @@ public class Superstructure {
                 );
     }
 
+    public Command trapShot() {
+        return Commands.parallel(
+                        prepTrap(), spinUp()
+                        // Commands.sequence(
+                        //         // Commands.waitSeconds(2.5),
+                        //         Commands.waitUntil(
+                        //                         () ->
+                        //                                 shooterLeft.velocityReached20, 1)
+                        //                                         && pivot.angleReached(60, 5))
+                        //                 .withTimeout(0.5),
+                        //         feed())
+                        )
+                .withTimeout(0.5)
+                .andThen(stowFromTrapShoot());
+    }
+
     public Command shootManual() {
         return Commands.parallel(
                 prepManual(),
@@ -254,6 +270,10 @@ public class Superstructure {
 
     public Command prepAmp() {
         return pivotCommands.setAngle(() -> 45);
+    }
+
+    public Command prepTrap() {
+        return pivotCommands.setAngle(() -> 75);
     }
 
     public Command batterPrep() {
@@ -292,6 +312,16 @@ public class Superstructure {
     public Command stowFromBatterShoot() {
         return Commands.sequence(
                 Commands.parallel(batterPrep(), spinUp(), feed()).withTimeout(0.6),
+                Commands.parallel(
+                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                                shooterCommands.kill(),
+                                kickerCommands.kill())
+                        .withTimeout(0.1));
+    }
+
+    public Command stowFromTrapShoot() {
+        return Commands.sequence(
+                Commands.parallel(prepTrap(), spinUp(), feed()).withTimeout(0.6),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),
