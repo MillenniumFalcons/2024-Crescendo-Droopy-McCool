@@ -71,9 +71,8 @@ public class Robot extends LoggedRobot {
 
         LiveWindow.disableAllTelemetry();
         LiveWindow.setEnabled(false);
-        SignalLogger.enableAutoLogging(false);
 
-        SignalLogger.stop();
+        SignalLogger.setPath("/home/lvuser/logs/");
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our
