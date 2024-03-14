@@ -426,7 +426,7 @@ public class AutoCommands {
                 },
                 () ->
                         timer.hasElapsed(0.5)
-                                && ((swerve.getVel() < 0.3
+                                && ((swerve.getVel() < 0.5
                                                 & swerve.getOdoPose()
                                                                 .minus(
                                                                         mirrorTrajectory

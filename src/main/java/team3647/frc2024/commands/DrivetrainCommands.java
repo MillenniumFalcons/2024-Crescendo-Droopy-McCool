@@ -52,7 +52,7 @@ public class DrivetrainCommands {
                     var motionTurnComponent =
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
 
-                    if (mode == DriveMode.INTAKE_IN_AUTO) {
+                    if (mode == DriveMode.INTAKE_IN_AUTO && enabeld) {
                         motionXComponent = autoDriveTwist2d.dx;
                         motionYComponent = autoDriveTwist2d.dy;
 

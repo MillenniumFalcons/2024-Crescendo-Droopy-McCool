@@ -64,7 +64,16 @@ public class RobotContainer {
 
         pdh.clearStickyFaults();
         scheduler.registerSubsystem(
-                swerve, shooterRight, shooterLeft, intake, wrist, kicker, pivot, printer, climb);
+                swerve,
+                shooterRight,
+                shooterLeft,
+                intake,
+                wrist,
+                kicker,
+                pivot,
+                printer,
+                climb,
+                churro);
 
         configureDefaultCommands();
         configureButtonBindings();
@@ -215,10 +224,10 @@ public class RobotContainer {
     public void configureSmartDashboardLogging() {
         // SmartDashboard.putNumber("wrist kg", 0);
         // printer.addDouble("wanted pivot", superstructure::getWantedPivot);
-        // printer.addDouble("back tof", pivot::tofBack);
-        // printer.addBoolean("front tof", pivot::frontPiece);
+        printer.addDouble("back tof", pivot::tofBack);
+        printer.addBoolean("front tof", pivot::frontPiece);
         // printer.addDouble("wrist", wrist::getAngle);
-        // printer.addDouble("pivot", pivot::getAngle);
+        printer.addDouble("pivot", pivot::getAngle);
         // printer.addBoolean("under stage", swerve::underStage);
         // printer.addBoolean("set piece", () -> setPiece.getAsBoolean());
         // printer.addBoolean("swerve aimed", autoDrive::swerveAimed);
@@ -226,7 +235,7 @@ public class RobotContainer {
         // printer.addBoolean("pviot ready", superstructure::pivotReady);
         // printer.addDouble("flywheel speed", shooterLeft::getVelocity);
         // SmartDashboard.putNumber("pivot interp angle", 40);
-        // printer.addDouble("shooter distance squared", targetingUtil::distance);
+        printer.addDouble("shooter distance", targetingUtil::distance);
         // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
         // printer.addBoolean("wrist at stow", superstructure::wristAtStow);
         // printer.addDouble("climb len", () -> climb.getLength());

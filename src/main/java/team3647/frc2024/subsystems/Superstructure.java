@@ -131,7 +131,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 6);
+        return shooterCommands.setVelocity(() -> 6, () -> 1);
     }
 
     public double getDesiredSpeed() {
@@ -196,7 +196,7 @@ public class Superstructure {
     }
 
     public boolean aimedAtSpeaker() {
-        return shooterLeft.velocityGreater(15)
+        return shooterRight.velocityGreater(15)
                 && pivot.angleReached(pivotAngleSupplier.getAsDouble(), 5)
                 && swerveAimed.getAsBoolean();
     }
@@ -325,10 +325,10 @@ public class Superstructure {
     public Command shootThrough() {
         return Commands.parallel(
                         intakeCommands.intake(),
-                        kickerCommands.kick(),
+                        kickerCommands.slowFeed(),
                         pivotCommands.setAngle(() -> 20))
-                .until(() -> pivot.frontPiece())
-                .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.3))
+                .until(() -> pivot.backPiece())
+                // .andThen(slightReverse().until(() -> !pivot.frontPiece()).withTimeout(0.3))
                 // .withTimeout(1)
                 .andThen(
                         Commands.deadline(stowIntake(), setIsNotIntaking(), kickerCommands.kill()));

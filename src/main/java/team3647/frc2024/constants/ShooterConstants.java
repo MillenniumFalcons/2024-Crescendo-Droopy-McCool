@@ -41,7 +41,7 @@ public class ShooterConstants {
     public static final double kStallCurrent = 55.0;
     public static final double kMaxCurrent = 40.0;
 
-    public static final double kLeftRatio = 1.5;
+    public static final double kLeftRatio = 1.65;
     public static final double kRightRatio = 2 - kLeftRatio;
 
     static {

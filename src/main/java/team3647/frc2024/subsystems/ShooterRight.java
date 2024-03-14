@@ -19,6 +19,10 @@ public class ShooterRight extends TalonFXSubsystem {
         this.ff = ff;
     }
 
+    public boolean velocityGreater(double setpoint) {
+        return super.getVelocity() > setpoint;
+    }
+
     public void openLoop(double demand) {
         super.setOpenloop(demand);
     }

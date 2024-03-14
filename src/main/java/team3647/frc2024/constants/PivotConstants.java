@@ -34,7 +34,7 @@ public class PivotConstants {
     public static final double kMaxAccelerationTicks = (200.0 / kNativeVelToDPS);
 
     public static final double kMinDegree = 15;
-    public static final double kMaxDegree = 61.2;
+    public static final double kMaxDegree = 76.0;
     public static final double kMaxDegreeUnderStage = 30;
 
     private static final double masterKP = 3;
@@ -47,7 +47,7 @@ public class PivotConstants {
     public static final double kStallCurrent = 30.0;
     public static final double kMaxCurrent = 40.0;
 
-    public static final double kInitialAngle = 61.2;
+    public static final double kInitialAngle = 76.0;
 
     public static final Transform3d robotToPivot =
             new Transform3d(

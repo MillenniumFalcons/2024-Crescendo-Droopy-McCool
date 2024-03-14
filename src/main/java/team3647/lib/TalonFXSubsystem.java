@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.Timer;
 import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 public abstract class TalonFXSubsystem implements PeriodicSubsystem {
 
@@ -87,7 +88,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
         ioAutoLogged.current = master.getStatorCurrent().getValue();
         ioAutoLogged.timestamp = Timer.getFPGATimestamp();
         ioAutoLogged.masterCurrent = master.getStatorCurrent().getValue();
-        // Logger.processInputs(getName(), ioAutoLogged);
+        Logger.processInputs(getName(), ioAutoLogged);
     }
 
     @Override
