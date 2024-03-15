@@ -97,7 +97,7 @@ public class RobotContainer {
         mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
-        // mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
+        mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         mainController
                 .rightTrigger
                 .and(
@@ -126,7 +126,7 @@ public class RobotContainer {
         mainController.rightTrigger.onFalse(
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController.leftTrigger.onFalse(
-                Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
+                Commands.sequence(Commands.waitSeconds(1), autoDrive.setMode(DriveMode.NONE)));
 
         coController.leftMidButton.onTrue(autoDrive.enable());
         coController.rightMidButton.onTrue(autoDrive.disable());

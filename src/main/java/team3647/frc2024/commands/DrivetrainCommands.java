@@ -52,7 +52,15 @@ public class DrivetrainCommands {
                     var motionTurnComponent =
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
 
-                    if (mode == DriveMode.INTAKE_IN_AUTO && enabeld) {
+                    if (mode == DriveMode.SHOOT_AT_AMP && enabeld) {
+                        motionXComponent = autoDriveTwist2d.dx;
+                        motionTurnComponent = autoDriveTwist2d.dtheta;
+
+                        var translation = new Translation2d(motionXComponent, motionYComponent);
+
+                        var rotation = motionTurnComponent;
+                        swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
+                    } else if (mode == DriveMode.INTAKE_IN_AUTO && enabeld) {
                         motionXComponent = autoDriveTwist2d.dx;
                         motionYComponent = autoDriveTwist2d.dy;
 

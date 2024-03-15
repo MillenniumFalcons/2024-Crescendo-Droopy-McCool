@@ -131,7 +131,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 6, () -> 1);
+        return shooterCommands.setVelocity(() -> 3, () -> 1);
     }
 
     public double getDesiredSpeed() {
@@ -253,11 +253,11 @@ public class Superstructure {
     }
 
     public Command prepAmp() {
-        return pivotCommands.setAngle(() -> 45);
+        return pivotCommands.setAngle(() -> 55);
     }
 
     public Command batterPrep() {
-        return pivotCommands.setAngle(() -> 60);
+        return pivotCommands.setAngle(() -> 62);
     }
 
     public Command prepManual() {
@@ -276,7 +276,7 @@ public class Superstructure {
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(
-                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(0.8),
+                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(1),
                 Commands.parallel(
                                 pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                                 shooterCommands.kill(),

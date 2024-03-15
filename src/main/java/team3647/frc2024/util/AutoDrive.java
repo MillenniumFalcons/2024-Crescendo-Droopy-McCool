@@ -39,13 +39,16 @@ public class AutoDrive extends VirtualSubsystem {
                     new TrapezoidProfile.Constraints(1, 2)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
-            new PIDController(4, 0, 0); // new PIDController(0.4, 0, 0);
+            new PIDController(8, 0, 11); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
             new PIDController(12, 0, 3); // new PIDController(0.4, 0, 0);
 
     private final PIDController xController =
             new PIDController(1, 0, 0); // new PIDController(0.4, 0, 0);
+
+    private final PIDController fastXController =
+            new PIDController(3.5, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController yController =
             new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
@@ -141,6 +144,11 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getX() {
+        if (this.mode == DriveMode.SHOOT_AT_AMP) {
+            double k = fastXController.calculate(swerve.getOdoPose().getX(), targeting.getAmpX());
+            double setpoint = Math.abs(k) < 0.02 ? 0 : k;
+            return setpoint;
+        }
         double k = xController.calculate(-2, Units.degreesToRadians(detector.getTY()));
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
@@ -153,9 +161,12 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getRot() {
-        rotController.setGoal(targetPose.getRotation().getRadians());
-        double k = rotController.calculate(swerve.getOdoPose().getRotation().getRadians());
-        k = quickerRotController.calculate(targetRot, 0);
+        if (this.mode == DriveMode.SHOOT_AT_AMP) {
+            double k = quickRotController.calculate(0, targeting.rotToAmp());
+            double setpoint = Math.abs(k) < 0.02 ? 0 : k;
+            return setpoint;
+        }
+        double k = quickerRotController.calculate(targetRot, 0);
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
     }
