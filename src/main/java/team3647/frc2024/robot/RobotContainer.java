@@ -126,7 +126,7 @@ public class RobotContainer {
         mainController.rightTrigger.onFalse(
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController.leftTrigger.onFalse(
-                Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
+                Commands.sequence(Commands.waitSeconds(1), autoDrive.setMode(DriveMode.NONE)));
 
         coController.leftMidButton.onTrue(autoDrive.enable());
         coController.rightMidButton.onTrue(autoDrive.disable());

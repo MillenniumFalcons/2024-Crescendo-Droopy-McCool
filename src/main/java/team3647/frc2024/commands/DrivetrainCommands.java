@@ -59,7 +59,7 @@ public class DrivetrainCommands {
                         var translation = new Translation2d(motionXComponent, motionYComponent);
 
                         var rotation = motionTurnComponent;
-                        swerve.drive(translation.getX(), translation.getY(), rotation);
+                        swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
                     } else if (mode == DriveMode.INTAKE_IN_AUTO && enabeld) {
                         motionXComponent = autoDriveTwist2d.dx;
                         motionYComponent = autoDriveTwist2d.dy;

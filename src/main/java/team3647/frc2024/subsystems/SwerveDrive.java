@@ -65,7 +65,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
                         new team3647.lib.team254.swerve.ChassisSpeeds(),
                         new team3647.lib.team254.swerve.SwerveModuleState
                                 [SwerveDriveConstants.kDriveKinematics.getNumModules()]);
-        ;
+
+        public boolean good = false;
 
         public double characterizationVoltage = 0;
         public boolean isOpenloop = true;
@@ -156,11 +157,9 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         periodicIO.gyroRotation = Rotation2d.fromDegrees(periodicIO.heading);
         periodicIO.timestamp = Timer.getFPGATimestamp();
 
-        // SmartDashboard.putNumber("characterization voltage", periodicIO.characterizationVoltage);
-        SmartDashboard.putData("field bruh", field);
+        SmartDashboard.putBoolean("good", periodicIO.good);
 
-        SmartDashboard.putNumber("x", getPoseX());
-        SmartDashboard.putNumber("y", getPoseY());
+        // SmartDashboard.putNumber("characterization voltage", periodicIO.characterizationVoltage);
     }
 
     @Override
@@ -179,6 +178,17 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         Logger.recordOutput("Robot/Output", this.m_odometry.getEstimatedPosition());
         readPeriodicInputs();
         writePeriodicOutputs();
+    }
+
+    public void reset() {
+        for (int i = 0; i < 4; ++i) {
+            periodicIO.setpoint.mModuleStates[i] =
+                    new team3647.lib.team254.swerve.SwerveModuleState(
+                            0.0,
+                            team3647.lib.team254.geometry.Rotation2d.fromRadians(
+                                    m_moduleStates[i].angle.getRadians()));
+        }
+        periodicIO.good = true;
     }
 
     public boolean underStage() {
@@ -323,25 +333,52 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public void drive(double x, double y, double rotation) {
-        periodicIO.robotCentric.withVelocityX(x).withVelocityY(y).withRotationalRate(rotation);
+        if (!periodicIO.good) {
+            reset();
+            return;
+        }
+        SwerveSetpoint setpoint = generateRobotOriented(x, y, rotation);
+        periodicIO
+                .robotCentric
+                .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(setpoint.mChassisSpeeds.vyMetersPerSecond)
+                .withRotationalRate(setpoint.mChassisSpeeds.omegaRadiansPerSecond);
         periodicIO.masterRequest = periodicIO.robotCentric;
     }
 
-    public SwerveSetpoint generate(team3647.lib.team254.swerve.ChassisSpeeds newSpeeds) {
+    public SwerveSetpoint generate(double x, double y, double omega) {
+        var robotRel =
+                team3647.lib.team254.swerve.ChassisSpeeds.fromFieldRelativeSpeeds(
+                        x,
+                        y,
+                        omega,
+                        team3647.lib.team254.geometry.Rotation2d.fromDegrees(
+                                this.getOdoPose().getRotation().getDegrees()));
         periodicIO.setpoint =
-                setpointGenerator.generateSetpoint(limits, periodicIO.setpoint, newSpeeds, kDt);
+                setpointGenerator.generateSetpoint(limits, periodicIO.setpoint, robotRel, kDt);
+        return periodicIO.setpoint;
+    }
+
+    public SwerveSetpoint generateRobotOriented(double x, double y, double omega) {
+        var robotRel = new team3647.lib.team254.swerve.ChassisSpeeds(x, y, omega);
+        periodicIO.setpoint =
+                setpointGenerator.generateSetpoint(limits, periodicIO.setpoint, robotRel, kDt);
         return periodicIO.setpoint;
     }
 
     public void driveFieldOriented(double x, double y, double rotation) {
-        SwerveSetpoint setpoint =
-                generate(new team3647.lib.team254.swerve.ChassisSpeeds(x, y, rotation));
+        if (!periodicIO.good) {
+            reset();
+            return;
+        }
+        SwerveSetpoint setpoint = generate(x, y, rotation);
+        SmartDashboard.putNumber("generated x", setpoint.mChassisSpeeds.vxMetersPerSecond);
         periodicIO
-                .fieldCentric
+                .robotCentric
                 .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)
                 .withVelocityY(setpoint.mChassisSpeeds.vyMetersPerSecond)
                 .withRotationalRate(setpoint.mChassisSpeeds.omegaRadiansPerSecond);
-        periodicIO.masterRequest = periodicIO.fieldCentric;
+        periodicIO.masterRequest = periodicIO.robotCentric;
     }
 
     public SwerveModuleState[] getModuleStates() {
