@@ -3,8 +3,6 @@ package team3647.frc2024.subsystems;
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.Map;
@@ -19,11 +17,12 @@ public class LEDs extends VirtualSubsystem {
             Map.of(
                     "red", LEDConstants.SOLID_WHITE,
                     "blue", LEDConstants.SOLID_WHITE,
+                    "fire", LEDConstants.FIRE,
                     "in", LEDConstants.BREATHE_YELLOW,
                     "climb", LEDConstants.BREATHE_PINK,
                     "ready", LEDConstants.FLASH_GREEN);
 
-    String defaultState = "red";
+    String defaultState = "fire";
 
     String LEDState = defaultState;
 
@@ -55,9 +54,8 @@ public class LEDs extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        DriverStation.getAlliance()
-                .ifPresent((alliance) -> defaultState = alliance == Alliance.Blue ? "blue" : "red");
-        if (LEDState == "blue" || LEDState == "red") {
+        defaultState = "fire";
+        if (LEDState == "fire") {
             LEDState = defaultState;
         }
         setAnimation(colors.get(LEDState));

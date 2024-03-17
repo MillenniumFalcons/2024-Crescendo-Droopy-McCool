@@ -185,6 +185,7 @@ public class RobotContainer {
         // mainController.dPadRight.whileTrue(
         //         shooterLeft.runDynamTest(
         //                 edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction.kReverse));
+        inOutTrigger.onTrue(mainController.applyRumble());
     }
 
     private void configureDefaultCommands() {
@@ -385,6 +386,8 @@ public class RobotContainer {
     final GroupPrinter printer = GroupPrinter.getInstance();
 
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
+
+    private final Trigger inOutTrigger = new Trigger(() -> superstructure.hasPiece());
 
     private final Trigger climbing = new Trigger(() -> climb.getPosition() > 1);
 

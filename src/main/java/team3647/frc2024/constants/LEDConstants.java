@@ -10,6 +10,7 @@ import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
+import com.ctre.phoenix.led.FireAnimation;
 import com.ctre.phoenix.led.LarsonAnimation;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.RainbowAnimation;
@@ -85,4 +86,6 @@ public class LEDConstants {
 
     public static final Animation FLASH_BROWN =
             new StrobeAnimation(181, 101, 30, 128, 0.3, LEDCOUNT);
+
+    public static final Animation FIRE = new FireAnimation(1, 0.7, LEDCOUNT, 0.8, 0.7);
 }
