@@ -5,7 +5,6 @@
 package team3647.lib.team254.swerve;
 
 import java.util.Objects;
-
 import team3647.lib.team254.geometry.Rotation2d;
 
 /** Represents the state of one swerve module. */
@@ -43,7 +42,10 @@ public class SwerveModuleState implements Comparable<SwerveModuleState> {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof edu.wpi.first.math.kinematics.SwerveModuleState) {
-            return Double.compare(speedMetersPerSecond, ((edu.wpi.first.math.kinematics.SwerveModuleState) obj).speedMetersPerSecond)
+            return Double.compare(
+                            speedMetersPerSecond,
+                            ((edu.wpi.first.math.kinematics.SwerveModuleState) obj)
+                                    .speedMetersPerSecond)
                     == 0;
         }
         return false;
@@ -83,7 +85,7 @@ public class SwerveModuleState implements Comparable<SwerveModuleState> {
      */
     public static SwerveModuleState optimize(
             SwerveModuleState desiredState, Rotation2d currentAngle) {
-        var delta = desiredState.angle.rotateBy(currentAngle.inverse());    // todo check math
+        var delta = desiredState.angle.rotateBy(currentAngle.inverse()); // todo check math
         if (Math.abs(delta.getDegrees()) > 90.0) {
             return new SwerveModuleState(
                     -desiredState.speedMetersPerSecond,
@@ -93,4 +95,3 @@ public class SwerveModuleState implements Comparable<SwerveModuleState> {
         }
     }
 }
-

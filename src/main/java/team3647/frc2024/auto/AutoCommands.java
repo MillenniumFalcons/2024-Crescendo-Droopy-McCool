@@ -3,12 +3,15 @@ package team3647.frc2024.auto;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -63,6 +66,7 @@ public class AutoCommands {
     private final String s2_to_f3 = "s2 to f3";
     private final String shoot2_to_f4 = "shoot2 to f4";
     private final String s15_straight_forward = "s15 straight forward";
+    private final String trap_test = "trap test 2";
 
     public final Trigger currentYes;
 
@@ -279,11 +283,29 @@ public class AutoCommands {
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
 
+    public Command pathToTrapTest() {
+        return Commands.sequence(
+                pathfindToTrap(),
+                Commands.waitSeconds(0.2),
+                Commands.parallel(
+                        followChoreoPath(trap_test, Alliance.Red),
+                        superstructure.trapShot(swerve::getPoseX)));
+    }
+
+    public Command pathfindToTrap() {
+        return AutoBuilder.pathfindToPose(
+                AllianceFlip.flipForPP(getInitial(trap_test)),
+                new PathConstraints(3, 4, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+                0,
+                0);
+    }
+
     public Command masterSuperstructureSequence(Alliance color) {
         return Commands.sequence(
+                Commands.waitSeconds(0.3),
                 scorePreload(),
                 Commands.parallel(
-                        superstructure.spinUp(),
+                        // superstructure.spinUp(),
                         superstructure.prep(),
                         // superstructure.fastFeed(),
                         continuouslyIntakeForShoot(color).repeatedly(),
@@ -303,8 +325,8 @@ public class AutoCommands {
         return Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.geegeePrepForAuto(),
-                        Commands.sequence(Commands.waitSeconds(0.6), superstructure.feed()))
-                .withTimeout(0.6);
+                        Commands.sequence(Commands.waitSeconds(1), superstructure.feed()))
+                .withTimeout(1.3);
     }
 
     public Pose2d getInitial(String path) {
@@ -369,10 +391,14 @@ public class AutoCommands {
                                 new PIDController(0, 0, 0)),
                         (ChassisSpeeds speeds) ->
                                 swerve.drive(
-                                        (!hasPiece && hasTarget.getAsBoolean())
+                                        (!hasPiece
+                                                        && hasTarget.getAsBoolean()
+                                                        && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dx
                                                 : speeds.vxMetersPerSecond,
-                                        (!hasPiece && hasTarget.getAsBoolean())
+                                        (!hasPiece
+                                                        && hasTarget.getAsBoolean()
+                                                        && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dy
                                                 : speeds.vyMetersPerSecond,
                                         deeThetaOnTheMove()),
@@ -392,10 +418,14 @@ public class AutoCommands {
                                 new PIDController(0, 0, 0)),
                         (ChassisSpeeds speeds) ->
                                 swerve.drive(
-                                        (!this.hasPiece && hasTarget.getAsBoolean())
+                                        (!this.hasPiece
+                                                        && hasTarget.getAsBoolean()
+                                                        && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dx
                                                 : speeds.vxMetersPerSecond * 0.6,
-                                        (!this.hasPiece && hasTarget.getAsBoolean())
+                                        (!this.hasPiece
+                                                        && hasTarget.getAsBoolean()
+                                                        && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dy
                                                 : speeds.vyMetersPerSecond * 0.6,
                                         deeThetaOnTheMove()),
@@ -426,7 +456,7 @@ public class AutoCommands {
                 },
                 () ->
                         timer.hasElapsed(0.5)
-                                && ((swerve.getVel() < 0.5
+                                && ((swerve.getVel() < 0.35
                                                 & swerve.getOdoPose()
                                                                 .minus(
                                                                         mirrorTrajectory

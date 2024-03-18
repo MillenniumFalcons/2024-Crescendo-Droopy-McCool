@@ -89,6 +89,7 @@ public class TargetingUtil {
                                 / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
                                         - robotTracker.getChassisSpeeds().vxMetersPerSecond
                                                 * invert));
+        SmartDashboard.putNumber("bill", robotTracker.getChassisSpeeds().vxMetersPerSecond);
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 
@@ -191,13 +192,17 @@ public class TargetingUtil {
         return robotTracker.getAmp().getX();
     }
 
+    public double getAmpY() {
+        return robotTracker.getAmp().getY();
+    }
+
     // returns shot exit velocity
     public double exitVelocity() {
         return shootSpeed;
     }
 
     public double adjustedExit() {
-        return shootSpeed * 3 / 4;
+        return shootSpeed * 2 / 5;
     }
 
     // for cleaner packaging

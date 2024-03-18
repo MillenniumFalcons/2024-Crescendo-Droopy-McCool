@@ -2,6 +2,7 @@ package team3647.frc2024.util;
 
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -33,22 +34,25 @@ public class AutoDrive extends VirtualSubsystem {
 
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
-                    1,
+                    5,
                     0,
                     0,
-                    new TrapezoidProfile.Constraints(1, 2)); // new PIDController(0.4, 0, 0);
+                    new TrapezoidProfile.Constraints(8, 16)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
-            new PIDController(8, 0, 11); // new PIDController(0.4, 0, 0);
+            new PIDController(8, 0, 2); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
-            new PIDController(12, 0, 3); // new PIDController(0.4, 0, 0);
+            new PIDController(12, 0, 1.2); // new PIDController(0.4, 0, 0);
 
     private final PIDController xController =
             new PIDController(1, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController fastXController =
-            new PIDController(3.5, 0, 0); // new PIDController(0.4, 0, 0);
+            new PIDController(3, 0, 0); // new PIDController(0.4, 0, 0);
+
+    private final PIDController fastYController =
+            new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController yController =
             new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
@@ -71,7 +75,7 @@ public class AutoDrive extends VirtualSubsystem {
     public void periodic() {
         Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+            targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeaker().rotation;
@@ -131,7 +135,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
-            return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
+            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
         }
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
@@ -146,7 +150,7 @@ public class AutoDrive extends VirtualSubsystem {
     public double getX() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             double k = fastXController.calculate(swerve.getOdoPose().getX(), targeting.getAmpX());
-            double setpoint = Math.abs(k) < 0.02 ? 0 : k;
+            double setpoint = Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
         }
         double k = xController.calculate(-2, Units.degreesToRadians(detector.getTY()));
@@ -155,6 +159,11 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getY() {
+        if (this.mode == DriveMode.SHOOT_AT_AMP) {
+            double k = fastYController.calculate(swerve.getOdoPose().getY(), targeting.getAmpY());
+            double setpoint = Math.abs(k) < 0.04 ? 0 : k;
+            return setpoint;
+        }
         double k = yController.calculate(Units.degreesToRadians(detector.getTX()), 0);
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
@@ -162,11 +171,14 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getRot() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = quickRotController.calculate(0, targeting.rotToAmp());
-            double setpoint = Math.abs(k) < 0.02 ? 0 : k;
+            double k = rotController.calculate(0, targeting.rotToAmp());
+            double setpoint = Math.abs(k) < 0.03 ? 0 : k;
             return setpoint;
         }
-        double k = quickerRotController.calculate(targetRot, 0);
+        double k =
+                rotController.calculate(targetRot, 0)
+                        * MathUtil.clamp(
+                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond), 1, 100);
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
         return setpoint;
     }

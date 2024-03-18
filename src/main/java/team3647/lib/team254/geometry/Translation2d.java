@@ -1,12 +1,9 @@
 package team3647.lib.team254.geometry;
 
 import java.text.DecimalFormat;
-
 import team3647.lib.team254.util.Util;
 
-/**
- * A translation in a 2d coordinate frame. Translations are simply shifts in an (x, y) plane.
- */
+/** A translation in a 2d coordinate frame. Translations are simply shifts in an (x, y) plane. */
 public class Translation2d implements ITranslation2d<Translation2d> {
     protected static final Translation2d kIdentity = new Translation2d();
 
@@ -38,10 +35,9 @@ public class Translation2d implements ITranslation2d<Translation2d> {
     }
 
     public Translation2d(final edu.wpi.first.math.geometry.Translation2d other) {
-        x_= other.getX();
+        x_ = other.getX();
         y_ = other.getY();
     }
-
 
     /**
      * The "norm" of a transform is the Euclidean distance in x and y.
@@ -97,7 +93,9 @@ public class Translation2d implements ITranslation2d<Translation2d> {
      * @return This translation rotated by rotation.
      */
     public Translation2d rotateBy(final Rotation2d rotation) {
-        return new Translation2d(x_ * rotation.cos() - y_ * rotation.sin(), x_ * rotation.sin() + y_ * rotation.cos());
+        return new Translation2d(
+                x_ * rotation.cos() - y_ * rotation.sin(),
+                x_ * rotation.sin() + y_ * rotation.cos());
     }
 
     public Rotation2d direction() {
@@ -132,7 +130,8 @@ public class Translation2d implements ITranslation2d<Translation2d> {
     }
 
     public boolean epsilonEquals(final Translation2d other, double epsilon) {
-        return Util.epsilonEquals(x(), other.x(), epsilon) && Util.epsilonEquals(y(), other.y(), epsilon);
+        return Util.epsilonEquals(x(), other.x(), epsilon)
+                && Util.epsilonEquals(y(), other.y(), epsilon);
     }
 
     @Override

@@ -1,16 +1,14 @@
 package team3647.lib.team254.geometry;
 
-import java.text.DecimalFormat;
-
-import team3647.lib.team254.util.Util;
-
 import static team3647.lib.team254.util.Util.kEpsilon;
 
+import java.text.DecimalFormat;
+import team3647.lib.team254.util.Util;
+
 /**
- * A rotation in a 2d coordinate frame represented a point on the unit circle
- * (cosine and sine).
- * <p>
- * Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
+ * A rotation in a 2d coordinate frame represented a point on the unit circle (cosine and sine).
+ *
+ * <p>Inspired by Sophus (https://github.com/strasdat/Sophus/tree/master/sophus)
  */
 public class Rotation2d implements IRotation2d<Rotation2d> {
     public static final Rotation2d kIdentity = new Rotation2d();
@@ -115,7 +113,8 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
     /**
      * Based on Team 1323's method of the same name.
      *
-     * @return Rotation2d representing the angle of the nearest axis to the angle in standard position
+     * @return Rotation2d representing the angle of the nearest axis to the angle in standard
+     *     position
      */
     public Rotation2d nearestPole() {
         double pole_sin = 0.0;
@@ -147,17 +146,17 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
     }
 
     /**
-     * We can rotate this Rotation2d by adding together the effects of it and
-     * another rotation.
+     * We can rotate this Rotation2d by adding together the effects of it and another rotation.
      *
-     * @param other The other rotation. See:
-     *              https://en.wikipedia.org/wiki/Rotation_matrix
+     * @param other The other rotation. See: https://en.wikipedia.org/wiki/Rotation_matrix
      * @return This rotation rotated by other.
      */
     public Rotation2d rotateBy(final Rotation2d other) {
         if (hasTrig() && other.hasTrig()) {
-            return new Rotation2d(cos_angle_ * other.cos_angle_ - sin_angle_ * other.sin_angle_,
-                    cos_angle_ * other.sin_angle_ + sin_angle_ * other.cos_angle_, true);
+            return new Rotation2d(
+                    cos_angle_ * other.cos_angle_ - sin_angle_ * other.sin_angle_,
+                    cos_angle_ * other.sin_angle_ + sin_angle_ * other.cos_angle_,
+                    true);
         } else {
             return fromRadians(getRadians() + other.getRadians());
         }
@@ -191,6 +190,7 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
 
     /**
      * Obtain a Rotation2d that points in the opposite direction from this rotation.
+     *
      * @return This rotation rotated by 180 degrees.
      */
     public Rotation2d flip() {
@@ -206,7 +206,8 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
             return Util.epsilonEquals(radians_, other.radians_)
                     || Util.epsilonEquals(radians_, WrapRadians(other.radians_ + Math.PI));
         } else if (hasTrig() && other.hasTrig()) {
-            return Util.epsilonEquals(sin_angle_, other.sin_angle_) && Util.epsilonEquals(cos_angle_, other.cos_angle_);
+            return Util.epsilonEquals(sin_angle_, other.sin_angle_)
+                    && Util.epsilonEquals(cos_angle_, other.cos_angle_);
         } else {
             // Use public, checked version.
             return Util.epsilonEquals(getRadians(), other.getRadians())
@@ -223,8 +224,7 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
         final double k2Pi = 2.0 * Math.PI;
         radians = radians % k2Pi;
         radians = (radians + k2Pi) % k2Pi;
-        if (radians > Math.PI)
-            radians -= k2Pi;
+        if (radians > Math.PI) radians -= k2Pi;
         return radians;
     }
 
@@ -238,7 +238,7 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
 
     private synchronized void ensureTrigComputed() {
         if (!hasTrig()) {
-            assert(hasRadians());
+            assert (hasRadians());
             sin_angle_ = Math.sin(radians_);
             cos_angle_ = Math.cos(radians_);
         }
@@ -246,7 +246,7 @@ public class Rotation2d implements IRotation2d<Rotation2d> {
 
     private synchronized void ensureRadiansComputed() {
         if (!hasRadians()) {
-            assert(hasTrig());
+            assert (hasTrig());
             radians_ = Math.atan2(sin_angle_, cos_angle_);
         }
     }

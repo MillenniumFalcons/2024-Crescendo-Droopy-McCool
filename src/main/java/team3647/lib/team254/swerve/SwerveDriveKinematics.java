@@ -4,12 +4,9 @@
 
 package team3647.lib.team254.swerve;
 
-
 import java.util.Arrays;
 import java.util.Collections;
-
 import org.ejml.simple.SimpleMatrix;
-
 import team3647.lib.team254.geometry.Rotation2d;
 import team3647.lib.team254.geometry.Translation2d;
 import team3647.lib.team254.util.Util;
@@ -44,10 +41,11 @@ public class SwerveDriveKinematics {
     private final Rotation2d[] m_rotations;
 
     /**
-     * Constructs a swerve drive kinematics object. This takes in a variable number of wheel locations
-     * as Translation2ds. The order in which you pass in the wheel locations is the same order that
-     * you will receive the module states when performing inverse kinematics. It is also expected that
-     * you pass in the module states in the same order when calling the forward kinematics methods.
+     * Constructs a swerve drive kinematics object. This takes in a variable number of wheel
+     * locations as Translation2ds. The order in which you pass in the wheel locations is the same
+     * order that you will receive the module states when performing inverse kinematics. It is also
+     * expected that you pass in the module states in the same order when calling the forward
+     * kinematics methods.
      *
      * @param wheelsMeters The locations of the wheels relative to the physical center of the robot.
      */
@@ -81,10 +79,10 @@ public class SwerveDriveKinematics {
      * @param centerOfRotationMeters The center of rotation. For example, if you set the center of
      *     rotation at one corner of the robot and provide a chassis speed that only has a dtheta
      *     component, the robot will rotate around that corner.
-     * @return An array containing the module states. Use caution because these module states are not
-     *     normalized. Sometimes, a user input may cause one of the module speeds to go above the
-     *     attainable max velocity. Use the {@link #desaturateWheelSpeeds(SwerveModuleState[], double)
-     *     DesaturateWheelSpeeds} function to rectify this issue.
+     * @return An array containing the module states. Use caution because these module states are
+     *     not normalized. Sometimes, a user input may cause one of the module speeds to go above
+     *     the attainable max velocity. Use the {@link #desaturateWheelSpeeds(SwerveModuleState[],
+     *     double) DesaturateWheelSpeeds} function to rectify this issue.
      */
     @SuppressWarnings("LocalVariableName")
     public SwerveModuleState[] toSwerveModuleStates(
@@ -143,9 +141,9 @@ public class SwerveDriveKinematics {
     }
 
     /**
-     * Performs forward kinematics to return the resulting chassis state from the given module states.
-     * This method is often used for odometry -- determining the robot's position on the field using
-     * data from the real-world speed and angle of each module on the robot.
+     * Performs forward kinematics to return the resulting chassis state from the given module
+     * states. This method is often used for odometry -- determining the robot's position on the
+     * field using data from the real-world speed and angle of each module on the robot.
      *
      * @param wheelStates The state of the modules (as a SwerveModuleState type) as measured from
      *     respective encoders and gyros. The order of the swerve module states should be same as
@@ -155,8 +153,8 @@ public class SwerveDriveKinematics {
     public ChassisSpeeds toChassisSpeeds(SwerveModuleState... wheelStates) {
         if (wheelStates.length != m_numModules) {
             throw new IllegalArgumentException(
-                    "Number of modules is not consistent with number of wheel locations provided in "
-                            + "constructor");
+                    "Number of modules is not consistent with number of wheel locations provided in"
+                            + " constructor");
         }
         var moduleStatesMatrix = new SimpleMatrix(m_numModules * 2, 1);
 
@@ -176,37 +174,42 @@ public class SwerveDriveKinematics {
     public ChassisSpeeds toChassisSpeedWheelConstraints(SwerveModuleState... wheelStates) {
         if (wheelStates.length != m_numModules) {
             throw new IllegalArgumentException(
-                    "Number of modules is not consistent with number of wheel locations provided in "
-                            + "constructor");
+                    "Number of modules is not consistent with number of wheel locations provided in"
+                            + " constructor");
         }
         var constraintsMatrix = new SimpleMatrix(m_numModules * 2, 3);
         for (int i = 0; i < m_numModules; i++) {
             var module = wheelStates[i];
 
             var beta =
-                    module.angle.rotateBy(
-                            m_rotations[i].inverse()).rotateBy(Rotation2d.fromRadians(Math.PI / 2.0));
+                    module.angle
+                            .rotateBy(m_rotations[i].inverse())
+                            .rotateBy(Rotation2d.fromRadians(Math.PI / 2.0));
 
-            //System.out.println(module);
-            constraintsMatrix.setRow(i*2, 0,
+            // System.out.println(module);
+            constraintsMatrix.setRow(
+                    i * 2,
+                    0,
                     module.angle.cos(),
                     module.angle.sin(),
-                    -m_modules[i].norm()*beta.cos());
-            constraintsMatrix.setRow(i*2 + 1, 0,
+                    -m_modules[i].norm() * beta.cos());
+            constraintsMatrix.setRow(
+                    i * 2 + 1,
+                    0,
                     -module.angle.sin(),
                     module.angle.cos(),
-                    m_modules[i].norm()*beta.sin());
+                    m_modules[i].norm() * beta.sin());
         }
-        //System.out.println(constraintsMatrix);
+        // System.out.println(constraintsMatrix);
 
         var psuedoInv = constraintsMatrix.pseudoInverse();
 
-        var enforcedConstraints = new SimpleMatrix(m_numModules*2, 1);
+        var enforcedConstraints = new SimpleMatrix(m_numModules * 2, 1);
         for (int i = 0; i < m_numModules; i++) {
-            enforcedConstraints.setRow(i*2, 0, wheelStates[i].speedMetersPerSecond);
-            enforcedConstraints.setRow(i*2 + 1, 0, 0);
+            enforcedConstraints.setRow(i * 2, 0, wheelStates[i].speedMetersPerSecond);
+            enforcedConstraints.setRow(i * 2 + 1, 0, 0);
         }
-        //System.out.println(enforcedConstraints);
+        // System.out.println(enforcedConstraints);
 
         var chassisSpeedsVector = psuedoInv.mult(enforcedConstraints);
         return new ChassisSpeeds(
@@ -219,9 +222,9 @@ public class SwerveDriveKinematics {
      * Renormalizes the wheel speeds if any individual speed is above the specified maximum.
      *
      * <p>Sometimes, after inverse kinematics, the requested speed from one or more modules may be
-     * above the max attainable speed for the driving motor on that module. To fix this issue, one can
-     * reduce all the wheel speeds to make sure that all requested module speeds are at-or-below the
-     * absolute threshold, while maintaining the ratio of speeds between modules.
+     * above the max attainable speed for the driving motor on that module. To fix this issue, one
+     * can reduce all the wheel speeds to make sure that all requested module speeds are at-or-below
+     * the absolute threshold, while maintaining the ratio of speeds between modules.
      *
      * @param moduleStates Reference to array of module states. The array will be mutated with the
      *     normalized speeds!
@@ -233,7 +236,9 @@ public class SwerveDriveKinematics {
         if (realMaxSpeed > attainableMaxSpeedMetersPerSecond) {
             for (SwerveModuleState moduleState : moduleStates) {
                 moduleState.speedMetersPerSecond =
-                        moduleState.speedMetersPerSecond / realMaxSpeed * attainableMaxSpeedMetersPerSecond;
+                        moduleState.speedMetersPerSecond
+                                / realMaxSpeed
+                                * attainableMaxSpeedMetersPerSecond;
             }
         }
     }
@@ -247,22 +252,28 @@ public class SwerveDriveKinematics {
     }
 
     public static ChassisSpeeds compensateForSkew(ChassisSpeeds speeds) {
-        if (Util.epsilonEquals(speeds.omegaRadiansPerSecond,0, 1e-2)) return speeds;
+        if (Util.epsilonEquals(speeds.omegaRadiansPerSecond, 0, 1e-2)) return speeds;
 
         double kFactor = 0.1;
         double magnitude =
-                Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) * speeds.omegaRadiansPerSecond * kFactor;
+                Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond)
+                        * speeds.omegaRadiansPerSecond
+                        * kFactor;
 
-        Translation2d t = new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond).rotateBy(
-                Rotation2d.fromDegrees(Math.signum(-speeds.omegaRadiansPerSecond) * 90.0));
+        Translation2d t =
+                new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond)
+                        .rotateBy(
+                                Rotation2d.fromDegrees(
+                                        Math.signum(-speeds.omegaRadiansPerSecond) * 90.0));
 
         // t is now right direction, set right magnitude.
         t.scale(magnitude / t.norm());
 
-        ChassisSpeeds r = new ChassisSpeeds(speeds.vxMetersPerSecond + t.x(),
-                speeds.vyMetersPerSecond + t.y(),
-                speeds.omegaRadiansPerSecond);
+        ChassisSpeeds r =
+                new ChassisSpeeds(
+                        speeds.vxMetersPerSecond + t.x(),
+                        speeds.vyMetersPerSecond + t.y(),
+                        speeds.omegaRadiansPerSecond);
         return r;
     }
 }
-

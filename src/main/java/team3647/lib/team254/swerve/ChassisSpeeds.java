@@ -2,7 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-
 package team3647.lib.team254.swerve;
 
 import team3647.lib.team254.geometry.Rotation2d;
@@ -46,7 +45,6 @@ public class ChassisSpeeds {
         this.omegaRadiansPerSecond = omegaRadiansPerSecond;
     }
 
-
     /**
      * Converts a user provided field-relative set of speeds into a robot-relative ChassisSpeeds
      * object.
@@ -73,9 +71,7 @@ public class ChassisSpeeds {
     }
 
     public static ChassisSpeeds fromRobotRelativeSpeeds(
-            double vxMetersPerSecond,
-            double vyMetersPerSecond,
-            double omegaRadiansPerSecond) {
+            double vxMetersPerSecond, double vyMetersPerSecond, double omegaRadiansPerSecond) {
         return new ChassisSpeeds(vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
     }
 
@@ -90,4 +86,3 @@ public class ChassisSpeeds {
                 vxMetersPerSecond, vyMetersPerSecond, omegaRadiansPerSecond);
     }
 }
-

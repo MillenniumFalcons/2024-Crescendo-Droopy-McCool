@@ -45,6 +45,8 @@ public class LEDConstants {
 
     public static final Animation SOLID_YELLOW = new StrobeAnimation(246, 190, 0, 128, 1, LEDCOUNT);
 
+    public static final Animation SOLID_ORANGE = new StrobeAnimation(255, 140, 0, 128, 1, LEDCOUNT);
+
     public static final Animation SOLID_PURPLE =
             new StrobeAnimation(162, 25, 255, 128, 1, LEDCOUNT);
 
@@ -77,6 +79,9 @@ public class LEDConstants {
 
     public static final Animation FLASH_PURPLE =
             new StrobeAnimation(162, 25, 255, 128, 0.3, LEDCOUNT);
+
+    public static final Animation FLASH_ORANGE =
+            new StrobeAnimation(255, 50, 0, 128, 0.5, LEDCOUNT);
 
     public static final Animation FLASH_YELLOW =
             new StrobeAnimation(246, 190, 0, 128, 0.5, LEDCOUNT);

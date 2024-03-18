@@ -8,7 +8,8 @@
 
 // public class TargetLockedFieldRelativeController implements IDriveController {
 //     public static TargetLockedFieldRelativeController mInstance;
-//     public SwerveHeadingController mSwerveHeadingController = SwerveHeadingController.getInstance();
+//     public SwerveHeadingController mSwerveHeadingController =
+// SwerveHeadingController.getInstance();
 //     public RadiusController mRadiusController = RadiusController.getInstance();
 
 //     private RobotState mRobotState = RobotState.getInstance();
@@ -24,18 +25,27 @@
 //     public ChassisSpeeds transform(DriveInput driveInput, Pose2d robotPose) {
 //         mRadiusController.setRadiusControllerState(RadiusController.RadiusControllerState.OFF);
 //         if((mSwerveHeadingController
-//                 .getHeadingControllerState() == SwerveHeadingController.HeadingControllerState.POLAR_SNAP
-//                 && mSwerveHeadingController.isAtGoal()) || driveInput.changeToMaintainTargetHeading()) {
-//             mSwerveHeadingController.setHeadingControllerState(SwerveHeadingController.HeadingControllerState.POLAR_MAINTAIN);
-//             mSwerveHeadingController.setGoal(mSwerveHeadingController.calculateAngleToOrigin(mRobotState.getLatestFieldToVehicle()));
+//                 .getHeadingControllerState() ==
+// SwerveHeadingController.HeadingControllerState.POLAR_SNAP
+//                 && mSwerveHeadingController.isAtGoal()) ||
+// driveInput.changeToMaintainTargetHeading()) {
+//
+// mSwerveHeadingController.setHeadingControllerState(SwerveHeadingController.HeadingControllerState.POLAR_MAINTAIN);
+//
+// mSwerveHeadingController.setGoal(mSwerveHeadingController.calculateAngleToOrigin(mRobotState.getLatestFieldToVehicle()));
 //         } else {
-//             mSwerveHeadingController.setHeadingControllerState(SwerveHeadingController.HeadingControllerState.POLAR_SNAP);
-//             mSwerveHeadingController.setGoal(mSwerveHeadingController.calculateAngleToOrigin(mRobotState.getLatestFieldToVehicle()));
+//
+// mSwerveHeadingController.setHeadingControllerState(SwerveHeadingController.HeadingControllerState.POLAR_SNAP);
+//
+// mSwerveHeadingController.setGoal(mSwerveHeadingController.calculateAngleToOrigin(mRobotState.getLatestFieldToVehicle()));
 //         }
 //         return ChassisSpeeds.fromFieldRelativeSpeeds(
-//                 driveInput.getThrottle() * Constants.kMaxVelocityMetersPerSecond * Constants.kScaleTranslationInputs,
-//                 driveInput.getStrafe() * Constants.kMaxVelocityMetersPerSecond * Constants.kScaleTranslationInputs,
-//                 mSwerveHeadingController.update(robotPose.getRotation().getDegrees()) * Constants.kMaxAngularVelocityRadiansPerSecond,
+//                 driveInput.getThrottle() * Constants.kMaxVelocityMetersPerSecond *
+// Constants.kScaleTranslationInputs,
+//                 driveInput.getStrafe() * Constants.kMaxVelocityMetersPerSecond *
+// Constants.kScaleTranslationInputs,
+//                 mSwerveHeadingController.update(robotPose.getRotation().getDegrees()) *
+// Constants.kMaxAngularVelocityRadiansPerSecond,
 //                 robotPose.getRotation());
 //     }
 // }

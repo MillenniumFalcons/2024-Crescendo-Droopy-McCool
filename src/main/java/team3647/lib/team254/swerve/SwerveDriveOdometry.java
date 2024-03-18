@@ -41,9 +41,7 @@ public class SwerveDriveOdometry {
         m_previousDistances = previousDistances;
     }
 
-
-    public SwerveDriveOdometry(
-            SwerveDriveKinematics kinematics, Pose2d initialPose) {
+    public SwerveDriveOdometry(SwerveDriveKinematics kinematics, Pose2d initialPose) {
         this(kinematics, initialPose, new double[kinematics.getNumModules()]);
     }
 
@@ -89,16 +87,23 @@ public class SwerveDriveOdometry {
     }
 
     public Pose2d getPoseMetersPolar() {
-        return new Pose2d(Math.sqrt(Math.pow(m_poseMeters.getTranslation().x(), 2) + Math.pow(m_poseMeters.getTranslation().y(), 2)),
-                Math.toDegrees(Math.atan2(m_poseMeters.getTranslation().y(), m_poseMeters.getTranslation().x())), m_poseMeters.getRotation());
+        return new Pose2d(
+                Math.sqrt(
+                        Math.pow(m_poseMeters.getTranslation().x(), 2)
+                                + Math.pow(m_poseMeters.getTranslation().y(), 2)),
+                Math.toDegrees(
+                        Math.atan2(
+                                m_poseMeters.getTranslation().y(),
+                                m_poseMeters.getTranslation().x())),
+                m_poseMeters.getRotation());
     }
 
     /**
-     * Updates the robot's position on the field using forward kinematics and integration of the pose
-     * over time. This method takes in the current time as a parameter to calculate period (difference
-     * between two timestamps). The period is used to calculate the change in distance from a
-     * velocity. This also takes in an angle parameter which is used instead of the angular rate that
-     * is calculated from forward kinematics.
+     * Updates the robot's position on the field using forward kinematics and integration of the
+     * pose over time. This method takes in the current time as a parameter to calculate period
+     * (difference between two timestamps). The period is used to calculate the change in distance
+     * from a velocity. This also takes in an angle parameter which is used instead of the angular
+     * rate that is calculated from forward kinematics.
      *
      * @param currentTimeSeconds The current time in seconds.
      * @param gyroAngle The angle reported by the gyroscope.
@@ -129,7 +134,7 @@ public class SwerveDriveOdometry {
     public Pose2d updateWithWheelConstraints(
             double currentTimeSeconds, Rotation2d gyroAngle, SwerveModuleState... moduleStates) {
         double period = m_prevTimeSeconds >= 0 ? currentTimeSeconds - m_prevTimeSeconds : 0.0;
-        //System.out.println("Time: " + currentTimeSeconds);
+        // System.out.println("Time: " + currentTimeSeconds);
         m_prevTimeSeconds = currentTimeSeconds;
 
         var angle = gyroAngle;
@@ -139,12 +144,14 @@ public class SwerveDriveOdometry {
 
         // Project along ideal angles.
         double average = 0.0;
-        for (int i = 0 ;i < moduleStates.length; ++i) {
-            double ratio = moduleStates[i].angle.rotateBy(idealStates[i].angle.inverse()).cos()*
-                    (moduleStates[i].distanceMeters - m_previousDistances[i])
-                    / (idealStates[i].speedMetersPerSecond * period);
-            if (Double.isNaN(ratio) || Double.isInfinite(ratio) ||
-                    Math.abs(idealStates[i].speedMetersPerSecond) < 0.01) {
+        for (int i = 0; i < moduleStates.length; ++i) {
+            double ratio =
+                    moduleStates[i].angle.rotateBy(idealStates[i].angle.inverse()).cos()
+                            * (moduleStates[i].distanceMeters - m_previousDistances[i])
+                            / (idealStates[i].speedMetersPerSecond * period);
+            if (Double.isNaN(ratio)
+                    || Double.isInfinite(ratio)
+                    || Math.abs(idealStates[i].speedMetersPerSecond) < 0.01) {
                 ratio = 1.0;
             }
             average = average + ratio;
@@ -152,8 +159,8 @@ public class SwerveDriveOdometry {
         }
         average = average / 4.0;
 
-        //System.out.println(chassisState);
-        //SmartDashboard.putNumber("average", average);
+        // System.out.println(chassisState);
+        // SmartDashboard.putNumber("average", average);
 
         var newPose =
                 Pose2d.exp(
@@ -161,18 +168,19 @@ public class SwerveDriveOdometry {
                                 chassisState.vxMetersPerSecond * period * average,
                                 chassisState.vyMetersPerSecond * period * average,
                                 chassisState.omegaRadiansPerSecond * period * average));
-        //System.out.println("Translation: " + newPose);
+        // System.out.println("Translation: " + newPose);
         m_velocity = chassisState;
-        // m_velocity.omegaRadiansPerSecond = m_previousAngle.inverse().rotateBy(gyroAngle).getRadians() / period;
+        // m_velocity.omegaRadiansPerSecond =
+        // m_previousAngle.inverse().rotateBy(gyroAngle).getRadians() / period;
         m_poseMeters = new Pose2d(m_poseMeters.transformBy(newPose).getTranslation(), angle);
         m_previousAngle = angle;
-        //System.out.println(m_poseMeters);
+        // System.out.println(m_poseMeters);
         return m_poseMeters;
     }
 
     /**
-     * Updates the robot's position on the field using forward kinematics and integration of the pose
-     * over time. This method automatically calculates the current time to calculate period
+     * Updates the robot's position on the field using forward kinematics and integration of the
+     * pose over time. This method automatically calculates the current time to calculate period
      * (difference between two timestamps). The period is used to calculate the change in distance
      * from a velocity. This also takes in an angle parameter which is used instead of the angular
      * rate that is calculated from forward kinematics.

@@ -2,7 +2,6 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.function.Supplier;
 import team3647.lib.team6328.VirtualSubsystem;
@@ -66,13 +65,7 @@ public class RobotTracker extends VirtualSubsystem {
     }
 
     public void setCompensatedPose() {
-        var speeds = robotRelativeSpeeds.get();
-        var twist =
-                new Twist2d(
-                        speeds.vxMetersPerSecond * 0.1,
-                        speeds.vyMetersPerSecond * 0.1,
-                        speeds.omegaRadiansPerSecond * 0.1);
-        periodicIO.compensatedPose = drivePose.get().exp(twist);
+        periodicIO.compensatedPose = drivePose.get();
     }
 
     public void setDistanceFromSpeaker() {

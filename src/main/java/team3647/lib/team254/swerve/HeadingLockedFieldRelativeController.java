@@ -7,7 +7,8 @@
 
 // public class HeadingLockedFieldRelativeController implements IDriveController {
 //     public static HeadingLockedFieldRelativeController mInstance;
-//     public SwerveHeadingController mSwerveHeadingController = SwerveHeadingController.getInstance();
+//     public SwerveHeadingController mSwerveHeadingController =
+// SwerveHeadingController.getInstance();
 //     public RadiusController mRadiusController = RadiusController.getInstance();
 
 //     public static HeadingLockedFieldRelativeController getInstance() {
@@ -20,12 +21,16 @@
 //     @Override
 //     public ChassisSpeeds transform(DriveInput driveInput, Pose2d robotPose) {
 //         mRadiusController.setRadiusControllerState(RadiusController.RadiusControllerState.OFF);
-//         mSwerveHeadingController.setHeadingControllerState(SwerveHeadingController.HeadingControllerState.SNAP);
+//
+// mSwerveHeadingController.setHeadingControllerState(SwerveHeadingController.HeadingControllerState.SNAP);
 //         mSwerveHeadingController.setGoal(driveInput.getDesiredCardinalHeading());
 //         return ChassisSpeeds.fromFieldRelativeSpeeds(
-//                 driveInput.getThrottle() * Constants.kMaxVelocityMetersPerSecond * Constants.kScaleTranslationInputs,
-//                 driveInput.getStrafe() * Constants.kMaxVelocityMetersPerSecond * Constants.kScaleTranslationInputs,
-//                 mSwerveHeadingController.update(robotPose.getRotation().getDegrees()) * Constants.kMaxAngularVelocityRadiansPerSecond,
+//                 driveInput.getThrottle() * Constants.kMaxVelocityMetersPerSecond *
+// Constants.kScaleTranslationInputs,
+//                 driveInput.getStrafe() * Constants.kMaxVelocityMetersPerSecond *
+// Constants.kScaleTranslationInputs,
+//                 mSwerveHeadingController.update(robotPose.getRotation().getDegrees()) *
+// Constants.kMaxAngularVelocityRadiansPerSecond,
 //                 robotPose.getRotation());
 //     }
 // }

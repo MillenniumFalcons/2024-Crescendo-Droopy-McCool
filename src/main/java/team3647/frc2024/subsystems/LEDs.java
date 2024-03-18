@@ -19,6 +19,7 @@ public class LEDs extends VirtualSubsystem {
             Map.of(
                     "red", LEDConstants.SOLID_RED,
                     "blue", LEDConstants.SOLID_BLUE,
+                    "intaking", LEDConstants.FLASH_ORANGE,
                     "in", LEDConstants.BREATHE_YELLOW,
                     "climb", LEDConstants.BREATHE_PINK,
                     "ready", LEDConstants.FLASH_GREEN);
@@ -39,6 +40,8 @@ public class LEDs extends VirtualSubsystem {
 
         triggers.inOutTrigger.onTrue(setState("in"));
         triggers.inOutTrigger.onFalse(setState(defaultState));
+        triggers.noteTrigger.onTrue(setState("intaking"));
+        triggers.noteTrigger.onFalse(setState(defaultState));
         triggers.targetTrigger.whileTrue(setState("ready"));
         triggers.targetTrigger.onFalse(setState(defaultState));
         triggers.climbTrigger.whileTrue(setState("climb"));

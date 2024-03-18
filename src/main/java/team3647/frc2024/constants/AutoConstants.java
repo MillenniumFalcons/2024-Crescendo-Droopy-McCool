@@ -27,15 +27,15 @@ public class AutoConstants {
 
     public static final double kXControllerP = 3; // 1.4, 2.2;
     public static final double kXControllerI = 0; // 6;
-    public static final double kXControllerD = 0.5; // 0;
+    public static final double kXControllerD = 0; // 0;
 
     public static final double kYControllerP = 3; // 1.4, 2.2;
     public static final double kYControllerI = 0; // 6;
-    public static final double kYControllerD = 0.5; // 0;
+    public static final double kYControllerD = 0; // 0;
 
     public static final double xRotControllerP = 5; // 12;
     public static final double xRotControllerI = 0; // 8;
-    public static final double xRotControllerD = 0.8;
+    public static final double xRotControllerD = 1;
 
     public static final TrapezoidProfile.Constraints kRotControllerConstraints =
             new TrapezoidProfile.Constraints(
@@ -53,7 +53,7 @@ public class AutoConstants {
     public static final PIDController kRotController =
             new PIDController(xRotControllerP, xRotControllerI, xRotControllerD);
 
-    public static final double kDrivetrainXShootingThreshold = 5.2;
+    public static final double kDrivetrainXShootingThreshold = 4.7;
 
     static {
         kRotController.enableContinuousInput(-Math.PI, Math.PI);

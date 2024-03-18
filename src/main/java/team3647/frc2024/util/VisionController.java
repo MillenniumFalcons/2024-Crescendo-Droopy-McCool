@@ -15,16 +15,19 @@ public class VisionController extends VirtualSubsystem {
     private final Function<Pose2d, Boolean> shouldAddData;
     private final ArrayList<VisionMeasurement> list = new ArrayList<>();
     private final BooleanSupplier dataAddOverride;
+    private final BooleanSupplier turnOffVision;
 
     public VisionController(
             Consumer<VisionMeasurement> visionAcceptor,
             Function<Pose2d, Boolean> shouldAddData,
             BooleanSupplier dataAddOverride,
+            BooleanSupplier turnOffVision,
             AprilTagCamera... cameras) {
         this.cameras = cameras;
         this.shouldAddData = shouldAddData;
         this.botPoseAcceptor = visionAcceptor;
         this.dataAddOverride = dataAddOverride;
+        this.turnOffVision = turnOffVision;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class VisionController extends VirtualSubsystem {
             }
         }
 
-        if (!list.isEmpty()) {
+        if (!list.isEmpty() && !turnOffVision.getAsBoolean()) {
 
             Collections.sort(list);
 
