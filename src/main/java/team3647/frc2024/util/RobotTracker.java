@@ -1,18 +1,18 @@
 package team3647.frc2024.util;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import java.util.function.Supplier;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.team6328.VirtualSubsystem;
 
 public class RobotTracker extends VirtualSubsystem {
 
     private Pose2d speakerPose;
     private Pose2d ampPose;
-
-    private final Supplier<Pose2d> drivePose;
-    private final Supplier<ChassisSpeeds> robotRelativeSpeeds;
+    private Alliance color;
 
     private final Transform2d robotToShooter;
 
@@ -20,21 +20,17 @@ public class RobotTracker extends VirtualSubsystem {
 
     public static class PeriodicIO {
         private double distanceFromSpeaker = 0;
+        private Pose2d pose = new Pose2d();
         private Pose2d compensatedPose = new Pose2d();
+        private ChassisSpeeds speeds;
     }
 
     public RobotTracker(
-            Pose2d speakerPose,
-            Pose2d ampPose,
-            Supplier<Pose2d> drivePose,
-            Supplier<ChassisSpeeds> robotRelativeSpeeds,
-            Transform2d robotToShooter,
-            boolean redSide) {
+            Pose2d speakerPose, Pose2d ampPose, Transform2d robotToShooter, boolean redSide) {
         this.speakerPose = speakerPose;
         this.ampPose = ampPose;
-        this.drivePose = drivePose;
-        this.robotRelativeSpeeds = robotRelativeSpeeds;
         this.robotToShooter = robotToShooter;
+        this.color = redSide ? Alliance.Red : Alliance.Blue;
         if (redSide) {
             this.speakerPose = AllianceFlip.flipForPP(speakerPose);
             this.ampPose = AllianceFlip.flipForPP(ampPose);
@@ -61,15 +57,28 @@ public class RobotTracker extends VirtualSubsystem {
     public void periodic() {
         setCompensatedPose();
         setDistanceFromSpeaker();
+        Logger.recordOutput("Robot/Compensated", periodicIO.compensatedPose);
+        Logger.recordOutput("Robot/Pose", periodicIO.pose);
+        Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }
 
     public void setCompensatedPose() {
-        periodicIO.compensatedPose = drivePose.get();
+        // final double shootSpeed = 15;
+        // Pose2d pose = new Pose2d(periodicIO.pose.getX(), periodicIO.pose.getY(), new
+        // Rotation2d());
+        // double time = periodicIO.distanceFromSpeaker / shootSpeed;
+        // var transform =
+        //         new Twist2d(
+        //                 periodicIO.speeds.vxMetersPerSecond * time,
+        //                 periodicIO.speeds.vyMetersPerSecond * time,
+        //                 0);
+        // var newPose = pose.exp(transform);
+        // periodicIO.compensatedPose = newPose;
     }
 
     public void setDistanceFromSpeaker() {
-        var currentPose = periodicIO.compensatedPose;
+        var currentPose = periodicIO.pose;
         var shooterPose = currentPose.transformBy(robotToShooter);
         var shooterDistance = speakerPose.minus(shooterPose);
         periodicIO.distanceFromSpeaker = shooterDistance.getTranslation().getNorm();
@@ -79,12 +88,33 @@ public class RobotTracker extends VirtualSubsystem {
         return periodicIO.distanceFromSpeaker;
     }
 
+    public double getCompensatedDistanceFromSpeaker() {
+        return periodicIO.compensatedPose.minus(speakerPose).getTranslation().getNorm();
+    }
+
+    public double getDistanceFromSpeaker(Pose2d pose) {
+        return pose.transformBy(robotToShooter).minus(speakerPose).getTranslation().getNorm();
+    }
+
     public Pose2d getCompensatedPose() {
         return periodicIO.compensatedPose;
     }
 
+    public Pose2d getPose() {
+        return periodicIO.pose;
+    }
+
+    public void setStuff(SwerveDriveState state) {
+        periodicIO.speeds = state.speeds;
+        periodicIO.pose = state.Pose;
+    }
+
     public ChassisSpeeds getChassisSpeeds() {
-        return this.robotRelativeSpeeds.get();
+        return periodicIO.speeds;
+    }
+
+    public Alliance getColor() {
+        return color;
     }
 
     public Pose2d getAmp() {

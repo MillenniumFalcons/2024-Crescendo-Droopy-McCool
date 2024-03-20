@@ -25,11 +25,11 @@ public class AutoConstants {
                     kMaxRotSpeedRadPerSec,
                     kMaxRotAccelerationRadsPerSecSq);
 
-    public static final double kXControllerP = 3; // 1.4, 2.2;
+    public static final double kXControllerP = 5; // 1.4, 2.2;
     public static final double kXControllerI = 0; // 6;
     public static final double kXControllerD = 0; // 0;
 
-    public static final double kYControllerP = 3; // 1.4, 2.2;
+    public static final double kYControllerP = 5; // 1.4, 2.2;
     public static final double kYControllerI = 0; // 6;
     public static final double kYControllerD = 0; // 0;
 

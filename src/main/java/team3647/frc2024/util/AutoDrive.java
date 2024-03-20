@@ -1,5 +1,7 @@
 package team3647.frc2024.util;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.MathUtil;
@@ -17,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
-import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.SwerveDrive;
@@ -36,7 +37,7 @@ public class AutoDrive extends VirtualSubsystem {
             new ProfiledPIDController(
                     5,
                     0,
-                    0,
+                    0.5,
                     new TrapezoidProfile.Constraints(8, 16)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
@@ -73,7 +74,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
+        // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
@@ -121,11 +122,11 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getShootSpeed() {
         if (DriverStation.isAutonomous()) {
-            return targeting.shootAtSpeaker().shootSpeed;
+            return targeting.shootAtSpeakerOnTheMove().shootSpeed;
         }
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
-                return targeting.shootAtSpeaker().shootSpeed;
+                return targeting.shootAtSpeakerOnTheMove().shootSpeed;
             case SHOOT_AT_AMP:
                 return targeting.shootAtAmp().shootSpeed;
             default:
@@ -145,6 +146,11 @@ public class AutoDrive extends VirtualSubsystem {
             default:
                 return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
         }
+    }
+
+    public Pose2d getInitial(String path) {
+        ChoreoTrajectory traj = Choreo.getTrajectory(path);
+        return traj.getInitialPose();
     }
 
     public double getX() {

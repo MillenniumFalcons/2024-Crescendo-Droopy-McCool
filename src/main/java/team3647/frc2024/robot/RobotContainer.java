@@ -3,6 +3,7 @@ package team3647.frc2024.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -80,12 +81,15 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
         churro.setEncoder(ChurroConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
+        swerve.registerTelemetry(tracker::setStuff);
+
+        RobotController.setBrownoutVoltage(5.5);
     }
 
     private void configureButtonBindings() {
@@ -100,6 +104,7 @@ public class RobotContainer {
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         mainController.leftTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
+        // mainController.leftTrigger.onFalse(autoCommands.pathToAmp(tracker.getColor()));
         mainController
                 .rightTrigger
                 .and(
@@ -128,7 +133,7 @@ public class RobotContainer {
                                 (!superstructure.getIsIntaking()
                                         || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.shootAmp(swerve::getPoseY))
-                .onFalse(superstructure.ejectPiece());
+                .onFalse(superstructure.stowFromAmpShoot().andThen(superstructure.ejectPiece()));
         mainController.rightTrigger.onFalse(
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController.leftTrigger.onFalse(
@@ -215,9 +220,11 @@ public class RobotContainer {
                         autoDrive::getMode,
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
+        // pivot.setDefaultCommand(superstructure.prep());
         pivot.setDefaultCommand(superstructure.prep());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
+        churro.setDefaultCommand(superstructure.churroCommands.holdPositionAtCall());
         wrist.setDefaultCommand(superstructure.wristCommands.holdPositionAtCall());
         shooterRight.setDefaultCommand(superstructure.shooterCommands.killRight());
         shooterLeft.setDefaultCommand(superstructure.shooterCommands.killLeft());
@@ -228,6 +235,7 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
+        SmartDashboard.putNumber("pivot output", 0);
         // SmartDashboard.putNumber("wrist kg", 0);
         // printer.addDouble("wanted pivot", superstructure::getWantedPivot);
         printer.addDouble("back tof", pivot::tofBack);
@@ -368,6 +376,10 @@ public class RobotContainer {
     public final AprilTagPhotonVision right =
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
+    public final AprilTagPhotonVision zoom =
+            new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
+                    .withPriority(true);
+
     private final VisionController visionController =
             new VisionController(
                     swerve::addVisionData,
@@ -376,19 +388,19 @@ public class RobotContainer {
                     coController.buttonX,
                     backLeft,
                     backRight,
-                    left);
+                    left,
+                    right);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 
-    public final TargetingUtil targetingUtil =
-            new TargetingUtil(
-                    new RobotTracker(
-                            FieldConstants.kBlueSpeaker,
-                            FieldConstants.kBlueAmp,
-                            swerve::getOdoPose,
-                            swerve::getChassisSpeeds,
-                            PivotConstants.robotToPivot2d,
-                            true));
+    public final RobotTracker tracker =
+            new RobotTracker(
+                    FieldConstants.kBlueSpeaker,
+                    FieldConstants.kBlueAmp,
+                    PivotConstants.robotToPivot2d,
+                    false);
+
+    public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
     public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
 

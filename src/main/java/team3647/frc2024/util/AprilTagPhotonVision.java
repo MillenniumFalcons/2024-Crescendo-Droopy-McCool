@@ -19,19 +19,28 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
             AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
     PhotonPoseEstimator photonPoseEstimator;
     Transform3d robotToCam;
-    private final edu.wpi.first.math.Vector<N3> baseStdDevs = VecBuilder.fill(0.1, 0.1, 5);
+    private final edu.wpi.first.math.Vector<N3> baseStdDevs;
     private final edu.wpi.first.math.Vector<N3> multiStdDevs =
             VecBuilder.fill(0.00096, 0.00096, 0.02979);
+    private boolean hasPriority = false;
+    private final String name;
 
-    public AprilTagPhotonVision(String camera, Transform3d robotToCam) {
+    public AprilTagPhotonVision(
+            String camera, Transform3d robotToCam, edu.wpi.first.math.Vector<N3> baseStdDevs) {
         super(NetworkTableInstance.getDefault(), camera);
+        this.name = camera;
         photonPoseEstimator =
                 new PhotonPoseEstimator(
                         aprilTagFieldLayout,
                         PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                         this,
                         robotToCam);
+        this.baseStdDevs = baseStdDevs;
         this.robotToCam = robotToCam;
+    }
+
+    public AprilTagPhotonVision(String camera, Transform3d robotToCam) {
+        this(camera, robotToCam, VecBuilder.fill(0.1, 0.1, 5));
     }
 
     public AprilTagId getId(int id) {
@@ -44,8 +53,13 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         return possibleValues[adjustedId];
     }
 
+    public AprilTagPhotonVision withPriority(boolean priority) {
+        this.hasPriority = true;
+        return this;
+    }
+
     public String getName() {
-        return this.toString();
+        return this.name;
     }
 
     public Optional<Pose3d> camPose() {
@@ -79,15 +93,20 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         if (targetDistance > 5.5) {
             return Optional.empty();
         }
-        if (Math.abs(update.get().estimatedPose.getZ()) > 1) {
+        // if (targetDistance > 10) {
+        //     return Optional.empty();
+        // }
+        if (Math.abs(update.get().estimatedPose.getZ()) > 0.5) {
             return Optional.empty();
         }
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         double numTargets = result.getTargets().size();
         final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
-        final double ambiguityScore =
+        double ambiguityScore =
                 1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
+        // final double priorityScore = this.hasPriority ? 50 : 0;
+        // ambiguityScore += priorityScore;
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(
                         update.get(), update.get().timestampSeconds, ambiguityScore, stdDevs);

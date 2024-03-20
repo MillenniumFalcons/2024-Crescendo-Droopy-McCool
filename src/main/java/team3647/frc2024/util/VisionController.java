@@ -48,6 +48,8 @@ public class VisionController extends VirtualSubsystem {
             if (shouldAddData.apply(getInputs.pose) || dataAddOverride.getAsBoolean()) {
                 list.add(getInputs);
             }
+
+            // Logger.recordOutput("Robot/" + camera.getName(), getInputs.pose);
         }
 
         if (!list.isEmpty() && !turnOffVision.getAsBoolean()) {
@@ -57,6 +59,7 @@ public class VisionController extends VirtualSubsystem {
             botPoseAcceptor.accept(list.get(0));
 
             Logger.recordOutput("Robot/Vision", list.get(0).pose);
+            Logger.recordOutput("stddev", list.get(0).stdDevs.get(0, 0));
         }
     }
 }

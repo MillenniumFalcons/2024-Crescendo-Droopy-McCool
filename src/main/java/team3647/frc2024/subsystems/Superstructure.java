@@ -35,7 +35,7 @@ public class Superstructure {
     private final double pivotStowAngle = 40;
     private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
-    private final double churroDeployAngle = 65;
+    private final double churroDeployAngle = 62;
     private final double churroStowAngle = 160;
     private final double shootSpeed;
     private double currentLimit = 34;
@@ -131,11 +131,13 @@ public class Superstructure {
     }
 
     public Command stowChurro() {
-        return churroCommands.setAngle(churroStowAngle);
+        return churroCommands
+                .setAngle(churroStowAngle)
+                .until(() -> churro.angleReached(churroStowAngle, 3));
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 3, () -> 1);
+        return shooterCommands.setVelocity(() -> 3.5, () -> 1);
     }
 
     public double getDesiredSpeed() {
@@ -163,7 +165,7 @@ public class Superstructure {
     }
 
     public Command geegeePrepForAuto() {
-        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble() - 4.5);
+        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble() - 10);
     }
 
     public Command ejectPiece() {
@@ -207,29 +209,26 @@ public class Superstructure {
 
     public Command shootAmp(DoubleSupplier swerveY) {
         return Commands.parallel(
-                        prepAmp(), spinUpAmp(), deployChurro()
-                        // Commands.sequence(
-                        //         // Commands.waitSeconds(2.5),
-                        //         Commands.waitUntil(
-                        //                         () ->
-                        //                                 shooterLeft.velocityReached(
-                        //                                                 shootSpeed
-                        //                                                         * 2
-                        //                                                         /
-                        // getDesiredSpeed()
-                        //                                                         *
-                        // ShooterConstants
-                        //
-                        // .kLeftRatio,
-                        //                                                 1)
-                        //                                         && pivot.angleReached(55, 5)
-                        //                                         && swerveAimed.getAsBoolean())
-                        //                 .withTimeout(0.7),
-                        //         feed())
-                        )
-                .until(() -> swerveY.getAsDouble() > 7.5)
-                .andThen(ejectPiece())
-                .andThen(stowFromAmpShoot());
+                prepAmp(), spinUpAmp(), deployChurro()
+                // Commands.sequence(
+                //         // Commands.waitSeconds(2.5),
+                //         Commands.waitUntil(
+                //                         () ->
+                //                                 shooterLeft.velocityReached(
+                //                                                 shootSpeed
+                //                                                         * 2
+                //                                                         /
+                // getDesiredSpeed()
+                //                                                         *
+                // ShooterConstants
+                //
+                // .kLeftRatio,
+                //                                                 1)
+                //                                         && pivot.angleReached(55, 5)
+                //                                         && swerveAimed.getAsBoolean())
+                //                 .withTimeout(0.7),
+                //         feed())
+                );
     }
 
     public Command batterShot() {
@@ -297,7 +296,7 @@ public class Superstructure {
     }
 
     public Command prepAmp() {
-        return pivotCommands.setAngle(() -> 55);
+        return pivotCommands.setAngle(() -> 45);
     }
 
     public Command batterPrep() {
@@ -320,18 +319,12 @@ public class Superstructure {
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(
-                        Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(1),
-                        ejectPiece(),
-                        Commands.parallel(
-                                        pivotCommands.setAngle(
-                                                () -> pivotAngleSupplier.getAsDouble()),
-                                        shooterCommands.kill(),
-                                        stowChurro(),
-                                        ejectPiece(),
-                                        kickerCommands.kill())
-                                .withTimeout(0.2),
-                        ejectPiece())
-                .andThen(ejectPiece());
+                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(1),
+                Commands.deadline(
+                        stowChurro(),
+                        pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                        shooterCommands.kill(),
+                        kickerCommands.kill()));
     }
 
     public boolean hasPiece() {

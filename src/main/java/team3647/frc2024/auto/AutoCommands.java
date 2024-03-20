@@ -5,6 +5,8 @@ import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -214,10 +216,10 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        followChoreoPathWithOverride(s15_to_f1, color),
-                        followChoreoPathWithOverride(f1_to_shoot1, color),
-                        followChoreoPathWithOverride(shoot1_to_f2, color),
-                        followChoreoPathWithOverride(f2_to_shoot1, color),
+                        followChoreoPathWithOverrideFast(s15_to_f1, color),
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color),
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
                         followChoreoPathWithOverride(shoot1_to_n1, color),
                         followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
@@ -292,6 +294,25 @@ public class AutoCommands {
                         superstructure.trapShot(swerve::getPoseX)));
     }
 
+    public Command pathToAmp(Alliance color) {
+        return Commands.sequence(pathfindToAmp(color), followChoreoPath("amp", color));
+    }
+
+    public Command pathfindToAmp(Alliance color) {
+        return AutoBuilder.pathfindToPose(
+                color == Alliance.Blue
+                        ? getInitial("amp")
+                        : AllianceFlip.flipForPP(getInitial("amp")),
+                new PathConstraints(3, 4, Units.degreesToRadians(540), Units.degreesToRadians(720)),
+                0,
+                0);
+    }
+
+    public Command rotToAmp() {
+        return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()))
+                .until(() -> deeThetaOnTheMove() < 0.1);
+    }
+
     public Command pathfindToTrap() {
         return AutoBuilder.pathfindToPose(
                 AllianceFlip.flipForPP(getInitial(trap_test)),
@@ -302,7 +323,6 @@ public class AutoCommands {
 
     public Command masterSuperstructureSequence(Alliance color) {
         return Commands.sequence(
-                Commands.waitSeconds(0.3),
                 scorePreload(),
                 Commands.parallel(
                         // superstructure.spinUp(),
@@ -325,8 +345,8 @@ public class AutoCommands {
         return Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.geegeePrepForAuto(),
-                        Commands.sequence(Commands.waitSeconds(1), superstructure.feed()))
-                .withTimeout(1.3);
+                        Commands.sequence(Commands.waitSeconds(0.7), superstructure.feed()))
+                .withTimeout(1);
     }
 
     public Pose2d getInitial(String path) {
@@ -382,6 +402,7 @@ public class AutoCommands {
     public Command followChoreoPathWithOverrideFast(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
+        PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
         return customChoreoFolloweForOverride(
                         traj,
                         swerve::getOdoPose,
@@ -409,7 +430,8 @@ public class AutoCommands {
     public Command followChoreoPathWithOverride(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
-        return customChoreoFolloweForOverride(
+        PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
+        return customChoreoFolloweForOverrideSlow(
                         traj,
                         swerve::getOdoPose,
                         choreoSwerveController(
@@ -422,12 +444,12 @@ public class AutoCommands {
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond * 0.6,
+                                                : speeds.vxMetersPerSecond,
                                         (!this.hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond * 0.6,
+                                                : speeds.vyMetersPerSecond,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
@@ -443,6 +465,11 @@ public class AutoCommands {
         return new FunctionalCommand(
                 timer::restart,
                 () -> {
+                    PathPlannerLogging.logCurrentPose(swerve.getOdoPose());
+                    PathPlannerLogging.logTargetPose(
+                            trajectory
+                                    .sample(timer.get(), mirrorTrajectory.getAsBoolean())
+                                    .getPose());
                     ;
                     outputChassisSpeeds.accept(
                             controller.apply(
@@ -471,6 +498,53 @@ public class AutoCommands {
                                                                 .getTranslation()
                                                                 .getNorm()
                                                         < 0.4)
+                                        || (currentYes.getAsBoolean())),
+                swerve);
+    }
+
+    public Command customChoreoFolloweForOverrideSlow(
+            ChoreoTrajectory trajectory,
+            Supplier<Pose2d> poseSupplier,
+            ChoreoControlFunction controller,
+            Consumer<ChassisSpeeds> outputChassisSpeeds,
+            BooleanSupplier mirrorTrajectory) {
+        var timer = new edu.wpi.first.wpilibj.Timer();
+        return new FunctionalCommand(
+                timer::restart,
+                () -> {
+                    PathPlannerLogging.logCurrentPose(swerve.getOdoPose());
+                    PathPlannerLogging.logTargetPose(
+                            trajectory
+                                    .sample(timer.get(), mirrorTrajectory.getAsBoolean())
+                                    .getPose());
+                    ;
+                    outputChassisSpeeds.accept(
+                            controller.apply(
+                                    poseSupplier.get(),
+                                    trajectory.sample(
+                                            timer.get(), mirrorTrajectory.getAsBoolean())));
+                },
+                (interrupted) -> {
+                    timer.stop();
+                    outputChassisSpeeds.accept(new ChassisSpeeds());
+                },
+                () ->
+                        timer.hasElapsed(0.5)
+                                && ((swerve.getVel() < 0.2
+                                                & swerve.getOdoPose()
+                                                                .minus(
+                                                                        mirrorTrajectory
+                                                                                                .getAsBoolean()
+                                                                                        == false
+                                                                                ? trajectory
+                                                                                        .getFinalPose()
+                                                                                : AllianceFlip
+                                                                                        .flipForPP(
+                                                                                                trajectory
+                                                                                                        .getFinalPose()))
+                                                                .getTranslation()
+                                                                .getNorm()
+                                                        < 0.3)
                                         || (currentYes.getAsBoolean())),
                 swerve);
     }
