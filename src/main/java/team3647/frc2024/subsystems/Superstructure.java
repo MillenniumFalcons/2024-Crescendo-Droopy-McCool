@@ -360,7 +360,11 @@ public class Superstructure {
         return Commands.parallel(
                         intakeCommands.kill(),
                         wristCommands.setAngle(() -> wrist.getInverseKinematics(pivot.getAngle())))
-                .until(shouldGO)
+                .until(
+                        shouldGO.and(
+                                () ->
+                                        wrist.angleReached(
+                                                wrist.getInverseKinematics(pivot.getAngle()), 5)))
                 .andThen(Commands.deadline(shootThroughNoKicker(), spinUp()));
     }
 

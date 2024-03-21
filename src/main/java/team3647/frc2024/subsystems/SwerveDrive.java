@@ -236,7 +236,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
                     new team3647.lib.team254.swerve.SwerveModuleState(
                             0.0,
                             team3647.lib.team254.geometry.Rotation2d.fromRadians(
-                                    m_moduleStates[i].angle.getRadians()));
+                                    this.m_modulePositions[i].angle.getRadians()));
         }
         periodicIO.good = true;
     }
@@ -328,7 +328,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     public void setStuff(SwerveDriveState state) {
         periodicIO.pose = state.Pose;
-        periodicIO.speeds = state.speeds;
+        periodicIO.speeds = this.m_kinematics.toChassisSpeeds(state.ModuleStates);
     }
 
     public Rotation2d getOdoRot() {
@@ -369,7 +369,9 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     public boolean shouldAddData(Pose2d visionPose) {
         double distance = visionPose.minus(getOdoPose()).getTranslation().getNorm();
         double angle = visionPose.getRotation().minus(getOdoPose().getRotation()).getDegrees();
-        return (distance < 1.5 && Math.abs(angle) < 15) ? true : false;
+        return (distance < 1.5 && Math.abs(angle) < 15) || DriverStation.isAutonomous()
+                ? true
+                : false;
     }
 
     public void addVisionData(VisionMeasurement data) {

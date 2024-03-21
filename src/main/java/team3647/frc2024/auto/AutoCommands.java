@@ -221,8 +221,11 @@ public class AutoCommands {
                         followChoreoPathWithOverrideFast(shoot1_to_f2, color),
                         followChoreoPathWithOverrideFast(f2_to_shoot1, color),
                         followChoreoPathWithOverride(shoot1_to_n1, color),
+                        target().withTimeout(0.5),
                         followChoreoPathWithOverride(n1_to_n2, color),
-                        followChoreoPathWithOverride(n2_to_n3, color)));
+                        target().withTimeout(0.5),
+                        followChoreoPathWithOverride(n2_to_n3, color),
+                        target()));
     }
 
     public Command four_S3N5N4N3(Alliance color) {
@@ -399,6 +402,10 @@ public class AutoCommands {
                 superstructure.shootStow(), followChoreoPathWithOverride(path, color));
     }
 
+    public Command target() {
+        return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()), swerve);
+    }
+
     public Command followChoreoPathWithOverrideFast(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
@@ -444,12 +451,12 @@ public class AutoCommands {
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond * 0.8,
+                                                : speeds.vxMetersPerSecond * 0.6,
                                         (!this.hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond * 0.8,
+                                                : speeds.vyMetersPerSecond * 0.6,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));

@@ -1,6 +1,7 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.BooleanSupplier;
@@ -61,6 +62,9 @@ public class VisionController extends VirtualSubsystem {
             Logger.recordOutput("Robot/Vision", list.get(0).pose);
             Logger.recordOutput("Robot/Camera", list.get(0).name);
             Logger.recordOutput("stddev", list.get(0).stdDevs.get(0, 0));
+        } else {
+            Logger.recordOutput("Robot/Vision", new Pose2d(1, 1, new Rotation2d()));
+            Logger.recordOutput("stddev", 0.0);
         }
     }
 }

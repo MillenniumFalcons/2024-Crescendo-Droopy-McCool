@@ -2,6 +2,7 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import team3647.frc2024.constants.FieldConstants;
 import team3647.lib.vision.AprilTagCamera.AprilTagId;
 
 public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera {
@@ -86,11 +88,14 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .getTranslation()
                         .toTranslation2d()
                         .getNorm();
+        if (hasPriority) {
+            targetDistance = MathUtil.clamp(targetDistance - 5, 1, 1000);
+        }
         // if (result.getBestTarget().getFiducialId() != 3
         //         && result.getBestTarget().getFiducialId() != 4) {
         //     return Optional.empty();
         // }
-        if (targetDistance > 5.5 && !hasPriority) {
+        if (targetDistance > 4 && !hasPriority) {
             return Optional.empty();
         }
         if (targetDistance > 10) {
@@ -99,14 +104,23 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         if (Math.abs(update.get().estimatedPose.getZ()) > 0.5) {
             return Optional.empty();
         }
+        if (update.get().estimatedPose.getX() > FieldConstants.kFieldLength
+                || update.get().estimatedPose.getX() < 0
+                || update.get().estimatedPose.getY() > FieldConstants.kFieldWidth
+                || update.get().estimatedPose.getY() < 0) {
+            return Optional.empty();
+        }
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         double numTargets = result.getTargets().size();
-        final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
+        final var stdDevs = baseStdDevs.times(targetDistance).times(4 / Math.pow(numTargets, 2));
         double ambiguityScore =
                 1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
         // final double priorityScore = this.hasPriority ? 50 : 0;
         // ambiguityScore += priorityScore;
+        if (result.targets.stream().anyMatch(target -> target.getPoseAmbiguity() > 0.25)) {
+            return Optional.empty();
+        }
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(
                         update.get(),

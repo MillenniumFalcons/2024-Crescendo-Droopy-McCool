@@ -1,5 +1,6 @@
 package team3647.frc2024.util;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,6 +16,8 @@ public class TargetingUtil {
     private final double shootSpeed = 30;
     private double offset = 0;
     double kDt = 0.1;
+
+    private final MedianFilter filter = new MedianFilter(3);
 
     private final InterpolatingDoubleTreeMap speakerMap = PivotConstants.kMasterSpeakerMap;
 
@@ -35,8 +38,10 @@ public class TargetingUtil {
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
     public AimingParameters shootAtPoseOnTheMove(Pose2d pose) {
         double pivotAngle =
-                Math.toRadians(
-                        speakerMap.get(robotTracker.getCompensatedDistanceFromSpeaker()) + offset);
+                filter.calculate(
+                        Math.toRadians(
+                                speakerMap.get(robotTracker.getCompensatedDistanceFromSpeaker())
+                                        + offset));
         final var toPose = robotTracker.getCompensatedPose().minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())
@@ -96,7 +101,9 @@ public class TargetingUtil {
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
     public AimingParameters shootAtPose(Pose2d pose) {
         double pivotAngle =
-                Math.toRadians(speakerMap.get(robotTracker.getDistanceFromSpeaker()) + offset);
+                filter.calculate(
+                        Math.toRadians(
+                                speakerMap.get(robotTracker.getDistanceFromSpeaker()) + offset));
         final var toPose = robotTracker.getPose().minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())

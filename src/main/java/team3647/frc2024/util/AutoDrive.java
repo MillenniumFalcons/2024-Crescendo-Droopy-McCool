@@ -183,7 +183,7 @@ public class AutoDrive extends VirtualSubsystem {
             return setpoint;
         }
         double k =
-                quickerRotController.calculate(targetRot, 0)
+                rotController.calculate(targetRot, 0)
                         * MathUtil.clamp(
                                 Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond), 1, 100);
         double setpoint = Math.abs(targetRot) < 0.01 ? 0 : k;

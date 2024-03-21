@@ -118,6 +118,9 @@ public class PivotConstants {
         kMasterSlot0.kP = masterKP;
         kMasterSlot0.kI = masterKI;
         kMasterSlot0.kD = masterKD;
+        kMasterSlot0.kS = 0.21;
+        kMasterSlot0.kA = 0;
+        kMasterSlot0.kV = 0;
         kMasterCurrent.StatorCurrentLimitEnable = true;
         kMasterCurrent.StatorCurrentLimit = kMaxCurrent;
         kMasterMotionMagic.MotionMagicAcceleration = kMaxVelocityTicks * 1.8;

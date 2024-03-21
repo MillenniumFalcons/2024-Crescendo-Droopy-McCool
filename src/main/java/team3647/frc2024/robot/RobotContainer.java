@@ -219,7 +219,6 @@ public class RobotContainer {
                         autoDrive::getMode,
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
-        // pivot.setDefaultCommand(superstructure.prep());
         pivot.setDefaultCommand(superstructure.prep());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
