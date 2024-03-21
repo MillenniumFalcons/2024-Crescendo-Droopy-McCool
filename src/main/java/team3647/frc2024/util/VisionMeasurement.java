@@ -14,36 +14,51 @@ public class VisionMeasurement implements Comparable<VisionMeasurement> {
     public final double timestamp;
     public final double ambiguityScore;
     public final Matrix<N3, N1> stdDevs;
+    public final String name;
 
     public VisionMeasurement(Pose2d pose, double timestamp) {
-        this(pose, timestamp, 1, VecBuilder.fill(0.05, 0.05, 0.05));
+        this(pose, timestamp, 1, VecBuilder.fill(0.05, 0.05, 0.05), "none");
     }
 
     public VisionMeasurement(
-            Pose2d pose, double timestamp, double ambiguityScore, Matrix<N3, N1> stdDevs) {
+            Pose2d pose,
+            double timestamp,
+            double ambiguityScore,
+            Matrix<N3, N1> stdDevs,
+            String name) {
         Objects.requireNonNull(stdDevs);
         this.ambiguityScore = ambiguityScore;
         this.pose = pose;
         this.timestamp = timestamp;
         this.stdDevs = stdDevs;
+        this.name = name;
     }
 
     public static VisionMeasurement fromEstimatedRobotPose(
-            EstimatedRobotPose estimatedPose, double ambiguityScore, Vector<N3> stdDevs) {
+            EstimatedRobotPose estimatedPose,
+            double ambiguityScore,
+            Vector<N3> stdDevs,
+            String name) {
         return new VisionMeasurement(
                 estimatedPose.estimatedPose.toPose2d(),
                 estimatedPose.timestampSeconds,
                 ambiguityScore,
-                stdDevs);
+                stdDevs,
+                name);
     }
 
     public static VisionMeasurement fromEstimatedRobotPose(
             EstimatedRobotPose estimatedPose,
             double timestampSeconds,
             double ambiguityScore,
-            Vector<N3> stdDevs) {
+            Vector<N3> stdDevs,
+            String name) {
         return new VisionMeasurement(
-                estimatedPose.estimatedPose.toPose2d(), timestampSeconds, ambiguityScore, stdDevs);
+                estimatedPose.estimatedPose.toPose2d(),
+                timestampSeconds,
+                ambiguityScore,
+                stdDevs,
+                name);
     }
 
     @Override

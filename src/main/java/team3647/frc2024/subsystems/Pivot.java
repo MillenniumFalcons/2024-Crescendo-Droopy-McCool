@@ -93,7 +93,7 @@ public class Pivot extends TalonFXSubsystem {
 
     public void setAngle(double angle) {
         double desiredAngle = MathUtil.clamp(angle, minAngle, maxAngle);
-        super.setPositionExpoVoltage(desiredAngle, 0);
+        super.setPositionExpoVoltage(desiredAngle, maxKG * Math.cos(angle));
     }
 
     public boolean angleReached(double targetAngle, double threshold) {

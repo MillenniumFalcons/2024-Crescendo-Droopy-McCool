@@ -1,10 +1,10 @@
 package team3647.frc2024.util;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import team3647.lib.team6328.VirtualSubsystem;
 
@@ -13,6 +13,9 @@ public class RobotTracker extends VirtualSubsystem {
     private Pose2d speakerPose;
     private Pose2d ampPose;
     private Alliance color;
+
+    Supplier<Pose2d> drivePose;
+    Supplier<ChassisSpeeds> driveSpeeds;
 
     private final Transform2d robotToShooter;
 
@@ -26,10 +29,17 @@ public class RobotTracker extends VirtualSubsystem {
     }
 
     public RobotTracker(
-            Pose2d speakerPose, Pose2d ampPose, Transform2d robotToShooter, boolean redSide) {
+            Pose2d speakerPose,
+            Pose2d ampPose,
+            Transform2d robotToShooter,
+            Supplier<Pose2d> drivePose,
+            Supplier<ChassisSpeeds> driveSpeeds,
+            boolean redSide) {
         this.speakerPose = speakerPose;
         this.ampPose = ampPose;
         this.robotToShooter = robotToShooter;
+        this.drivePose = drivePose;
+        this.driveSpeeds = driveSpeeds;
         this.color = redSide ? Alliance.Red : Alliance.Blue;
         if (redSide) {
             this.speakerPose = AllianceFlip.flipForPP(speakerPose);
@@ -55,11 +65,13 @@ public class RobotTracker extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        setPose();
+        setSpeeds();
         setCompensatedPose();
         setDistanceFromSpeaker();
         Logger.recordOutput("Robot/Compensated", periodicIO.compensatedPose);
         Logger.recordOutput("Robot/Pose", periodicIO.pose);
-        Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
+        // Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }
 
@@ -104,9 +116,12 @@ public class RobotTracker extends VirtualSubsystem {
         return periodicIO.pose;
     }
 
-    public void setStuff(SwerveDriveState state) {
-        periodicIO.speeds = state.speeds;
-        periodicIO.pose = state.Pose;
+    public void setPose() {
+        periodicIO.pose = drivePose.get();
+    }
+
+    public void setSpeeds() {
+        periodicIO.speeds = driveSpeeds.get();
     }
 
     public ChassisSpeeds getChassisSpeeds() {

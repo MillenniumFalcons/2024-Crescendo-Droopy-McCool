@@ -59,6 +59,7 @@ public class VisionController extends VirtualSubsystem {
             botPoseAcceptor.accept(list.get(0));
 
             Logger.recordOutput("Robot/Vision", list.get(0).pose);
+            Logger.recordOutput("Robot/Camera", list.get(0).name);
             Logger.recordOutput("stddev", list.get(0).stdDevs.get(0, 0));
         }
     }

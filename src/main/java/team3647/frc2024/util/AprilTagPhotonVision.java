@@ -90,12 +90,12 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         //         && result.getBestTarget().getFiducialId() != 4) {
         //     return Optional.empty();
         // }
-        if (targetDistance > 5.5) {
+        if (targetDistance > 5.5 && !hasPriority) {
             return Optional.empty();
         }
-        // if (targetDistance > 10) {
-        //     return Optional.empty();
-        // }
+        if (targetDistance > 10) {
+            return Optional.empty();
+        }
         if (Math.abs(update.get().estimatedPose.getZ()) > 0.5) {
             return Optional.empty();
         }
@@ -109,7 +109,11 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         // ambiguityScore += priorityScore;
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(
-                        update.get(), update.get().timestampSeconds, ambiguityScore, stdDevs);
+                        update.get(),
+                        update.get().timestampSeconds,
+                        ambiguityScore,
+                        stdDevs,
+                        getName());
         return Optional.of(measurement);
     }
 

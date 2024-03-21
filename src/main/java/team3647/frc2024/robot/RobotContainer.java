@@ -87,7 +87,6 @@ public class RobotContainer {
         climb.setEncoder(0);
         churro.setEncoder(ChurroConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
-        swerve.registerTelemetry(tracker::setStuff);
 
         RobotController.setBrownoutVoltage(5.5);
     }
@@ -389,7 +388,8 @@ public class RobotContainer {
                     backLeft,
                     backRight,
                     left,
-                    right);
+                    right,
+                    zoom);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
 
@@ -398,6 +398,8 @@ public class RobotContainer {
                     FieldConstants.kBlueSpeaker,
                     FieldConstants.kBlueAmp,
                     PivotConstants.robotToPivot2d,
+                    swerve::getOdoPose,
+                    swerve::getChassisSpeeds,
                     false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);

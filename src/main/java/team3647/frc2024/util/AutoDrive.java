@@ -41,7 +41,7 @@ public class AutoDrive extends VirtualSubsystem {
                     new TrapezoidProfile.Constraints(8, 16)); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickRotController =
-            new PIDController(8, 0, 2); // new PIDController(0.4, 0, 0);
+            new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
 
     private final PIDController quickerRotController =
             new PIDController(12, 0, 1.2); // new PIDController(0.4, 0, 0);
@@ -75,6 +75,7 @@ public class AutoDrive extends VirtualSubsystem {
     @Override
     public void periodic() {
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
+        SmartDashboard.putNumber("rot", targetRot);
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
@@ -178,14 +179,14 @@ public class AutoDrive extends VirtualSubsystem {
     public double getRot() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             double k = rotController.calculate(0, targeting.rotToAmp());
-            double setpoint = Math.abs(k) < 0.03 ? 0 : k;
+            double setpoint = Math.abs(targetRot) < 0.01 ? 0 : k;
             return setpoint;
         }
         double k =
-                rotController.calculate(targetRot, 0)
+                quickerRotController.calculate(targetRot, 0)
                         * MathUtil.clamp(
                                 Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond), 1, 100);
-        double setpoint = Math.abs(k) < 0.02 ? 0 : k;
+        double setpoint = Math.abs(targetRot) < 0.01 ? 0 : k;
         return setpoint;
     }
 

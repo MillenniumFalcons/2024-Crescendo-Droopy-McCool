@@ -416,12 +416,12 @@ public class AutoCommands {
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond,
+                                                : speeds.vxMetersPerSecond * 0.8,
                                         (!hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond,
+                                                : speeds.vyMetersPerSecond * 0.8,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
@@ -444,12 +444,12 @@ public class AutoCommands {
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond,
+                                                : speeds.vxMetersPerSecond * 0.8,
                                         (!this.hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX() > 5)
                                                 ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond,
+                                                : speeds.vyMetersPerSecond * 0.8,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));

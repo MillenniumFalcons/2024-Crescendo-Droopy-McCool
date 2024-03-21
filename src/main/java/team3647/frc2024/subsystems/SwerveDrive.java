@@ -90,6 +90,9 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
         public Pose2d visionPose = new Pose2d();
 
+        public Pose2d pose = new Pose2d();
+        public ChassisSpeeds speeds = new ChassisSpeeds();
+
         public SwerveRequest masterRequest = new SwerveRequest.Idle();
         public SwerveFOCRequest driveFOCRequest = new SwerveFOCRequest(true);
         public SwerveFOCRequest steerFOCRequest = new SwerveFOCRequest(false);
@@ -106,6 +109,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
             double kDt,
             SwerveModuleConstants... swerveModuleConstants) {
         super(swerveDriveConstants, swerveModuleConstants);
+        registerTelemetry(this::setStuff);
         this.maxSpeedMpS = maxSpeedMpS;
         this.maxRotRadPerSec = maxRotRadPerSec;
         this.kDt = kDt;
@@ -216,7 +220,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     @Override
     public void periodic() {
-        Logger.recordOutput("Robot/Output", this.m_odometry.getEstimatedPosition());
+        Logger.recordOutput("Robot/Output", this.getOdoPose());
         Logger.recordOutput(
                 "Drive/Encoder", this.Modules[0].getDriveMotor().getPosition().getValueAsDouble());
         Logger.recordOutput(
@@ -319,7 +323,12 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     @AutoLogOutput
     public Pose2d getOdoPose() {
-        return this.m_odometry.getEstimatedPosition();
+        return periodicIO.pose;
+    }
+
+    public void setStuff(SwerveDriveState state) {
+        periodicIO.pose = state.Pose;
+        periodicIO.speeds = state.speeds;
     }
 
     public Rotation2d getOdoRot() {
@@ -327,11 +336,11 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public double getPoseX() {
-        return this.m_odometry.getEstimatedPosition().getX();
+        return this.getOdoPose().getX();
     }
 
     public double getPoseY() {
-        return this.m_odometry.getEstimatedPosition().getY();
+        return this.getOdoPose().getY();
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -344,7 +353,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public ChassisSpeeds getChassisSpeeds() {
-        return this.m_kinematics.toChassisSpeeds(getModuleStates());
+        return periodicIO.speeds;
     }
 
     public double getAccel() {
