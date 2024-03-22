@@ -382,6 +382,7 @@ public class RobotContainer {
             new VisionController(
                     swerve::addVisionData,
                     swerve::shouldAddData,
+                    swerve::seedFieldRelative,
                     coController.buttonA,
                     coController.buttonX,
                     backLeft,

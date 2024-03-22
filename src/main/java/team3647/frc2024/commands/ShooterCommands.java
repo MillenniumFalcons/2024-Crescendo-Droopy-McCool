@@ -48,6 +48,16 @@ public class ShooterCommands {
                 shooterLeft);
     }
 
+    public Command setVelocityIndep(DoubleSupplier left, DoubleSupplier right) {
+        return Commands.run(
+                () -> {
+                    shooterRight.setVelocity(right.getAsDouble());
+                    shooterLeft.setVelocity(left.getAsDouble());
+                },
+                shooterRight,
+                shooterLeft);
+    }
+
     public Command kill() {
         return Commands.run(
                 () -> {

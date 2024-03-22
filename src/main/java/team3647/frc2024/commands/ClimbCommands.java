@@ -10,11 +10,11 @@ public class ClimbCommands {
     private final Set<Subsystem> requirements;
 
     public Command goUp() {
-        return Commands.run(() -> climb.openLoop(0.5), climb);
+        return Commands.run(() -> climb.openLoop(1), climb);
     }
 
     public Command goDown() {
-        return Commands.run(() -> climb.openLoop(-0.8), climb);
+        return Commands.run(() -> climb.openLoop(-1), climb);
     }
 
     public Command kill() {

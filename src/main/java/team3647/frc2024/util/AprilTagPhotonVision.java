@@ -98,7 +98,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         if (targetDistance > 4 && !hasPriority) {
             return Optional.empty();
         }
-        if (targetDistance > 10) {
+        if (targetDistance > 8) {
             return Optional.empty();
         }
         if (Math.abs(update.get().estimatedPose.getZ()) > 0.5) {

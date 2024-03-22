@@ -13,18 +13,22 @@ import team3647.lib.team6328.VirtualSubsystem;
 public class VisionController extends VirtualSubsystem {
     private final AprilTagCamera[] cameras;
     private final Consumer<VisionMeasurement> botPoseAcceptor;
-    private final Function<Pose2d, Boolean> shouldAddData;
+    private final Consumer<Pose2d> resetPose;
+    private final Function<VisionMeasurement, Boolean> shouldAddData;
     private final ArrayList<VisionMeasurement> list = new ArrayList<>();
     private final BooleanSupplier dataAddOverride;
     private final BooleanSupplier turnOffVision;
+    private int count;
 
     public VisionController(
             Consumer<VisionMeasurement> visionAcceptor,
-            Function<Pose2d, Boolean> shouldAddData,
+            Function<VisionMeasurement, Boolean> shouldAddData,
+            Consumer<Pose2d> resetPose,
             BooleanSupplier dataAddOverride,
             BooleanSupplier turnOffVision,
             AprilTagCamera... cameras) {
         this.cameras = cameras;
+        this.resetPose = resetPose;
         this.shouldAddData = shouldAddData;
         this.botPoseAcceptor = visionAcceptor;
         this.dataAddOverride = dataAddOverride;
@@ -46,8 +50,16 @@ public class VisionController extends VirtualSubsystem {
 
             var getInputs = inputs.get();
 
-            if (shouldAddData.apply(getInputs.pose) || dataAddOverride.getAsBoolean()) {
+            if (shouldAddData.apply(getInputs) || dataAddOverride.getAsBoolean()) {
                 list.add(getInputs);
+                count = 0;
+            } else {
+                count++;
+                if (count > 10) {
+                    resetPose.accept(getInputs.pose);
+                    Logger.recordOutput("Robot/Reset", getInputs.pose);
+                    break;
+                }
             }
 
             // Logger.recordOutput("Robot/" + camera.getName(), getInputs.pose);

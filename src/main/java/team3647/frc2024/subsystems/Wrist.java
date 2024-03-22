@@ -2,11 +2,6 @@ package team3647.frc2024.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
-import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.util.InverseKinematics;
 import team3647.lib.TalonFXSubsystem;
 
@@ -38,11 +33,11 @@ public class Wrist extends TalonFXSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-        Logger.recordOutput(
-                "Wrist/Pose",
-                new Pose3d(
-                        new Translation3d(0.28, 0, 0.18),
-                        new Rotation3d(0, -Units.degreesToRadians(getAngle()), 0)));
+        // Logger.recordOutput(
+        //         "Wrist/Pose",
+        //         new Pose3d(
+        //                 new Translation3d(0.28, 0, 0.18),
+        //                 new Rotation3d(0, -Units.degreesToRadians(getAngle()), 0)));
         // Logger.recordOutput(
         //         "Intake/Pose",
         //         new Pose3d(

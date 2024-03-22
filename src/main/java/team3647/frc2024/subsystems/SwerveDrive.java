@@ -268,7 +268,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public void setRobotPose(Pose2d pose) {
-        m_odometry.resetPosition(this.m_pigeon2.getRotation2d(), getModulePositions(), pose);
+        seedFieldRelative(pose);
         periodicIO = new PeriodicIO();
     }
 
@@ -327,8 +327,20 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     }
 
     public void setStuff(SwerveDriveState state) {
+        // SignalLogger.writeDoubleArray(
+        //         "odometry",
+        //         new double[] {
+        //             state.Pose.getX(), state.Pose.getY(), state.Pose.getRotation().getDegrees()
+        //         });
         periodicIO.pose = state.Pose;
         periodicIO.speeds = this.m_kinematics.toChassisSpeeds(state.ModuleStates);
+        // SignalLogger.writeDoubleArray(
+        //         "speeds",
+        //         new double[] {
+        //             periodicIO.speeds.vxMetersPerSecond,
+        //             periodicIO.speeds.vyMetersPerSecond,
+        //             periodicIO.speeds.omegaRadiansPerSecond
+        //         });
     }
 
     public Rotation2d getOdoRot() {
@@ -366,9 +378,10 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getOdoRot());
     }
 
-    public boolean shouldAddData(Pose2d visionPose) {
-        double distance = visionPose.minus(getOdoPose()).getTranslation().getNorm();
-        double angle = visionPose.getRotation().minus(getOdoPose().getRotation()).getDegrees();
+    public boolean shouldAddData(VisionMeasurement measurement) {
+        double distance = measurement.pose.minus(getOdoPose()).getTranslation().getNorm();
+        double angle =
+                measurement.pose.getRotation().minus(getOdoPose().getRotation()).getDegrees();
         return (distance < 1.5 && Math.abs(angle) < 15) || DriverStation.isAutonomous()
                 ? true
                 : false;
@@ -377,6 +390,14 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     public void addVisionData(VisionMeasurement data) {
         periodicIO.visionPose = data.pose;
         SmartDashboard.putNumber("timestamped viison", data.timestamp);
+        // SignalLogger.writeDoubleArray(
+        //         "vision pose",
+        //         new double[] {
+        //             data.pose.getX(),
+        //             data.pose.getY(),
+        //             data.pose.getRotation().getDegrees(),
+        //             data.timestamp
+        //         });
         addVisionMeasurement(data.pose, data.timestamp, data.stdDevs);
     }
 

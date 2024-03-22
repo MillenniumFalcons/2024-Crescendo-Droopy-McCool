@@ -12,7 +12,6 @@ import team3647.frc2024.commands.KickerCommands;
 import team3647.frc2024.commands.PivotCommands;
 import team3647.frc2024.commands.ShooterCommands;
 import team3647.frc2024.commands.WristCommands;
-import team3647.frc2024.constants.ShooterConstants;
 
 public class Superstructure {
 
@@ -114,8 +113,7 @@ public class Superstructure {
     }
 
     public Command spinUp() {
-        return shooterCommands.setVelocity(
-                () -> getDesiredSpeed(), () -> ShooterConstants.kLeftRatio);
+        return shooterCommands.setVelocityIndep(() -> 28, () -> 18);
     }
 
     public Command spinUpTrap() {
@@ -137,7 +135,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 3.5, () -> 1);
+        return shooterCommands.setVelocity(() -> 5, () -> 1);
     }
 
     public double getDesiredSpeed() {
@@ -173,7 +171,7 @@ public class Superstructure {
     }
 
     public boolean flywheelReadY() {
-        return shooterLeft.velocityReached(15, 1);
+        return shooterRight.velocityGreater(27.5);
     }
 
     public boolean pivotReady() {
