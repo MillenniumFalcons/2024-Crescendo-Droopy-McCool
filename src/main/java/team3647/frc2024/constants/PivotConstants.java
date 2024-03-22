@@ -37,7 +37,7 @@ public class PivotConstants {
     public static final double kMaxDegree = 76.0;
     public static final double kMaxDegreeUnderStage = 30;
 
-    private static final double masterKP = 3;
+    private static final double masterKP = 23;
     private static final double masterKI = 0;
     private static final double masterKD = 0;
 
@@ -90,20 +90,26 @@ public class PivotConstants {
         // kMasterSpeakerMap.put(20.0, 26.5);
         kMasterSpeakerMap.put(0.0, 60.0);
         kMasterSpeakerMap.put(1.5, 55.0);
+        kMasterSpeakerMap.put(1.75, 52.0);
         kMasterSpeakerMap.put(2.0, 48.0);
-        kMasterSpeakerMap.put(2.5, 42.8);
-        kMasterSpeakerMap.put(3.0, 37.8);
-        kMasterSpeakerMap.put(3.5, 34.3);
-        kMasterSpeakerMap.put(4.0, 31.8);
-        kMasterSpeakerMap.put(4.5, 30.5);
-        kMasterSpeakerMap.put(5.0, 27.8);
-        kMasterSpeakerMap.put(5.5, 26.0);
-        kMasterSpeakerMap.put(6.0, 24.2);
-        kMasterSpeakerMap.put(6.5, 24.0);
-        kMasterSpeakerMap.put(7.0, 23.1);
-        kMasterSpeakerMap.put(7.5, 22.1);
-        kMasterSpeakerMap.put(8.0, 21.5);
-        kMasterSpeakerMap.put(20.0, 21.5);
+        kMasterSpeakerMap.put(2.25, 44.0);
+        kMasterSpeakerMap.put(2.5, 41.0);
+        kMasterSpeakerMap.put(2.75, 39.0);
+        kMasterSpeakerMap.put(3.0, 36.0);
+        kMasterSpeakerMap.put(3.25, 34.8);
+        kMasterSpeakerMap.put(3.5, 33.0);
+        kMasterSpeakerMap.put(3.75, 31.5);
+        kMasterSpeakerMap.put(4.0, 30.0);
+        kMasterSpeakerMap.put(4.25, 28.3);
+        kMasterSpeakerMap.put(4.5, 27.5);
+        kMasterSpeakerMap.put(5.0, 26.0);
+        kMasterSpeakerMap.put(5.5, 24.5);
+        kMasterSpeakerMap.put(6.0, 22.8);
+        kMasterSpeakerMap.put(6.5, 22.1);
+        kMasterSpeakerMap.put(7.0, 21.6);
+        kMasterSpeakerMap.put(7.5, 21.3);
+        kMasterSpeakerMap.put(8.0, 21.3);
+        kMasterSpeakerMap.put(20.0, 21.3);
         kMasterAmpMap.put(0.0, 60.0);
         kMasterAmpMap.put(100.0, 60.0);
         Slot0Configs kMasterSlot0 = new Slot0Configs();
@@ -118,7 +124,7 @@ public class PivotConstants {
         kMasterSlot0.kP = masterKP;
         kMasterSlot0.kI = masterKI;
         kMasterSlot0.kD = masterKD;
-        kMasterSlot0.kS = 0.21;
+        kMasterSlot0.kS = 0.5;
         kMasterSlot0.kA = 0;
         kMasterSlot0.kV = 0;
         kMasterCurrent.StatorCurrentLimitEnable = true;
