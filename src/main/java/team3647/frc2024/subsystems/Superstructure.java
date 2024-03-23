@@ -116,6 +116,10 @@ public class Superstructure {
         return shooterCommands.setVelocityIndep(() -> 28, () -> 18);
     }
 
+    public Command spinUpPreload() {
+        return shooterCommands.setVelocityIndep(() -> 28, () -> 28);
+    }
+
     public Command spinUpTrap() {
         return shooterCommands.setVelocity(() -> 7, () -> 1.1);
     }
@@ -410,6 +414,14 @@ public class Superstructure {
     public Command stowIntake() {
         return Commands.parallel(
                 prep(),
+                wristCommands
+                        .setAngle(wristStowAngle)
+                        .until(() -> wrist.angleReached(wristStowAngle, 5)),
+                intakeCommands.kill());
+    }
+
+    public Command stowIntakeNoPrep() {
+        return Commands.parallel(
                 wristCommands
                         .setAngle(wristStowAngle)
                         .until(() -> wrist.angleReached(wristStowAngle, 5)),

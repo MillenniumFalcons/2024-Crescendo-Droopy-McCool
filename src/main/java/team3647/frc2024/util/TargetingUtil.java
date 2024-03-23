@@ -28,11 +28,15 @@ public class TargetingUtil {
     }
 
     public Command offsetUp() {
-        return Commands.runOnce(() -> offset += 1);
+        return Commands.runOnce(() -> offset += 0.2);
     }
 
     public Command offsetDown() {
-        return Commands.runOnce(() -> offset -= 1);
+        return Commands.runOnce(() -> offset -= 0.2);
+    }
+
+    public double getOffset() {
+        return offset;
     }
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
@@ -62,7 +66,7 @@ public class TargetingUtil {
         //                 + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
         //         (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
         //                 + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
-        SmartDashboard.putNumber("new anle", newAngle);
+        // SmartDashboard.putNumber("new anle", newAngle);
         // boolean shouldAddPi = Math.cos(newAngle) < 0;
         // double pi = shouldAddPi ? Math.PI : 0;
         // boolean shouldSubtract = Math.sin(newAngle) < 0;
@@ -137,7 +141,7 @@ public class TargetingUtil {
         if (robotAngleToPose < -Math.PI) {
             robotAngleToPose += 2 * Math.PI;
         }
-        SmartDashboard.putNumber("roobot angle", robotAngleToPose);
+        // SmartDashboard.putNumber("roobot angle", robotAngleToPose);
         double angleOnTheMove = newAngle;
         if (angleOnTheMove < 0) {
             angleOnTheMove += Math.PI;

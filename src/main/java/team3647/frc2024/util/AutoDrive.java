@@ -15,10 +15,10 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
+import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.SwerveDrive;
@@ -75,7 +75,8 @@ public class AutoDrive extends VirtualSubsystem {
     @Override
     public void periodic() {
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
-        SmartDashboard.putNumber("rot", targetRot);
+        Logger.recordOutput("offset", targeting.getOffset());
+        // SmartDashboard.putNumber("rot", targetRot);
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
@@ -88,7 +89,7 @@ public class AutoDrive extends VirtualSubsystem {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             targetRot = targeting.shootAtAmp().rotation;
         }
-        SmartDashboard.putNumber("auto drive", getRot());
+        // SmartDashboard.putNumber("auto drive", getRot());
     }
 
     public boolean swerveAimed() {

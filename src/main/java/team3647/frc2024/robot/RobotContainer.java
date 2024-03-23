@@ -81,7 +81,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.blueFour_S3F5F4F3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(0);
@@ -165,8 +165,8 @@ public class RobotContainer {
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());
 
-        mainController.dPadLeft.onTrue(targetingUtil.offsetUp());
-        mainController.dPadRight.onTrue(targetingUtil.offsetDown());
+        coController.dPadLeft.onTrue(targetingUtil.offsetUp());
+        coController.dPadRight.onTrue(targetingUtil.offsetDown());
 
         mainController.dPadUp.whileTrue(climbCommands.goUp());
         mainController.dPadUp.onFalse(climbCommands.kill());
@@ -251,7 +251,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("pivot interp angle", 40);
         SmartDashboard.putNumber("shoot speed", 15);
         SmartDashboard.putNumber("differential", 1.1);
-        printer.addDouble("shooter distance", targetingUtil::distance);
+        // printer.addDouble("shooter distance", targetingUtil::distance);
         // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
         // printer.addBoolean("wrist at stow", superstructure::wristAtStow);
         // printer.addDouble("climb len", () -> climb.getLength());

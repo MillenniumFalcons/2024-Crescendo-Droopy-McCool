@@ -69,6 +69,7 @@ public class RobotTracker extends VirtualSubsystem {
         setSpeeds();
         setCompensatedPose();
         setDistanceFromSpeaker();
+        Logger.recordOutput("Robot/Distance", getDistanceFromSpeaker());
         Logger.recordOutput("Robot/Compensated", periodicIO.compensatedPose);
         Logger.recordOutput("Robot/Pose", periodicIO.pose);
         // Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
