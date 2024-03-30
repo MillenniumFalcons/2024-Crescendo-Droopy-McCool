@@ -81,7 +81,7 @@ public class AutoDrive extends VirtualSubsystem {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
-            targetRot = targeting.shootAtSpeaker().rotation;
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
         }
         if (this.mode == DriveMode.INTAKE_FLOOR_PIECE || this.mode == DriveMode.INTAKE_IN_AUTO) {
             targetRot = Units.degreesToRadians(detector.getTX());
@@ -142,7 +142,7 @@ public class AutoDrive extends VirtualSubsystem {
         }
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
-                return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+                return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
             case SHOOT_AT_AMP:
                 return Units.radiansToDegrees(targeting.shootAtAmp().pivot);
             default:

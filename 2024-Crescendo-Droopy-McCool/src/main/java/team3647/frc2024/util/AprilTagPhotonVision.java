@@ -42,7 +42,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
     }
 
     public AprilTagPhotonVision(String camera, Transform3d robotToCam) {
-        this(camera, robotToCam, VecBuilder.fill(0.1, 0.1, 5));
+        this(camera, robotToCam, VecBuilder.fill(0.05, 0.05, 5));
     }
 
     public AprilTagId getId(int id) {

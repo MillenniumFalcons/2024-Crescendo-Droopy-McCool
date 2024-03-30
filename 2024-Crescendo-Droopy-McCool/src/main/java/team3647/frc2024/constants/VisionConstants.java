@@ -20,6 +20,7 @@ public class VisionConstants {
     public static final String right = "right";
     public static final String driver = "driver";
     public static final String zoom = "zoom";
+    public static final String amp = "amp";
 
     public static final Transform3d robotToBackLeft =
             new Transform3d(
@@ -62,8 +63,16 @@ public class VisionConstants {
                             Units.inchesToMeters(-6.5252), 0, Units.inchesToMeters(11.7638 + 1.75)),
                     new Rotation3d(0, -Math.PI / 18, 0).rotateBy(new Rotation3d(0, 0, Math.PI)));
 
-    public static final edu.wpi.first.math.Vector<N3> zoomStdDevs =
-            VecBuilder.fill(0.02, 0.02, 1000);
+    public static final Transform3d robotToAmp =
+            new Transform3d(
+                    new Translation3d(
+                            Units.inchesToMeters(-4.25),
+                            0,
+                            Units.inchesToMeters(22.1875 + 1.75 + 0.125)),
+                    new Rotation3d(0, -Units.degreesToRadians(35), 0)
+                            .rotateBy(new Rotation3d(0, 0, Math.PI)));
+
+    public static final edu.wpi.first.math.Vector<N3> zoomStdDevs = VecBuilder.fill(0.02, 0.02, 5);
 
     public static final Pose3d randompose =
             new Pose3d(new Translation3d(2, 2, 0), new Rotation3d());

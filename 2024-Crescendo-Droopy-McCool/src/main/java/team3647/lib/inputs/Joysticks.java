@@ -1,5 +1,8 @@
 package team3647.lib.inputs;
 
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -57,6 +60,12 @@ public class Joysticks {
         dPadUp = controller.povUp();
 
         rightStickMoved = new Trigger(this::rightStickMoved);
+    }
+
+    public Command rumble() {
+        return Commands.run(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.5))
+                .withTimeout(0.5)
+                .andThen(() -> controller.getHID().setRumble(RumbleType.kBothRumble, 0.0));
     }
 
     public double getLeftStickX() {

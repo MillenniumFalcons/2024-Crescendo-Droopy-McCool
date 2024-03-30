@@ -2,6 +2,7 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
@@ -65,7 +66,7 @@ public class RobotTracker extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        setPose();
+        // setPose();
         setSpeeds();
         setCompensatedPose();
         setDistanceFromSpeaker();
@@ -77,17 +78,24 @@ public class RobotTracker extends VirtualSubsystem {
     }
 
     public void setCompensatedPose() {
-        // final double shootSpeed = 15;
-        // Pose2d pose = new Pose2d(periodicIO.pose.getX(), periodicIO.pose.getY(), new
-        // Rotation2d());
-        // double time = periodicIO.distanceFromSpeaker / shootSpeed;
-        // var transform =
-        //         new Twist2d(
-        //                 periodicIO.speeds.vxMetersPerSecond * time,
-        //                 periodicIO.speeds.vyMetersPerSecond * time,
-        //                 0);
-        // var newPose = pose.exp(transform);
-        // periodicIO.compensatedPose = newPose;
+        periodicIO.pose = drivePose.get();
+        final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
+        double time = periodicIO.distanceFromSpeaker / shootSpeed;
+        var transform =
+                new Twist2d(
+                        periodicIO.speeds.vxMetersPerSecond * time,
+                        periodicIO.speeds.vyMetersPerSecond * time,
+                        0);
+        var middlePose = periodicIO.pose.exp(transform);
+        double newDistance = getDistanceFromSpeaker(middlePose);
+        double newSpeed = 15 * (1 - newDistance / 40);
+        double newTime = newDistance / newSpeed;
+        var newTransform =
+                new Twist2d(
+                        periodicIO.speeds.vxMetersPerSecond * newTime,
+                        periodicIO.speeds.vyMetersPerSecond * newTime,
+                        0);
+        periodicIO.compensatedPose = periodicIO.pose.exp(newTransform);
     }
 
     public void setDistanceFromSpeaker() {

@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -211,11 +212,6 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
     public void writePeriodicOutputs() {
         this.setControl(periodicIO.masterRequest);
         SmartDashboard.putNumber("heading", getRawHeading());
-
-        // frontLeft.goForwardForCharacterization(periodicIO.characterizationVoltage);
-        // frontRight.goForwardForCharacterization(periodicIO.characterizationVoltage);
-        // backLeft.goForwardForCharacterization(periodicIO.characterizationVoltage);
-        // backRight.goForwardForCharacterization(periodicIO.characterizationVoltage);
     }
 
     @Override
@@ -382,7 +378,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         double distance = measurement.pose.minus(getOdoPose()).getTranslation().getNorm();
         double angle =
                 measurement.pose.getRotation().minus(getOdoPose().getRotation()).getDegrees();
-        return (distance < 1.5 && Math.abs(angle) < 15) || DriverStation.isAutonomous()
+        return (distance < MathUtil.clamp(getVel(), 0.25, 1.5) && Math.abs(angle) < 15)
+                        || DriverStation.isAutonomous()
                 ? true
                 : false;
     }
@@ -468,7 +465,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         };
     }
 
-    public double getVel() {
+    public double getVel() { // squared
         return this.getChassisSpeeds().vxMetersPerSecond * this.getChassisSpeeds().vxMetersPerSecond
                 + this.getChassisSpeeds().vyMetersPerSecond
                         * this.getChassisSpeeds().vyMetersPerSecond;

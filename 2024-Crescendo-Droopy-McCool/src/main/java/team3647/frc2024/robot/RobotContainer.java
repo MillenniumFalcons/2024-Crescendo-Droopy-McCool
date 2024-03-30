@@ -81,7 +81,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(ClimbConstants.kInitialLength);
@@ -92,6 +92,8 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+
+        ledTriggers.inOutTrigger.onTrue(mainController.rumble());
 
         coController.dPadUp.onTrue(superstructure.currentUp());
         coController.dPadDown.onTrue(superstructure.currentDown());
@@ -104,7 +106,7 @@ public class RobotContainer {
         mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
         mainController
                 .leftTrigger
-                .and(() -> !coController.buttonY.getAsBoolean())
+                .and(goodToAmp)
                 .whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         // mainController.leftTrigger.onFalse(autoCommands.pathToAmp(tracker.getColor()));
         mainController
@@ -130,7 +132,7 @@ public class RobotContainer {
                 .onFalse(superstructure.stowFromBatterShoot().andThen(superstructure.ejectPiece()));
         mainController
                 .leftTrigger
-                .and(() -> !coController.buttonY.getAsBoolean())
+                .and(goodToAmp)
                 .and(
                         () ->
                                 (!superstructure.getIsIntaking()
@@ -141,7 +143,7 @@ public class RobotContainer {
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController
                 .leftTrigger
-                .and(() -> !coController.buttonY.getAsBoolean())
+                .and(goodToAmp)
                 .onFalse(
                         Commands.sequence(
                                 Commands.waitSeconds(1), autoDrive.setMode(DriveMode.NONE)));
@@ -176,10 +178,10 @@ public class RobotContainer {
         coController.dPadLeft.onTrue(targetingUtil.offsetUp());
         coController.dPadRight.onTrue(targetingUtil.offsetDown());
 
-        mainController.dPadUp.whileTrue(climbCommands.goUp());
-        mainController.dPadUp.onFalse(climbCommands.kill());
-        mainController.dPadDown.whileTrue(climbCommands.goDown());
-        mainController.dPadDown.onFalse(climbCommands.kill());
+        mainController.dPadUp.and(goodToClimb).whileTrue(climbCommands.goUp());
+        mainController.dPadUp.and(goodToClimb).onFalse(climbCommands.kill());
+        mainController.dPadDown.and(goodToClimb).whileTrue(climbCommands.goDown());
+        mainController.dPadDown.and(goodToClimb).onFalse(climbCommands.kill());
 
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
@@ -383,8 +385,14 @@ public class RobotContainer {
     public final AprilTagPhotonVision right =
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
+    public final AprilTagPhotonVision amp =
+            new AprilTagPhotonVision(VisionConstants.amp, VisionConstants.robotToAmp);
+
     public final AprilTagPhotonVision zoom =
-            new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
+            new AprilTagPhotonVision(
+                            VisionConstants.zoom,
+                            VisionConstants.robotToZoom,
+                            VisionConstants.zoomStdDevs)
                     .withPriority(true);
 
     private final VisionController visionController =
@@ -398,6 +406,7 @@ public class RobotContainer {
                     backRight,
                     left,
                     right,
+                    amp,
                     zoom);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
@@ -409,7 +418,7 @@ public class RobotContainer {
                     PivotConstants.robotToPivot2d,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
-                    true);
+                    false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
@@ -429,9 +438,10 @@ public class RobotContainer {
                     targetingUtil.exitVelocity(),
                     autoDrive::swerveAimed);
 
+    LEDTriggers ledTriggers = new LEDTriggers(superstructure, autoDrive::getMode);
+
     private final team3647.frc2024.subsystems.LEDs LEDs =
-            new team3647.frc2024.subsystems.LEDs(
-                    LEDConstants.m_candle, new LEDTriggers(superstructure, autoDrive::getMode));
+            new team3647.frc2024.subsystems.LEDs(LEDConstants.m_candle, ledTriggers);
 
     public final AutoCommands autoCommands =
             new AutoCommands(
@@ -449,6 +459,11 @@ public class RobotContainer {
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
     private final Trigger climbing = new Trigger(() -> climb.getPosition() > 1);
+
+    private final Trigger goodToAmp =
+            new Trigger(() -> !coController.buttonY.getAsBoolean() && climb.getPosition() < 5);
+
+    private final Trigger goodToClimb = new Trigger(() -> churro.getAngle() > 150);
 
     private final Trigger setPiece =
             new Trigger(() -> superstructure.current() && wrist.getAngle() < 5) // 41
