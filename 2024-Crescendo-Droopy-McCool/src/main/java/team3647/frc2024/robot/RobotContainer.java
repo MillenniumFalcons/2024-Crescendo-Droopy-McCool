@@ -103,7 +103,12 @@ public class RobotContainer {
 
         mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
-        mainController.rightTrigger.whileTrue(autoDrive.setMode(DriveMode.SHOOT_ON_THE_MOVE));
+
+        coController.buttonX.onTrue(superstructure.setShootModeMoving());
+        coController.buttonB.onTrue(superstructure.setShootModeStationary());
+
+        mainController.rightTrigger.whileTrue(
+                autoDrive.setMode(() -> superstructure.getWantedShootingMode()));
         mainController
                 .leftTrigger
                 .and(goodToAmp)
@@ -117,10 +122,10 @@ public class RobotContainer {
                                         || mainController.buttonY.getAsBoolean()))
                 .whileTrue(superstructure.shoot())
                 .onFalse(superstructure.stowFromShoot().andThen(superstructure.ejectPiece()));
-        coController
-                .buttonX
-                .whileTrue(autoCommands.pathToTrapTest())
-                .onFalse(superstructure.ejectPiece());
+        // coController
+        //         .buttonX
+        //         .whileTrue(autoCommands.pathToTrapTest())
+        //         .onFalse(superstructure.ejectPiece());
         // .onFalse(superstructure.ejectPiece());
         mainController
                 .rightBumper
@@ -401,7 +406,6 @@ public class RobotContainer {
                     swerve::shouldAddData,
                     swerve::seedFieldRelative,
                     coController.buttonA,
-                    coController.buttonX,
                     backLeft,
                     backRight,
                     left,

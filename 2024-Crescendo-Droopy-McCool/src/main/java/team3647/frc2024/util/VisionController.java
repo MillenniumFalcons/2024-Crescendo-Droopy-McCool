@@ -17,7 +17,6 @@ public class VisionController extends VirtualSubsystem {
     private final Function<VisionMeasurement, Boolean> shouldAddData;
     private final ArrayList<VisionMeasurement> list = new ArrayList<>();
     private final BooleanSupplier dataAddOverride;
-    private final BooleanSupplier turnOffVision;
     private int count;
 
     public VisionController(
@@ -25,14 +24,12 @@ public class VisionController extends VirtualSubsystem {
             Function<VisionMeasurement, Boolean> shouldAddData,
             Consumer<Pose2d> resetPose,
             BooleanSupplier dataAddOverride,
-            BooleanSupplier turnOffVision,
             AprilTagCamera... cameras) {
         this.cameras = cameras;
         this.resetPose = resetPose;
         this.shouldAddData = shouldAddData;
         this.botPoseAcceptor = visionAcceptor;
         this.dataAddOverride = dataAddOverride;
-        this.turnOffVision = turnOffVision;
     }
 
     @Override
@@ -65,7 +62,7 @@ public class VisionController extends VirtualSubsystem {
             // Logger.recordOutput("Robot/" + camera.getName(), getInputs.pose);
         }
 
-        if (!list.isEmpty() && !turnOffVision.getAsBoolean()) {
+        if (!list.isEmpty()) {
 
             Collections.sort(list);
 

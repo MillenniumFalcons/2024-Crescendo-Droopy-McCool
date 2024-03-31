@@ -22,7 +22,8 @@ public class LEDs extends VirtualSubsystem {
                     "intaking", LEDConstants.FLASH_ORANGE,
                     "in", LEDConstants.BREATHE_YELLOW,
                     "climb", LEDConstants.BREATHE_PINK,
-                    "ready", LEDConstants.FLASH_GREEN);
+                    "ready", LEDConstants.FLASH_GREEN,
+                    "sotm", LEDConstants.FLASH_PURPLE);
 
     String defaultState = "red";
 
@@ -43,9 +44,10 @@ public class LEDs extends VirtualSubsystem {
         triggers.noteTrigger.onTrue(setState("intaking"));
         triggers.noteTrigger.onFalse(setState(defaultState));
         triggers.targetTrigger.whileTrue(setState("ready"));
-        triggers.targetTrigger.onFalse(setState(defaultState));
-        triggers.climbTrigger.whileTrue(setState("climb"));
+        triggers.climbTrigger.onTrue(setState("climb"));
         triggers.climbTrigger.onFalse(setState(defaultState));
+        triggers.sotmTrigger.whileTrue(setState("sotm"));
+        triggers.placeholdTarget.onFalse(setState(defaultState));
     }
 
     private void setAnimation(Animation animation) {

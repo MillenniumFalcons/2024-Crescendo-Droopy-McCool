@@ -15,9 +15,11 @@ import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
@@ -67,6 +69,7 @@ public class AutoDrive extends VirtualSubsystem {
     public enum DriveMode {
         INTAKE_FLOOR_PIECE,
         SHOOT_AT_AMP,
+        SHOOT_STATIONARY,
         SHOOT_ON_THE_MOVE,
         INTAKE_IN_AUTO,
         NONE
@@ -76,12 +79,15 @@ public class AutoDrive extends VirtualSubsystem {
     public void periodic() {
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         Logger.recordOutput("offset", targeting.getOffset());
-        // SmartDashboard.putNumber("rot", targetRot);
+        SmartDashboard.putNumber("rot", targetRot);
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+        }
+        if (this.mode == DriveMode.SHOOT_STATIONARY) {
+            targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.INTAKE_FLOOR_PIECE || this.mode == DriveMode.INTAKE_IN_AUTO) {
             targetRot = Units.degreesToRadians(detector.getTX());
@@ -118,6 +124,10 @@ public class AutoDrive extends VirtualSubsystem {
         return Commands.runOnce(() -> this.mode = mode);
     }
 
+    public Command setMode(Supplier<DriveMode> mode) {
+        return Commands.run(() -> this.mode = mode.get());
+    }
+
     public DriveMode getMode() {
         return this.mode;
     }
@@ -129,6 +139,8 @@ public class AutoDrive extends VirtualSubsystem {
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
                 return targeting.shootAtSpeakerOnTheMove().shootSpeed;
+            case SHOOT_STATIONARY:
+                return targeting.shootAtSpeaker().shootSpeed;
             case SHOOT_AT_AMP:
                 return targeting.shootAtAmp().shootSpeed;
             default:
@@ -143,6 +155,8 @@ public class AutoDrive extends VirtualSubsystem {
         switch (mode) {
             case SHOOT_ON_THE_MOVE:
                 return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
+            case SHOOT_STATIONARY:
+                return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
             case SHOOT_AT_AMP:
                 return Units.radiansToDegrees(targeting.shootAtAmp().pivot);
             default:
@@ -188,7 +202,10 @@ public class AutoDrive extends VirtualSubsystem {
                         * MathUtil.clamp(
                                 Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond), 1, 100);
         if (Math.abs(k) < 0.1) {
-            k *= 3;
+            k *= 5;
+            if (Math.abs(k) < 0.05) {
+                k *= 2;
+            }
         }
         double setpoint = Math.abs(targetRot) < 0.002 ? 0 : k;
         return setpoint;

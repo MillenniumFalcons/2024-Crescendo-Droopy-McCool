@@ -13,6 +13,7 @@ import team3647.frc2024.commands.PivotCommands;
 import team3647.frc2024.commands.ShooterCommands;
 import team3647.frc2024.commands.WristCommands;
 import team3647.frc2024.constants.ChurroConstants;
+import team3647.frc2024.util.AutoDrive.DriveMode;
 
 public class Superstructure {
 
@@ -35,7 +36,7 @@ public class Superstructure {
     private final double pivotStowAngle = 40;
     private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
-    private final double churroDeployAngle = 62;
+    private final double churroDeployAngle = 65;
     private final double churroStowAngle = ChurroConstants.kInitialDegree;
     private final double shootSpeed;
     private double currentLimit = 34;
@@ -44,6 +45,8 @@ public class Superstructure {
     private boolean isIntaking = false;
 
     private final BooleanSupplier swerveAimed;
+
+    private DriveMode wantedShootingMode = DriveMode.SHOOT_STATIONARY;
 
     public Superstructure(
             Intake intake,
@@ -140,7 +143,19 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 5, () -> 1);
+        return shooterCommands.setVelocity(() -> 7, () -> 1);
+    }
+
+    public Command setShootModeStationary() {
+        return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.SHOOT_STATIONARY);
+    }
+
+    public Command setShootModeMoving() {
+        return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.SHOOT_ON_THE_MOVE);
+    }
+
+    public DriveMode getWantedShootingMode() {
+        return this.wantedShootingMode;
     }
 
     public double getDesiredSpeed() {
@@ -212,7 +227,7 @@ public class Superstructure {
 
     public Command shootAmp(DoubleSupplier swerveY) {
         return Commands.parallel(
-                prepAmp(), spinUpAmp(), deployChurro()
+                prepAmp(), spinUpAmp()
                 // Commands.sequence(
                 //         // Commands.waitSeconds(2.5),
                 //         Commands.waitUntil(
@@ -322,7 +337,12 @@ public class Superstructure {
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(
-                Commands.parallel(prepAmp(), spinUpAmp(), feed()).withTimeout(1),
+                Commands.parallel(
+                                deployChurro(),
+                                prepAmp(),
+                                spinUpAmp(),
+                                Commands.sequence(Commands.waitSeconds(0.3), feed()))
+                        .withTimeout(1),
                 Commands.deadline(
                         stowChurro(),
                         pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),

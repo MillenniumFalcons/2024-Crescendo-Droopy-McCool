@@ -53,6 +53,6 @@ public class Churro extends TalonFXSubsystem {
 
     @Override
     public String getName() {
-        return "Wrist";
+        return "Churro";
     }
 }

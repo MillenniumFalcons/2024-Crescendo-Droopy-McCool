@@ -77,8 +77,7 @@ public class LEDConstants {
     public static final Animation BREATHE_PINK =
             new StrobeAnimation(255, 0, 255, 128, 0.5, LEDCOUNT);
 
-    public static final Animation FLASH_PURPLE =
-            new StrobeAnimation(162, 25, 255, 128, 0.3, LEDCOUNT);
+    public static final Animation FLASH_PURPLE = new StrobeAnimation(49, 0, 71, 128, 0.3, LEDCOUNT);
 
     public static final Animation FLASH_ORANGE =
             new StrobeAnimation(255, 50, 0, 128, 0.5, LEDCOUNT);

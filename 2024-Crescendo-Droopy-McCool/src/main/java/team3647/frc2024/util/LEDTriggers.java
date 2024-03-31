@@ -23,7 +23,19 @@ public class LEDTriggers {
 
     public final Trigger inOutTrigger = new Trigger(() -> superstructure.hasPiece());
 
-    public final Trigger targetTrigger = new Trigger(() -> superstructure.aimedAtSpeaker());
+    public final Trigger placeholdTarget = new Trigger(() -> superstructure.aimedAtSpeaker());
+
+    public final Trigger targetTrigger =
+            new Trigger(
+                    () ->
+                            superstructure.aimedAtSpeaker()
+                                    && modeSupplier.get() == DriveMode.SHOOT_STATIONARY);
+
+    public final Trigger sotmTrigger =
+            new Trigger(
+                    () ->
+                            superstructure.aimedAtSpeaker()
+                                    && modeSupplier.get() == DriveMode.SHOOT_ON_THE_MOVE);
 
     public final Trigger climbTrigger = new Trigger(() -> superstructure.isClimbing());
 }
