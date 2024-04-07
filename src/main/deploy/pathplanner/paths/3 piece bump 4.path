@@ -1,0 +1,63 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 6.53,
+        "y": 1.68
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.53,
+        "y": 0.5619660112501053
+      },
+      "isLocked": false
+    },
+    {
+      "anchor": {
+        "x": 2.1,
+        "y": 1.1
+      },
+      "prevControl": {
+        "x": 3.4169567191065924,
+        "y": 0.3396546837127228
+      },
+      "nextControl": null,
+      "isLocked": false
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 0.85,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "shoot2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 540.0
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "3 piece bump",
+  "previewStartingState": null
+}

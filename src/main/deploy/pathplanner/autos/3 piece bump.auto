@@ -1,0 +1,48 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.8,
+      "y": 0.5
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "just score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 piece bump 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 piece bump 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 piece bump 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "3 piece bump 4"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null
+}
