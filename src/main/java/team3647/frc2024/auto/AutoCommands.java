@@ -81,6 +81,8 @@ public class AutoCommands {
 
     private final BooleanSupplier hasTarget;
 
+    private final BooleanSupplier noteNotSeen;
+
     private final Supplier<DriveMode> getMode;
 
     //     public final AutonomousMode blueFive_S1N1F1N2N3;
@@ -113,8 +115,6 @@ public class AutoCommands {
 
     public final AutonomousMode redFullCenterS1;
 
-    private boolean hasNote = false;
-
     //     public final AutonomousMode yes;
 
     public AutoCommands(
@@ -131,7 +131,9 @@ public class AutoCommands {
         this.hasTarget = hasTarget;
         this.getMode = getMode;
 
-        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.04);
+        noteNotSeen = new Trigger(() -> !hasTarget.getAsBoolean()).debounce(1);
+
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.08);
 
         // this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
@@ -192,14 +194,6 @@ public class AutoCommands {
     }
 
     public void registerCommands() {}
-
-    public Command setHasNote() {
-        return Commands.runOnce(() -> this.hasNote = true);
-    }
-
-    public Command setHasNoNote() {
-        return Commands.runOnce(() -> this.hasNote = false);
-    }
 
     public AutonomousMode getSix_S1F1F2N1N2N3ByColor(Alliance color) {
         return new AutonomousMode(six_S1F1F2N1N2N3(color), getInitial(s1_to_n1_to_f1));
@@ -288,13 +282,13 @@ public class AutoCommands {
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s15_to_f1, color),
                         target().withTimeout(0.2),
-                        getScoringSequenceF1F2(() -> this.hasNote, color),
+                        getScoringSequenceF1F2(() -> !noteNotSeen.getAsBoolean(), color),
                         target().withTimeout(0.2),
-                        getScoringSequenceF2F3(() -> this.hasNote, color),
+                        getScoringSequenceF2F3(() -> !noteNotSeen.getAsBoolean(), color),
                         target().withTimeout(0.2),
-                        getScoringSequenceF3F4(() -> this.hasNote, color),
+                        getScoringSequenceF3F4(() -> !noteNotSeen.getAsBoolean(), color),
                         target().withTimeout(0.2),
-                        getScoringSequenceF4F5(() -> this.hasNote, color)));
+                        getScoringSequenceF4F5(() -> !noteNotSeen.getAsBoolean(), color)));
     }
 
     public Command six_S1F1F2N1N2N3(Alliance color) {
@@ -472,12 +466,10 @@ public class AutoCommands {
                 superstructure
                         .intake()
                         .until(currentYes)
-                        .andThen(setHasNote())
                         .andThen(Commands.runOnce(() -> this.hasPiece = true))
                         .andThen(
                                 superstructure.passToShooterNoKicker(
-                                        new Trigger(() -> goodToGo(color))))
-                        .andThen(setHasNoNote()));
+                                        new Trigger(() -> goodToGo(color)))));
     }
 
     public Pose2d flipForPP(Pose2d pose) {

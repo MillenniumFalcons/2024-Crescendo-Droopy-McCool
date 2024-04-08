@@ -144,18 +144,10 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getShootSpeed() {
-        if (DriverStation.isAutonomous()) {
-            return targeting.shootAtSpeakerOnTheMove().shootSpeed;
-        }
-        switch (mode) {
-            case SHOOT_ON_THE_MOVE:
-                return targeting.shootAtSpeakerOnTheMove().shootSpeed;
-            case SHOOT_STATIONARY:
-                return targeting.shootAtSpeaker().shootSpeed;
-            case SHOOT_AT_AMP:
-                return targeting.shootAtAmp().shootSpeed;
-            default:
-                return 25;
+        if (targeting.distance() < 7) {
+            return 28;
+        } else {
+            return 36;
         }
     }
 

@@ -278,7 +278,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("pivot interp angle", 40);
         // SmartDashboard.putNumber("shoot speed", 15);
         // SmartDashboard.putNumber("differential", 1.1);
-        // printer.addDouble("shooter distance", targetingUtil::distance);
+        printer.addDouble("shooter distance", targetingUtil::distance);
         // printer.addBoolean("current sensing", () -> autoCommands.currentYes.getAsBoolean());
         // printer.addBoolean("wrist at stow", superstructure::wristAtStow);
         // printer.addDouble("climb len", () -> climb.getLength());

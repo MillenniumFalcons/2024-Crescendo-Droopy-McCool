@@ -31,13 +31,13 @@ public class ShooterConstants {
             kWheelRotationMeters / GlobalConstants.kFalconTicksPerRotation * kGearboxReduction;
 
     // tune ff
-    public static final double kS = 13.132; // 17.729; // 8.7167;
-    public static final double kV = 0.23336; // 0.28947; // 0.24226;
-    public static final double kA = 1.2516; // 0.88966; // 0.60231;
+    public static final double kS = 21.415 / 2; // 17.729; // 8.7167;
+    public static final double kV = 0.7985 / 2; // 0.28947; // 0.24226;
+    public static final double kA = 2.2601 / 2; // 0.88966; // 0.60231;
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double masterKP = 17.378;
+    public static final double masterKP = 15;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 

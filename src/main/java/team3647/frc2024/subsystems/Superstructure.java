@@ -126,7 +126,8 @@ public class Superstructure {
 
     public Command spinUp() {
         return shooterCommands.setVelocityIndep(
-                () -> feedShot.getAsBoolean() ? 15 : 28, () -> feedShot.getAsBoolean() ? 15 : 18);
+                () -> feedShot.getAsBoolean() ? 15 : shooterSpeedSupplier.getAsDouble(),
+                () -> feedShot.getAsBoolean() ? 15 : shooterSpeedSupplier.getAsDouble() * 18 / 28);
     }
 
     public Command spinUpPreload() {
