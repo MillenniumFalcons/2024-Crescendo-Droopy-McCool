@@ -67,6 +67,11 @@ public class AutoCommands {
     private final String s35_to_f5 = "s35 to f5";
     private final String s2_to_f3 = "s2 to f3";
     private final String shoot2_to_f4 = "shoot2 to f4";
+    private final String f1_to_f2 = "f1 to f2";
+    private final String f2_to_f3 = "f2 to f3";
+    private final String f3_to_f4 = "f3 to f4";
+    private final String f4_to_f5 = "f4 to f5";
+    private final String shoot3_to_f5 = "shoot3 to f5";
     private final String s15_straight_forward = "s15 straight forward";
     private final String trap_test = "trap test 2";
 
@@ -103,6 +108,12 @@ public class AutoCommands {
     public final AutonomousMode redSix_S1F1F2N1N2N3;
 
     public final AutonomousMode blueTest_S15;
+
+    public final AutonomousMode blueFullCenterS1;
+
+    public final AutonomousMode redFullCenterS1;
+
+    private boolean hasNote = false;
 
     //     public final AutonomousMode yes;
 
@@ -171,9 +182,24 @@ public class AutoCommands {
 
         this.blueFour_S1F1F2F3 =
                 new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1));
+
+        this.blueFullCenterS1 =
+                new AutonomousMode(fullCenterS1(Alliance.Blue), getInitial(s15_to_f1));
+
+        this.redFullCenterS1 =
+                new AutonomousMode(
+                        fullCenterS1(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
     }
 
     public void registerCommands() {}
+
+    public Command setHasNote() {
+        return Commands.runOnce(() -> this.hasNote = true);
+    }
+
+    public Command setHasNoNote() {
+        return Commands.runOnce(() -> this.hasNote = false);
+    }
 
     public AutonomousMode getSix_S1F1F2N1N2N3ByColor(Alliance color) {
         return new AutonomousMode(six_S1F1F2N1N2N3(color), getInitial(s1_to_n1_to_f1));
@@ -206,10 +232,69 @@ public class AutoCommands {
                         followChoreoPathWithOverrideFast(n2_to_n3, color)));
     }
 
+    public Command getScoringSequenceF1F2(BooleanSupplier hasNote, Alliance color) {
+        if (hasNote.getAsBoolean()) {
+            return Commands.sequence(
+                    followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                    target().withTimeout(0.2),
+                    followChoreoPathWithOverrideFast(shoot1_to_f2, color));
+        } else {
+            return followChoreoPathWithOverride(f1_to_f2, color);
+        }
+    }
+
+    public Command getScoringSequenceF2F3(BooleanSupplier hasNote, Alliance color) {
+        if (hasNote.getAsBoolean()) {
+            return Commands.sequence(
+                    followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                    target().withTimeout(0.2),
+                    followChoreoPathWithOverrideFast(shoot1_to_f3, color));
+        } else {
+            return followChoreoPathWithOverride(f2_to_f3, color);
+        }
+    }
+
+    public Command getScoringSequenceF3F4(BooleanSupplier hasNote, Alliance color) {
+        if (hasNote.getAsBoolean()) {
+            return Commands.sequence(
+                    followChoreoPathWithOverrideFast(f3_to_shoot2, color),
+                    target().withTimeout(0.2),
+                    followChoreoPathWithOverrideFast(shoot2_to_f4, color));
+        } else {
+            return followChoreoPathWithOverride(f3_to_f4, color);
+        }
+    }
+
+    public Command getScoringSequenceF4F5(BooleanSupplier hasNote, Alliance color) {
+        if (hasNote.getAsBoolean()) {
+            return Commands.sequence(
+                    followChoreoPathWithOverrideFast(f4_to_shoot3, color),
+                    target().withTimeout(0.2),
+                    followChoreoPathWithOverrideFast(shoot3_to_f5, color));
+        } else {
+            return followChoreoPathWithOverride(f4_to_f5, color);
+        }
+    }
+
     public Command testS1(Alliance color) {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(followChoreoPathWithOverride(s15_straight_forward, color)));
+    }
+
+    public Command fullCenterS1(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s15_to_f1, color),
+                        target().withTimeout(0.2),
+                        getScoringSequenceF1F2(() -> this.hasNote, color),
+                        target().withTimeout(0.2),
+                        getScoringSequenceF2F3(() -> this.hasNote, color),
+                        target().withTimeout(0.2),
+                        getScoringSequenceF3F4(() -> this.hasNote, color),
+                        target().withTimeout(0.2),
+                        getScoringSequenceF4F5(() -> this.hasNote, color)));
     }
 
     public Command six_S1F1F2N1N2N3(Alliance color) {
@@ -387,10 +472,12 @@ public class AutoCommands {
                 superstructure
                         .intake()
                         .until(currentYes)
+                        .andThen(setHasNote())
                         .andThen(Commands.runOnce(() -> this.hasPiece = true))
                         .andThen(
                                 superstructure.passToShooterNoKicker(
-                                        new Trigger(() -> goodToGo(color)))));
+                                        new Trigger(() -> goodToGo(color))))
+                        .andThen(setHasNoNote()));
     }
 
     public Pose2d flipForPP(Pose2d pose) {

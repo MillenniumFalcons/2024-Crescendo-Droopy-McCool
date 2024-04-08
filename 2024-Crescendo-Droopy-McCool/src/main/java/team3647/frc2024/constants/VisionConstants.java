@@ -43,19 +43,20 @@ public class VisionConstants {
     public static final Transform3d robotToLeft =
             new Transform3d(
                     new Translation3d(
-                            Units.inchesToMeters(1.4481),
-                            Units.inchesToMeters(11.0043),
-                            Units.inchesToMeters(18.4375 + 1.75)),
-                    new Rotation3d(0, -Math.PI / 9, 0).rotateBy(new Rotation3d(0, 0, Math.PI / 2)));
+                            Units.inchesToMeters(0.6556),
+                            Units.inchesToMeters(10.8914),
+                            Units.inchesToMeters(18.6206 + 1.75)),
+                    new Rotation3d(0, -Math.PI / 9, 0)
+                            .rotateBy(new Rotation3d(0, 0, Math.PI / 2 + Math.PI / 9)));
 
     public static final Transform3d robotToRight =
             new Transform3d(
                     new Translation3d(
-                            Units.inchesToMeters(1.4481),
-                            Units.inchesToMeters(-11.0043),
-                            Units.inchesToMeters(18.4375 + 1.75)),
+                            Units.inchesToMeters(0.6556),
+                            Units.inchesToMeters(-10.8914),
+                            Units.inchesToMeters(18.6206 + 1.75)),
                     new Rotation3d(0, -Math.PI / 9, 0)
-                            .rotateBy(new Rotation3d(0, 0, -Math.PI / 2)));
+                            .rotateBy(new Rotation3d(0, 0, -Math.PI / 2 - Math.PI / 9)));
 
     public static final Transform3d robotToZoom =
             new Transform3d(
