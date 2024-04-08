@@ -47,7 +47,7 @@ public class VisionConstants {
                             Units.inchesToMeters(10.8914),
                             Units.inchesToMeters(18.6206 + 1.75)),
                     new Rotation3d(0, -Math.PI / 9, 0)
-                            .rotateBy(new Rotation3d(0, 0, Math.PI / 2 + Math.PI / 9)));
+                            .rotateBy(new Rotation3d(0, 0, Math.PI / 2 - Math.PI / 9)));
 
     public static final Transform3d robotToRight =
             new Transform3d(
@@ -56,7 +56,7 @@ public class VisionConstants {
                             Units.inchesToMeters(-10.8914),
                             Units.inchesToMeters(18.6206 + 1.75)),
                     new Rotation3d(0, -Math.PI / 9, 0)
-                            .rotateBy(new Rotation3d(0, 0, -Math.PI / 2 - Math.PI / 9)));
+                            .rotateBy(new Rotation3d(0, 0, -Math.PI / 2 + Math.PI / 9)));
 
     public static final Transform3d robotToZoom =
             new Transform3d(
