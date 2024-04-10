@@ -3,6 +3,7 @@ package team3647.frc2024.util;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
@@ -15,6 +16,8 @@ public class RobotTracker extends VirtualSubsystem {
     private Pose2d ampPose;
     private Pose2d feedPose;
     private Alliance color;
+
+    private InterpolatingDoubleTreeMap shootSpeedMap;
 
     Supplier<Pose2d> drivePose;
     Supplier<ChassisSpeeds> driveSpeeds;
@@ -37,6 +40,7 @@ public class RobotTracker extends VirtualSubsystem {
             Transform2d robotToShooter,
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> driveSpeeds,
+            InterpolatingDoubleTreeMap shootSpeedMap,
             boolean redSide) {
         this.speakerPose = speakerPose;
         this.ampPose = ampPose;
@@ -44,6 +48,7 @@ public class RobotTracker extends VirtualSubsystem {
         this.feedPose = feedPose;
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
+        this.shootSpeedMap = shootSpeedMap;
         this.color = redSide ? Alliance.Red : Alliance.Blue;
         if (redSide) {
             this.feedPose = AllianceFlip.flipForPP(feedPose);
@@ -83,7 +88,11 @@ public class RobotTracker extends VirtualSubsystem {
 
     public void setCompensatedPose() {
         periodicIO.pose = drivePose.get();
-        final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
+        final double shootSpeed =
+                15
+                        / 28
+                        * shootSpeedMap.get(getDistanceFromSpeaker())
+                        * (1 - periodicIO.distanceFromSpeaker / 40);
         double time = periodicIO.distanceFromSpeaker / shootSpeed;
         var transform =
                 new Twist2d(
@@ -92,7 +101,8 @@ public class RobotTracker extends VirtualSubsystem {
                         0);
         var middlePose = periodicIO.pose.exp(transform);
         double newDistance = getDistanceFromSpeaker(middlePose);
-        double newSpeed = 15 * (1 - newDistance / 40);
+        double newSpeed =
+                15 / 28 * shootSpeedMap.get(getDistanceFromSpeaker()) * (1 - newDistance / 40);
         double newTime = newDistance / newSpeed;
         var newTransform =
                 new Twist2d(

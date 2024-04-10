@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 
 public class ShooterConstants {
@@ -31,13 +32,13 @@ public class ShooterConstants {
             kWheelRotationMeters / GlobalConstants.kFalconTicksPerRotation * kGearboxReduction;
 
     // tune ff
-    public static final double kS = 21.415 / 2; // 17.729; // 8.7167;
-    public static final double kV = 0.7985 / 2; // 0.28947; // 0.24226;
-    public static final double kA = 2.2601 / 2; // 0.88966; // 0.60231;
+    public static final double kS = 21.415; // 17.729; // 8.7167;
+    public static final double kV = 1.5; // 0.28947; // 0.24226;
+    public static final double kA = 0; // 0.88966; // 0.60231;
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double masterKP = 15;
+    public static final double masterKP = 17;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 
@@ -48,7 +49,47 @@ public class ShooterConstants {
     public static final double kLeftRatio = 1.65;
     public static final double kRightRatio = 2 - kLeftRatio;
 
+    public static final InterpolatingDoubleTreeMap kLeftMap = new InterpolatingDoubleTreeMap();
+
+    public static final InterpolatingDoubleTreeMap kRightMap = new InterpolatingDoubleTreeMap();
+
     static {
+        kLeftMap.put(0.0, 18.0);
+        kLeftMap.put(1.5, 18.0);
+        kLeftMap.put(2.0, 18.0);
+        kLeftMap.put(2.5, 20.0);
+        kLeftMap.put(3.0, 22.0);
+        kLeftMap.put(3.5, 24.0);
+        kLeftMap.put(4.0, 25.0);
+        kLeftMap.put(4.5, 27.0);
+        kLeftMap.put(5.0, 28.0);
+        kLeftMap.put(5.5, 28.0);
+        kLeftMap.put(6.0, 28.0);
+        kLeftMap.put(6.5, 30.0);
+        // kLeftMap.put(7.0, 19.2);
+        // kLeftMap.put(7.5, 18.7);
+        // kLeftMap.put(8.0, 18.0);
+        // kLeftMap.put(8.5, 17.5);
+        kLeftMap.put(20.0, 17.0);
+
+        kRightMap.put(0.0, 15.0);
+        kRightMap.put(1.5, 15.0);
+        kRightMap.put(2.0, 15.0);
+        kRightMap.put(2.5, 15.0);
+        kRightMap.put(3.0, 15.0);
+        kRightMap.put(3.5, 16.0);
+        kRightMap.put(4.0, 16.0);
+        kRightMap.put(4.5, 16.0);
+        kRightMap.put(5.0, 16.0);
+        kRightMap.put(5.5, 16.0);
+        kRightMap.put(6.0, 16.0);
+        kRightMap.put(6.5, 17.0);
+        // kRightMap.put(7.0, 19.2);
+        // kRightMap.put(7.5, 18.7);
+        // kRightMap.put(8.0, 18.0);
+        // kRightMap.put(8.5, 17.5);
+        kRightMap.put(20.0, 17.0);
+
         Slot0Configs kRightSlot0 = new Slot0Configs();
         Slot0Configs kLeftSlot0 = new Slot0Configs();
 
@@ -65,6 +106,8 @@ public class ShooterConstants {
 
         kRightMotor.NeutralMode = NeutralModeValue.Brake;
         kLeftMotor.NeutralMode = NeutralModeValue.Brake;
+        kRightMotor.PeakReverseDutyCycle = 0;
+        kLeftMotor.PeakReverseDutyCycle = 0;
         kRightMotor.Inverted = InvertedValue.CounterClockwise_Positive;
         kLeftMotor.Inverted = InvertedValue.Clockwise_Positive;
 

@@ -169,11 +169,18 @@ public class RobotContainer {
                 .leftBumper
                 .and(() -> detector.hasTarget())
                 .whileTrue(autoDrive.setMode(DriveMode.INTAKE_IN_AUTO));
+        // mainController
+        //         .leftBumper
+        //         .and(
+        //                 () ->
+        //                         autoDrive.getMode() != DriveMode.INTAKE_IN_AUTO
+        //                                 && autoDrive.getMode() != DriveMode.NONE)
+        //         .whileTrue(superstructure.wristDown());
         mainController
                 .leftBumper
                 .and(() -> !superstructure.getPiece())
-                .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)))
-                .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
+                .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)));
+        // .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
         setPiece.and(isIntaking)
                 .onTrue(superstructure.setPiece())
                 .onTrue(superstructure.passToShooter());
@@ -259,6 +266,7 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
+        printer.addBoolean("note seen", () -> !autoCommands.noteNotSeen.getAsBoolean());
         // SmartDashboard.putNumber("pivot output", 0);
         // // SmartDashboard.putNumber("wrist kg", 0);
         // // printer.addDouble("wanted pivot", superstructure::getWantedPivot);
@@ -276,6 +284,8 @@ public class RobotContainer {
         // // printer.addBoolean("pviot ready", superstructure::pivotReady);
         // // printer.addDouble("flywheel speed", shooterLeft::getVelocity);
         SmartDashboard.putNumber("pivot interp angle", 40);
+        SmartDashboard.putNumber("shoot speed left", 15);
+        SmartDashboard.putNumber("shoot speed right", 15);
         // SmartDashboard.putNumber("shoot speed", 15);
         // SmartDashboard.putNumber("differential", 1.1);
         printer.addDouble("shooter distance", targetingUtil::distance);
@@ -430,11 +440,18 @@ public class RobotContainer {
                     PivotConstants.robotToPivot2d,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
+                    ShooterConstants.kLeftMap,
                     false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
-    public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
+    public final AutoDrive autoDrive =
+            new AutoDrive(
+                    swerve,
+                    detector,
+                    targetingUtil,
+                    ShooterConstants.kLeftMap,
+                    ShooterConstants.kRightMap);
 
     public final Superstructure superstructure =
             new Superstructure(
@@ -446,7 +463,8 @@ public class RobotContainer {
                     wrist,
                     churro,
                     autoDrive::getPivotAngle,
-                    autoDrive::getShootSpeed,
+                    autoDrive::getShootSpeedLeft,
+                    autoDrive::getShootSpeedRight,
                     targetingUtil.exitVelocity(),
                     autoDrive::isFeed,
                     autoDrive::swerveAimed);

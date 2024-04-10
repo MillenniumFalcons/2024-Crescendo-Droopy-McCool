@@ -62,6 +62,10 @@ public class DrivetrainCommands {
                         motionXComponent = autoDriveTwist2d.dx;
                         motionTurnComponent = autoDriveTwist2d.dtheta;
 
+                        if (Math.abs(motionXComponent) < 1) {
+                            motionYComponent = autoDriveTwist2d.dy;
+                        }
+
                         var translation = new Translation2d(motionXComponent, motionYComponent);
 
                         var rotation = motionTurnComponent;

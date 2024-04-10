@@ -49,6 +49,8 @@ public class Pivot extends TalonFXSubsystem {
         this.maxKG = maxKG;
         this.tofBack = tofBack;
         this.tofFront = tofFront;
+
+        master.getPosition().setUpdateFrequency(250);
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -40,6 +41,8 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     private final MotionMagicExpoVoltage motionMagicExpoVoltage = new MotionMagicExpoVoltage(0);
     private final VelocityTorqueCurrentFOC velocityTorqueCurrentFOC =
             new VelocityTorqueCurrentFOC(0);
+    private final MotionMagicVelocityTorqueCurrentFOC motionMagicFOCVelocity =
+            new MotionMagicVelocityTorqueCurrentFOC(0);
     private final TorqueCurrentFOC torqueCurrentFOC = new TorqueCurrentFOC(0);
     public ControlRequest controlMode = new EmptyControl();
     private Follower masterOutput;
@@ -202,9 +205,16 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     protected void setVelocityFOC(double velocity, double feedforward) {
         controlMode = velocityTorqueCurrentFOC;
         velocityTorqueCurrentFOC.Slot = 0;
-        velocityTorqueCurrentFOC.Acceleration = velocity / velocityConversion * 2;
         velocityTorqueCurrentFOC.FeedForward = feedforward;
         velocityTorqueCurrentFOC.Velocity = velocity / velocityConversion;
+    }
+
+    protected void setVelocityFOCMotionMagic(double velocity, double feedforward) {
+        controlMode = motionMagicFOCVelocity;
+        motionMagicFOCVelocity.Acceleration = velocity / velocityConversion * 2;
+        motionMagicFOCVelocity.Velocity = velocity / velocityConversion;
+        motionMagicFOCVelocity.FeedForward = feedforward;
+        motionMagicFOCVelocity.Slot = 0;
     }
 
     /**

@@ -158,6 +158,10 @@ public class TargetingUtil {
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 
+    public double getCompensatedDistance() {
+        return robotTracker.getCompensatedDistanceFromSpeaker();
+    }
+
     public AimingParameters shootAtPose(Pose2d pose, double shootSpeed) {
         return shootAtPose(pose).withShootSpeed(shootSpeed);
     }

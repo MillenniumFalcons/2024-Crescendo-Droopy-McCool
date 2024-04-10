@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -34,6 +35,9 @@ public class AutoDrive extends VirtualSubsystem {
     private double targetRot = 0;
     private boolean enabled = true;
 
+    private InterpolatingDoubleTreeMap shootSpeedMapLeft;
+    private InterpolatingDoubleTreeMap shootSpeedMapRight;
+
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
                     6,
@@ -50,22 +54,34 @@ public class AutoDrive extends VirtualSubsystem {
     private final PIDController xController =
             new PIDController(1, 0, 0); // new PIDController(0.4, 0, 0);
 
-    private final PIDController fastXController = new PIDController(2, 0, 0);
+    private final ProfiledPIDController fastXController =
+            new ProfiledPIDController(2, 0, 0.3, new TrapezoidProfile.Constraints(5, 10));
 
     private final PIDController fasterXController =
             new PIDController(3, 0, 0); // new PIDController(0.4, 0, 0);
 
-    private final PIDController fastYController =
-            new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
+    private final ProfiledPIDController fastYController =
+            new ProfiledPIDController(
+                    2,
+                    0,
+                    0.3,
+                    new TrapezoidProfile.Constraints(5, 10)); // new PIDController(0.4, 0, 0);
 
     private final PIDController yController =
             new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
 
-    public AutoDrive(SwerveDrive swerve, NeuralDetector detector, TargetingUtil targeting) {
+    public AutoDrive(
+            SwerveDrive swerve,
+            NeuralDetector detector,
+            TargetingUtil targeting,
+            InterpolatingDoubleTreeMap shootSpeedMapLeft,
+            InterpolatingDoubleTreeMap shootSpeedMapRight) {
         this.detector = detector;
         this.swerve = swerve;
         this.targeting = targeting;
-        rotController.enableContinuousInput(-Math.PI, Math.PI);
+        this.shootSpeedMapLeft = shootSpeedMapLeft;
+        this.shootSpeedMapRight = shootSpeedMapRight;
+        // rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     public enum DriveMode {
@@ -143,17 +159,37 @@ public class AutoDrive extends VirtualSubsystem {
         return this.mode;
     }
 
-    public double getShootSpeed() {
-        if (targeting.distance() < 7) {
-            return 28;
-        } else {
-            return 36;
+    public double getShootSpeedLeft() {
+        if (DriverStation.isAutonomous()) {
+            return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
+        }
+        switch (mode) {
+            case SHOOT_STATIONARY:
+                return shootSpeedMapLeft.get(targeting.distance());
+            case SHOOT_ON_THE_MOVE:
+                return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
+            default:
+                return 15;
+        }
+    }
+
+    public double getShootSpeedRight() {
+        if (DriverStation.isAutonomous()) {
+            return shootSpeedMapRight.get(targeting.getCompensatedDistance());
+        }
+        switch (mode) {
+            case SHOOT_STATIONARY:
+                return shootSpeedMapRight.get(targeting.distance());
+            case SHOOT_ON_THE_MOVE:
+                return shootSpeedMapRight.get(targeting.getCompensatedDistance());
+            default:
+                return 15;
         }
     }
 
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
-            return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
+            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
         }
         switch (mode) {
             case FEED:
@@ -199,6 +235,7 @@ public class AutoDrive extends VirtualSubsystem {
     public double getRot() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             double k = rotController.calculate(0, targeting.rotToAmp());
+            k += rotController.getSetpoint().velocity;
             double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
             return setpoint;
         }

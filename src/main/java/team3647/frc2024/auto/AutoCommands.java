@@ -17,6 +17,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
@@ -81,7 +82,7 @@ public class AutoCommands {
 
     private final BooleanSupplier hasTarget;
 
-    private final BooleanSupplier noteNotSeen;
+    public final BooleanSupplier noteNotSeen;
 
     private final Supplier<DriveMode> getMode;
 
@@ -227,47 +228,43 @@ public class AutoCommands {
     }
 
     public Command getScoringSequenceF1F2(BooleanSupplier hasNote, Alliance color) {
-        if (hasNote.getAsBoolean()) {
-            return Commands.sequence(
-                    followChoreoPathWithOverrideFast(f1_to_shoot1, color),
-                    target().withTimeout(0.2),
-                    followChoreoPathWithOverrideFast(shoot1_to_f2, color));
-        } else {
-            return followChoreoPathWithOverride(f1_to_f2, color);
-        }
+        return new ConditionalCommand(
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        target().withTimeout(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f2, color)),
+                followChoreoPathWithOverride(f1_to_f2, color),
+                hasNote);
     }
 
     public Command getScoringSequenceF2F3(BooleanSupplier hasNote, Alliance color) {
-        if (hasNote.getAsBoolean()) {
-            return Commands.sequence(
-                    followChoreoPathWithOverrideFast(f2_to_shoot1, color),
-                    target().withTimeout(0.2),
-                    followChoreoPathWithOverrideFast(shoot1_to_f3, color));
-        } else {
-            return followChoreoPathWithOverride(f2_to_f3, color);
-        }
+        return new ConditionalCommand(
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                        target().withTimeout(0.2),
+                        followChoreoPathWithOverrideFast(shoot1_to_f3, color)),
+                followChoreoPathWithOverride(f2_to_f3, color),
+                hasNote);
     }
 
     public Command getScoringSequenceF3F4(BooleanSupplier hasNote, Alliance color) {
-        if (hasNote.getAsBoolean()) {
-            return Commands.sequence(
-                    followChoreoPathWithOverrideFast(f3_to_shoot2, color),
-                    target().withTimeout(0.2),
-                    followChoreoPathWithOverrideFast(shoot2_to_f4, color));
-        } else {
-            return followChoreoPathWithOverride(f3_to_f4, color);
-        }
+        return new ConditionalCommand(
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(f3_to_shoot2, color),
+                        target().withTimeout(0.2),
+                        followChoreoPathWithOverrideFast(shoot2_to_f4, color)),
+                followChoreoPathWithOverride(f3_to_f4, color),
+                hasNote);
     }
 
     public Command getScoringSequenceF4F5(BooleanSupplier hasNote, Alliance color) {
-        if (hasNote.getAsBoolean()) {
-            return Commands.sequence(
-                    followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                    target().withTimeout(0.2),
-                    followChoreoPathWithOverrideFast(shoot3_to_f5, color));
-        } else {
-            return followChoreoPathWithOverride(f4_to_f5, color);
-        }
+        return new ConditionalCommand(
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(f4_to_shoot3, color),
+                        target().withTimeout(0.2),
+                        followChoreoPathWithOverrideFast(shoot3_to_f5, color)),
+                followChoreoPathWithOverride(f4_to_f5, color),
+                hasNote);
     }
 
     public Command testS1(Alliance color) {
@@ -281,13 +278,9 @@ public class AutoCommands {
                 masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s15_to_f1, color),
-                        target().withTimeout(0.2),
                         getScoringSequenceF1F2(() -> !noteNotSeen.getAsBoolean(), color),
-                        target().withTimeout(0.2),
                         getScoringSequenceF2F3(() -> !noteNotSeen.getAsBoolean(), color),
-                        target().withTimeout(0.2),
                         getScoringSequenceF3F4(() -> !noteNotSeen.getAsBoolean(), color),
-                        target().withTimeout(0.2),
                         getScoringSequenceF4F5(() -> !noteNotSeen.getAsBoolean(), color)));
     }
 
@@ -554,14 +547,10 @@ public class AutoCommands {
                                 new PIDController(0, 0, 0)),
                         (ChassisSpeeds speeds) ->
                                 swerve.drive(
-                                        (!this.hasPiece
-                                                        && hasTarget.getAsBoolean()
-                                                        && swerve.getOdoPose().getX() > 5)
+                                        (!this.hasPiece && hasTarget.getAsBoolean())
                                                 ? autoDriveVelocities.get().dx
                                                 : speeds.vxMetersPerSecond * 0.6,
-                                        (!this.hasPiece
-                                                        && hasTarget.getAsBoolean()
-                                                        && swerve.getOdoPose().getX() > 5)
+                                        (!this.hasPiece && hasTarget.getAsBoolean())
                                                 ? autoDriveVelocities.get().dy
                                                 : speeds.vyMetersPerSecond * 0.6,
                                         deeThetaOnTheMove()),
