@@ -469,7 +469,6 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
             return;
         }
         SwerveSetpoint setpoint = generate(x, y, rotation);
-        // SmartDashboard.putNumber("generated x", setpoint.mChassisSpeeds.vxMetersPerSecond);
         periodicIO
                 .robotCentric
                 .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)

@@ -40,7 +40,7 @@ public class Superstructure {
     private final double churroDeployAngle = 65;
     private final double churroStowAngle = ChurroConstants.kInitialDegree;
     private final double shootSpeed;
-    private double currentLimit = 34;
+    private double currentLimit = 32;
     private boolean hasPiece = false;
     private boolean isClimbing;
     private boolean isIntaking = false;

@@ -100,7 +100,7 @@ public class AutoDrive extends VirtualSubsystem {
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
         if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeaker().rotation;
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
@@ -189,7 +189,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
-            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+            return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
         }
         switch (mode) {
             case FEED:
@@ -229,6 +229,13 @@ public class AutoDrive extends VirtualSubsystem {
         }
         double k = yController.calculate(Units.degreesToRadians(detector.getTX()), 0);
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
+        return setpoint;
+    }
+
+    public double getDriveRotAmp() {
+        double k = rotController.calculate(0, targeting.rotToAmp());
+        k += rotController.getSetpoint().velocity;
+        double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
         return setpoint;
     }
 

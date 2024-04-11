@@ -88,11 +88,8 @@ public class RobotTracker extends VirtualSubsystem {
 
     public void setCompensatedPose() {
         periodicIO.pose = drivePose.get();
-        final double shootSpeed =
-                15
-                        / 28
-                        * shootSpeedMap.get(getDistanceFromSpeaker())
-                        * (1 - periodicIO.distanceFromSpeaker / 40);
+        final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
+
         double time = periodicIO.distanceFromSpeaker / shootSpeed;
         var transform =
                 new Twist2d(
@@ -101,8 +98,7 @@ public class RobotTracker extends VirtualSubsystem {
                         0);
         var middlePose = periodicIO.pose.exp(transform);
         double newDistance = getDistanceFromSpeaker(middlePose);
-        double newSpeed =
-                15 / 28 * shootSpeedMap.get(getDistanceFromSpeaker()) * (1 - newDistance / 40);
+        double newSpeed = 15 * (1 - newDistance / 40);
         double newTime = newDistance / newSpeed;
         var newTransform =
                 new Twist2d(

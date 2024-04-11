@@ -81,7 +81,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFullCenterS1;
+        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(ClimbConstants.kInitialLength);
@@ -478,6 +478,7 @@ public class RobotContainer {
             new AutoCommands(
                     swerve,
                     autoDrive::getVelocities,
+                    autoDrive::getDriveRotAmp,
                     superstructure,
                     targetingUtil,
                     detector::hasTarget,
