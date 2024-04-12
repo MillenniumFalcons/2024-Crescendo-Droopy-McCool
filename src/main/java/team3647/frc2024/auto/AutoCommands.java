@@ -8,13 +8,11 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -125,8 +123,7 @@ public class AutoCommands {
 
     private MidlineNote lastNote = MidlineNote.ONE;
 
-    private final ProfiledPIDController fastXController =
-            new ProfiledPIDController(2, 0, 0.3, new TrapezoidProfile.Constraints(5, 10));
+    private final PIDController fastXController = new PIDController(0.1, 0, 0.3);
 
     //     public final AutonomousMode yes;
 
@@ -404,7 +401,7 @@ public class AutoCommands {
                                 fastXController.calculate(
                                         FieldConstants.kFieldLength / 2
                                                 - swerve.getOdoPose().getX()),
-                                -2,
+                                Math.abs(vel90.getAsDouble()) < 1 ? -2 : 0,
                                 vel90.getAsDouble());
                     }
                 },

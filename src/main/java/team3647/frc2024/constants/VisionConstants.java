@@ -61,7 +61,7 @@ public class VisionConstants {
     public static final Transform3d robotToZoom =
             new Transform3d(
                     new Translation3d(
-                            Units.inchesToMeters(-6.5252), 0, Units.inchesToMeters(11.7638 + 1.75)),
+                            Units.inchesToMeters(-5.6929), 0, Units.inchesToMeters(11.0746 + 1.75)),
                     new Rotation3d(0, -Math.PI / 18, 0).rotateBy(new Rotation3d(0, 0, Math.PI)));
 
     public static final Transform3d robotToAmp =

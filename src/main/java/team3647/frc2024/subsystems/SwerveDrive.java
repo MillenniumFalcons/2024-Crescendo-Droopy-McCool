@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.constants.SwerveDriveConstants;
@@ -469,6 +470,21 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
             return;
         }
         SwerveSetpoint setpoint = generate(x, y, rotation);
+        periodicIO
+                .robotCentric
+                .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(setpoint.mChassisSpeeds.vyMetersPerSecond)
+                .withRotationalRate(setpoint.mChassisSpeeds.omegaRadiansPerSecond);
+        periodicIO.masterRequest = periodicIO.robotCentric;
+    }
+
+    public void driveFieldOriented(DoubleSupplier x, DoubleSupplier y, DoubleSupplier rotation) {
+        if (!periodicIO.good) {
+            reset();
+            return;
+        }
+        SwerveSetpoint setpoint =
+                generate(x.getAsDouble(), y.getAsDouble(), rotation.getAsDouble());
         periodicIO
                 .robotCentric
                 .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)

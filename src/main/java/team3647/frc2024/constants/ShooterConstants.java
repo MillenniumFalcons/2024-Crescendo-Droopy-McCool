@@ -17,15 +17,19 @@ public class ShooterConstants {
             new TalonFX(
                     GlobalConstants.ShooterIds.kShooterRightId, GlobalConstants.subsystemsLoopName);
     public static final TalonFX kRightSlave =
-            new TalonFX(GlobalConstants.ShooterIds.kShooterRightSlaveId);
+            new TalonFX(
+                    GlobalConstants.ShooterIds.kShooterRightSlaveId,
+                    GlobalConstants.subsystemsLoopName);
     public static final TalonFX kLeftRoller =
             new TalonFX(
                     GlobalConstants.ShooterIds.kShooterLeftId, GlobalConstants.subsystemsLoopName);
     public static final TalonFX kLeftSlave =
-            new TalonFX(GlobalConstants.ShooterIds.kShooterLeftSlaveId);
+            new TalonFX(
+                    GlobalConstants.ShooterIds.kShooterLeftSlaveId,
+                    GlobalConstants.subsystemsLoopName);
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
-    public static final double kGearboxReduction = 1.5;
+    public static final double kGearboxReduction = 1.25;
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4.5);
     public static final double kWheelRotationMeters = kWheelDiameterMeters * Math.PI;
     public static final double kNativeVelToSurfaceMpS =
@@ -66,11 +70,11 @@ public class ShooterConstants {
         kLeftMap.put(5.5, 28.0);
         kLeftMap.put(6.0, 28.0);
         kLeftMap.put(6.5, 30.0);
-        // kLeftMap.put(7.0, 19.2);
-        // kLeftMap.put(7.5, 18.7);
-        // kLeftMap.put(8.0, 18.0);
-        // kLeftMap.put(8.5, 17.5);
-        kLeftMap.put(20.0, 17.0);
+        kLeftMap.put(7.0, 32.0);
+        kLeftMap.put(7.5, 32.0);
+        kLeftMap.put(8.0, 34.0);
+        kLeftMap.put(8.5, 36.0);
+        kLeftMap.put(20.0, 36.0);
 
         kRightMap.put(0.0, 15.0);
         kRightMap.put(1.5, 15.0);
@@ -84,11 +88,11 @@ public class ShooterConstants {
         kRightMap.put(5.5, 16.0);
         kRightMap.put(6.0, 16.0);
         kRightMap.put(6.5, 17.0);
-        // kRightMap.put(7.0, 19.2);
-        // kRightMap.put(7.5, 18.7);
-        // kRightMap.put(8.0, 18.0);
-        // kRightMap.put(8.5, 17.5);
-        kRightMap.put(20.0, 17.0);
+        kRightMap.put(7.0, 18.0);
+        kRightMap.put(7.5, 18.0);
+        kRightMap.put(8.0, 19.5);
+        kRightMap.put(8.5, 21.0);
+        kRightMap.put(20.0, 21.0);
 
         Slot0Configs kRightSlot0 = new Slot0Configs();
         Slot0Configs kLeftSlot0 = new Slot0Configs();
@@ -108,8 +112,8 @@ public class ShooterConstants {
         kLeftMotor.NeutralMode = NeutralModeValue.Brake;
         kRightMotor.PeakReverseDutyCycle = 0;
         kLeftMotor.PeakReverseDutyCycle = 0;
-        kRightMotor.Inverted = InvertedValue.CounterClockwise_Positive;
-        kLeftMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kRightMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kLeftMotor.Inverted = InvertedValue.CounterClockwise_Positive;
 
         kRightSlot0.kP = masterKP;
         kRightSlot0.kI = masterKI;

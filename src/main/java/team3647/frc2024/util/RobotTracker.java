@@ -2,7 +2,6 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -88,24 +87,24 @@ public class RobotTracker extends VirtualSubsystem {
 
     public void setCompensatedPose() {
         periodicIO.pose = drivePose.get();
-        final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
+        // final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
 
-        double time = periodicIO.distanceFromSpeaker / shootSpeed;
-        var transform =
-                new Twist2d(
-                        periodicIO.speeds.vxMetersPerSecond * time,
-                        periodicIO.speeds.vyMetersPerSecond * time,
-                        0);
-        var middlePose = periodicIO.pose.exp(transform);
-        double newDistance = getDistanceFromSpeaker(middlePose);
-        double newSpeed = 15 * (1 - newDistance / 40);
-        double newTime = newDistance / newSpeed;
-        var newTransform =
-                new Twist2d(
-                        periodicIO.speeds.vxMetersPerSecond * newTime,
-                        periodicIO.speeds.vyMetersPerSecond * newTime,
-                        0);
-        periodicIO.compensatedPose = periodicIO.pose.exp(newTransform);
+        // double time = periodicIO.distanceFromSpeaker / shootSpeed;
+        // var transform =
+        //         new Twist2d(
+        //                 periodicIO.speeds.vxMetersPerSecond * time,
+        //                 periodicIO.speeds.vyMetersPerSecond * time,
+        //                 0);
+        // var middlePose = periodicIO.pose.exp(transform);
+        // double newDistance = getDistanceFromSpeaker(middlePose);
+        // double newSpeed = 15 * (1 - newDistance / 40);
+        // double newTime = newDistance / newSpeed;
+        // var newTransform =
+        //         new Twist2d(
+        //                 periodicIO.speeds.vxMetersPerSecond * newTime,
+        //                 periodicIO.speeds.vyMetersPerSecond * newTime,
+        //                 0);
+        // periodicIO.compensatedPose = periodicIO.pose.exp(newTransform);
     }
 
     public void setDistanceFromSpeaker() {

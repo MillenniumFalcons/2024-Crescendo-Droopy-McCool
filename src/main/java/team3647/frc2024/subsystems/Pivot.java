@@ -40,7 +40,7 @@ public class Pivot extends TalonFXSubsystem {
             TimeOfFlight tofBack,
             TimeOfFlight tofFront) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
-        // super.addFollower(slave, false);
+        super.addFollower(slave, false);
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
         this.maxAngleNormal = maxAngle;
@@ -101,7 +101,7 @@ public class Pivot extends TalonFXSubsystem {
     }
 
     public boolean backPiece() {
-        return tofBack.getRange() < 250;
+        return tofBack.getRange() < 125;
     }
 
     public double tofBack() {

@@ -16,6 +16,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
@@ -96,11 +97,12 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("amp x", targeting.getAmpX());
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
         if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+            targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
@@ -161,7 +163,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getShootSpeedLeft() {
         if (DriverStation.isAutonomous()) {
-            return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
+            return shootSpeedMapLeft.get(targeting.distance());
         }
         switch (mode) {
             case SHOOT_STATIONARY:
@@ -175,7 +177,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getShootSpeedRight() {
         if (DriverStation.isAutonomous()) {
-            return shootSpeedMapRight.get(targeting.getCompensatedDistance());
+            return shootSpeedMapRight.get(targeting.distance());
         }
         switch (mode) {
             case SHOOT_STATIONARY:
@@ -189,7 +191,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
-            return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
+            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
         }
         switch (mode) {
             case FEED:
