@@ -37,7 +37,7 @@ public class Superstructure {
     private final double pivotStowAngle = 40;
     private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
-    private final double churroDeployAngle = 65;
+    private final double churroDeployAngle = 70;
     private final double churroStowAngle = ChurroConstants.kInitialDegree;
     private final double shootSpeed;
     private double currentLimit = 32;
@@ -129,7 +129,8 @@ public class Superstructure {
 
     public Command spinUp() {
         return shooterCommands.setVelocityIndep(
-                () -> feedShot.getAsBoolean() ? 15 : 28, () -> feedShot.getAsBoolean() ? 15 : 17);
+                () -> feedShot.getAsBoolean() ? 15 : shooterSpeedSupplierLeft.getAsDouble(),
+                () -> feedShot.getAsBoolean() ? 15 : shooterSpeedSupplierRight.getAsDouble());
     }
 
     public Command spinUpPreload() {
@@ -414,8 +415,8 @@ public class Superstructure {
     public Command shootThrough() {
         return Commands.parallel(intakeCommands.intake(), kickerCommands.fastKick())
                 // pivotCommands.setAngle(() -> 20))
-                .until(() -> pivot.backPiece())
-                // .andThen(slightReverse().withTimeout(0.1))
+                .until(() -> pivot.frontPiece())
+                .andThen(slightReverse().until(front))
                 // .withTimeout(1)
                 .andThen(
                         Commands.deadline(stowIntake(), setIsNotIntaking(), kickerCommands.kill()));

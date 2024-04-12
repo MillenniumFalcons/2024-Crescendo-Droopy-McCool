@@ -101,7 +101,7 @@ public class Pivot extends TalonFXSubsystem {
     }
 
     public boolean backPiece() {
-        return tofBack.getRange() < 75;
+        return tofBack.getRange() < 125;
     }
 
     public double tofBack() {

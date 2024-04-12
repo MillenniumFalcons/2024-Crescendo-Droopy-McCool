@@ -81,7 +81,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.redFullCenterS1;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climb.setEncoder(ClimbConstants.kInitialLength);
@@ -425,10 +425,10 @@ public class RobotContainer {
                     swerve::addVisionData,
                     swerve::shouldAddData,
                     swerve::seedFieldRelative,
+                    right,
+                    left,
                     backLeft,
                     backRight,
-                    left,
-                    right,
                     zoom);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
