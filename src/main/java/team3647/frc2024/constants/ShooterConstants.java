@@ -25,7 +25,7 @@ public class ShooterConstants {
             new TalonFX(GlobalConstants.ShooterIds.kShooterLeftSlaveId);
     private static final TalonFXConfiguration kMasterConfig = new TalonFXConfiguration();
 
-    public static final double kGearboxReduction = 1.5;
+    public static final double kGearboxReduction = 1.25;
     public static final double kWheelDiameterMeters = Units.inchesToMeters(4.5);
     public static final double kWheelRotationMeters = kWheelDiameterMeters * Math.PI;
     public static final double kNativeVelToSurfaceMpS =
@@ -108,8 +108,8 @@ public class ShooterConstants {
         kLeftMotor.NeutralMode = NeutralModeValue.Brake;
         kRightMotor.PeakReverseDutyCycle = 0;
         kLeftMotor.PeakReverseDutyCycle = 0;
-        kRightMotor.Inverted = InvertedValue.CounterClockwise_Positive;
-        kLeftMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kRightMotor.Inverted = InvertedValue.Clockwise_Positive;
+        kLeftMotor.Inverted = InvertedValue.CounterClockwise_Positive;
 
         kRightSlot0.kP = masterKP;
         kRightSlot0.kI = masterKI;

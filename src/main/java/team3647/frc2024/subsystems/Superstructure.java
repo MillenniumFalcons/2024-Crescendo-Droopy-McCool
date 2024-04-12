@@ -414,8 +414,8 @@ public class Superstructure {
     public Command shootThrough() {
         return Commands.parallel(intakeCommands.intake(), kickerCommands.fastKick())
                 // pivotCommands.setAngle(() -> 20))
-                .until(() -> pivot.frontPiece())
-                .andThen(slightReverse().withTimeout(0.1))
+                .until(() -> pivot.backPiece())
+                // .andThen(slightReverse().withTimeout(0.1))
                 // .withTimeout(1)
                 .andThen(
                         Commands.deadline(stowIntake(), setIsNotIntaking(), kickerCommands.kill()));
