@@ -399,9 +399,9 @@ public class AutoCommands {
                     } else {
                         swerve.driveFieldOriented(
                                 fastXController.calculate(
-                                        FieldConstants.kFieldLength / 2
-                                                - swerve.getOdoPose().getX()),
-                                Math.abs(vel90.getAsDouble()) < 1 ? -2 : 0,
+                                        swerve.getOdoPose().getX(),
+                                        FieldConstants.kFieldLength / 2),
+                                Math.abs(vel90.getAsDouble()) < 1 ? -3 : 0,
                                 vel90.getAsDouble());
                     }
                 },

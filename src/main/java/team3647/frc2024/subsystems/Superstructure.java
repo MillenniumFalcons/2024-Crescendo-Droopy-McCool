@@ -167,6 +167,10 @@ public class Superstructure {
         return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.SHOOT_ON_THE_MOVE);
     }
 
+    public Command setShootModeClean() {
+        return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.CLEAN);
+    }
+
     public Command setShootModeFeed() {
         return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.FEED);
     }
@@ -381,6 +385,14 @@ public class Superstructure {
         return Commands.parallel(wristCommands.setAngle(wristIntakeAngle), intakeCommands.intake());
     }
 
+    public Command intake(BooleanSupplier hasPiece) {
+        return Commands.parallel(
+                wristCommands.setAngle(wristIntakeAngle),
+                Commands.sequence(
+                        Commands.waitUntil(() -> !hasPiece.getAsBoolean()),
+                        intakeCommands.intake()));
+    }
+
     public Command wristDown() {
         return wristCommands.setAngle(wristIntakeAngle);
     }
@@ -398,6 +410,16 @@ public class Superstructure {
                         wristCommands.setAngle(() -> 110).until(() -> wrist.angleReached(110, 5)))
                 .withTimeout(0.3)
                 .andThen(shootThrough());
+    }
+
+    public Command passToShooterClean() {
+        return Commands.parallel(
+                        setIsIntaking(),
+                        intakeCommands.kill(),
+                        // pivotCommands.setAngle(() -> 20),
+                        wristCommands.setAngle(() -> 110).until(() -> wrist.angleReached(110, 5)))
+                .withTimeout(0.3)
+                .andThen(shootThroughClean());
     }
 
     public Command passToShooterNoKicker(Trigger shouldGO) {
@@ -420,6 +442,14 @@ public class Superstructure {
                 // .withTimeout(1)
                 .andThen(
                         Commands.deadline(stowIntake(), setIsNotIntaking(), kickerCommands.kill()));
+    }
+
+    public Command shootThroughClean() {
+        return Commands.parallel(intakeCommands.intake(), kickerCommands.fastKick())
+                // pivotCommands.setAngle(() -> 20))
+                .until(() -> pivot.frontPiece())
+                // .withTimeout(1)
+                .andThen(Commands.deadline(stowIntake(), setIsNotIntaking()));
     }
 
     public Command sourceIntake() {

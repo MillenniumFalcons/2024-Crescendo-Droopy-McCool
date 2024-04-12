@@ -104,6 +104,7 @@ public class RobotContainer {
         mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
         mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
 
+        coController.buttonY.onTrue(superstructure.setShootModeClean());
         coController.buttonX.onTrue(superstructure.setShootModeMoving());
         coController.buttonA.onTrue(superstructure.setShootModeFeed());
         coController.buttonB.onTrue(superstructure.setShootModeStationary());
@@ -122,7 +123,10 @@ public class RobotContainer {
         // mainController.leftTrigger.onFalse(autoCommands.pathToAmp(tracker.getColor()));
         mainController
                 .rightTrigger
-                .and(() -> (!superstructure.getIsIntaking()))
+                .and(
+                        () ->
+                                (!superstructure.getIsIntaking()
+                                        || autoDrive.getMode() == DriveMode.CLEAN))
                 .whileTrue(superstructure.shoot())
                 .onFalse(
                         superstructure
@@ -167,7 +171,7 @@ public class RobotContainer {
 
         mainController
                 .leftBumper
-                .and(() -> detector.hasTarget())
+                .and(() -> detector.hasTarget() && autoDrive.getMode() != DriveMode.CLEAN)
                 .whileTrue(autoDrive.setMode(DriveMode.INTAKE_IN_AUTO));
         // mainController
         //         .leftBumper
@@ -178,12 +182,24 @@ public class RobotContainer {
         //         .whileTrue(superstructure.wristDown());
         mainController
                 .leftBumper
-                .and(() -> !superstructure.getPiece())
+                .and(() -> !superstructure.getPiece() && autoDrive.getMode() != DriveMode.CLEAN)
                 .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)));
+        mainController
+                .leftBumper
+                .and(() -> !superstructure.getPiece() && autoDrive.getMode() == DriveMode.CLEAN)
+                .whileTrue(
+                        superstructure
+                                .intake(() -> superstructure.getPiece())
+                                .until(setPiece.and(isIntaking)));
         // .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
         setPiece.and(isIntaking)
+                .and(() -> autoDrive.getMode() != DriveMode.CLEAN)
                 .onTrue(superstructure.setPiece())
                 .onTrue(superstructure.passToShooter());
+        setPiece.and(isIntaking)
+                .and(() -> autoDrive.getMode() == DriveMode.CLEAN)
+                .onTrue(superstructure.setPiece())
+                .onTrue(superstructure.passToShooterClean());
         mainController
                 .leftBumper
                 .or(() -> superstructure.getPiece())
@@ -191,7 +207,7 @@ public class RobotContainer {
                 .onFalse(superstructure.kickerCommands.kill());
         mainController
                 .leftBumper
-                .and(() -> detector.hasTarget())
+                .and(() -> detector.hasTarget() && autoDrive.getMode() != DriveMode.CLEAN)
                 .onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());

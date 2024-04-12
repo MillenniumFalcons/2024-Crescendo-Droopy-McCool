@@ -40,10 +40,11 @@ public class TargetingUtil {
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
     public AimingParameters shootAtPoseOnTheMove(Pose2d pose) {
+        Pose2d shotPose = robotTracker.compensate(robotTracker.getPose());
         double pivotAngle =
                 Math.toRadians(
-                        speakerMap.get(robotTracker.getCompensatedDistanceFromSpeaker()) + offset);
-        final var toPose = robotTracker.getCompensatedPose().minus(pose).getTranslation();
+                        speakerMap.get(robotTracker.getDistanceFromSpeaker(shotPose)) + offset);
+        final var toPose = shotPose.minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())
                         * Math.signum(toPose.getY())
@@ -69,8 +70,7 @@ public class TargetingUtil {
         // boolean shouldSubtract = Math.sin(newAngle) < 0;
         // pi = shouldSubtract ? -pi : pi;
         // newAngle = newAngle + pi; // field angle to pose
-        double robotAngleToPose =
-                robotTracker.getCompensatedPose().getRotation().getRadians() - newAngle;
+        double robotAngleToPose = robotTracker.getPose().getRotation().getRadians() - newAngle;
         if (robotAngleToPose > Math.PI) {
             robotAngleToPose -= 2 * Math.PI;
         }
@@ -159,7 +159,7 @@ public class TargetingUtil {
     }
 
     public double getCompensatedDistance() {
-        return robotTracker.getCompensatedDistanceFromSpeaker();
+        return robotTracker.getDistanceFromSpeaker(robotTracker.compensate(robotTracker.getPose()));
     }
 
     public AimingParameters shootAtPose(Pose2d pose, double shootSpeed) {
@@ -186,10 +186,6 @@ public class TargetingUtil {
 
     public double distance() {
         return robotTracker.getDistanceFromSpeaker();
-    }
-
-    public Pose2d compensatedPose() {
-        return robotTracker.getCompensatedPose();
     }
 
     public Pose2d pose() {

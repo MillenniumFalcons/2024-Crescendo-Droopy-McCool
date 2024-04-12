@@ -2,6 +2,7 @@ package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -28,7 +29,6 @@ public class RobotTracker extends VirtualSubsystem {
     public static class PeriodicIO {
         private double distanceFromSpeaker = 0;
         private Pose2d pose = new Pose2d();
-        private Pose2d compensatedPose = new Pose2d();
         private ChassisSpeeds speeds;
     }
 
@@ -76,35 +76,37 @@ public class RobotTracker extends VirtualSubsystem {
     public void periodic() {
         // setPose();
         setSpeeds();
-        setCompensatedPose();
+        setPose();
         setDistanceFromSpeaker();
         Logger.recordOutput("Robot/Distance", getDistanceFromSpeaker());
-        Logger.recordOutput("Robot/Compensated", periodicIO.compensatedPose);
         Logger.recordOutput("Robot/Pose", periodicIO.pose);
         // Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }
 
-    public void setCompensatedPose() {
+    public void setPose() {
         periodicIO.pose = drivePose.get();
-        // final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
+    }
 
-        // double time = periodicIO.distanceFromSpeaker / shootSpeed;
-        // var transform =
-        //         new Twist2d(
-        //                 periodicIO.speeds.vxMetersPerSecond * time,
-        //                 periodicIO.speeds.vyMetersPerSecond * time,
-        //                 0);
-        // var middlePose = periodicIO.pose.exp(transform);
-        // double newDistance = getDistanceFromSpeaker(middlePose);
-        // double newSpeed = 15 * (1 - newDistance / 40);
-        // double newTime = newDistance / newSpeed;
-        // var newTransform =
-        //         new Twist2d(
-        //                 periodicIO.speeds.vxMetersPerSecond * newTime,
-        //                 periodicIO.speeds.vyMetersPerSecond * newTime,
-        //                 0);
-        // periodicIO.compensatedPose = periodicIO.pose.exp(newTransform);
+    public Pose2d compensate(Pose2d pose) {
+        final double shootSpeed = 15 * (1 - periodicIO.distanceFromSpeaker / 40);
+
+        double time = periodicIO.distanceFromSpeaker / shootSpeed;
+        var transform =
+                new Twist2d(
+                        periodicIO.speeds.vxMetersPerSecond * time,
+                        periodicIO.speeds.vyMetersPerSecond * time,
+                        0);
+        var middlePose = periodicIO.pose.exp(transform);
+        double newDistance = getDistanceFromSpeaker(middlePose);
+        double newSpeed = 15 * (1 - newDistance / 40);
+        double newTime = newDistance / newSpeed;
+        var newTransform =
+                new Twist2d(
+                        periodicIO.speeds.vxMetersPerSecond * newTime,
+                        periodicIO.speeds.vyMetersPerSecond * newTime,
+                        0);
+        return pose.exp(newTransform);
     }
 
     public void setDistanceFromSpeaker() {
@@ -118,24 +120,12 @@ public class RobotTracker extends VirtualSubsystem {
         return periodicIO.distanceFromSpeaker;
     }
 
-    public double getCompensatedDistanceFromSpeaker() {
-        return periodicIO.compensatedPose.minus(speakerPose).getTranslation().getNorm();
-    }
-
     public double getDistanceFromSpeaker(Pose2d pose) {
         return pose.transformBy(robotToShooter).minus(speakerPose).getTranslation().getNorm();
     }
 
-    public Pose2d getCompensatedPose() {
-        return periodicIO.compensatedPose;
-    }
-
     public Pose2d getPose() {
         return periodicIO.pose;
-    }
-
-    public void setPose() {
-        periodicIO.pose = drivePose.get();
     }
 
     public void setSpeeds() {

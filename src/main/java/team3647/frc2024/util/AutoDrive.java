@@ -90,6 +90,7 @@ public class AutoDrive extends VirtualSubsystem {
         SHOOT_AT_AMP,
         SHOOT_STATIONARY,
         SHOOT_ON_THE_MOVE,
+        CLEAN,
         FEED,
         INTAKE_IN_AUTO,
         NONE
