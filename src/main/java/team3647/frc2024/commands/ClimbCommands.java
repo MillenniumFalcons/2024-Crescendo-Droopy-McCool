@@ -5,48 +5,90 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.Set;
 import team3647.frc2024.constants.ClimbConstants;
-import team3647.frc2024.subsystems.Climb;
+import team3647.frc2024.subsystems.ClimbLeft;
+import team3647.frc2024.subsystems.ClimbRight;
 
 public class ClimbCommands {
     private final Set<Subsystem> requirements;
 
     public Command goUp() {
-        return Commands.run(() -> climb.openLoop(1), climb);
+        return Commands.run(
+                () -> {
+                    climbLeft.openLoop(1);
+                    climbRight.openLoop(1);
+                },
+                climbLeft,
+                climbRight);
     }
 
     public Command goDown() {
-        return Commands.run(() -> climb.openLoop(-1), climb);
+        return Commands.run(
+                () -> {
+                    climbLeft.openLoop(-1);
+                    climbRight.openLoop(-1);
+                },
+                climbLeft,
+                climbRight);
     }
 
     public Command kill() {
-        return Commands.run(() -> climb.openLoop(0), climb);
+        return Commands.runOnce(
+                () -> {
+                    climbLeft.openLoop(0);
+                    climbRight.openLoop(0);
+                },
+                climbLeft,
+                climbRight);
     }
 
-    public Command holdPositionAtCall() {
+    public Command holdRightPositionAtCall() {
         return new Command() {
             double degreeAtStart = ClimbConstants.kInitialLength;
 
             @Override
             public void initialize() {
-                degreeAtStart = climb.getLength();
+                degreeAtStart = climbRight.getLength();
             }
 
             @Override
             public void execute() {
-                climb.setPosition(degreeAtStart);
+                climbRight.setPosition(degreeAtStart);
             }
 
             @Override
             public Set<Subsystem> getRequirements() {
-                return requirements;
+                return Set.of(climbRight);
             }
         };
     }
 
-    public ClimbCommands(Climb climb) {
-        this.climb = climb;
-        this.requirements = Set.of(climb);
+    public Command holdLeftPositionAtCall() {
+        return new Command() {
+            double degreeAtStart = ClimbConstants.kInitialLength;
+
+            @Override
+            public void initialize() {
+                degreeAtStart = climbLeft.getLength();
+            }
+
+            @Override
+            public void execute() {
+                climbLeft.setPosition(degreeAtStart);
+            }
+
+            @Override
+            public Set<Subsystem> getRequirements() {
+                return Set.of(climbLeft);
+            }
+        };
     }
 
-    private final Climb climb;
+    public ClimbCommands(ClimbLeft climbLeft, ClimbRight climbRight) {
+        this.climbLeft = climbLeft;
+        this.climbRight = climbRight;
+        this.requirements = Set.of(climbLeft, climbRight);
+    }
+
+    private final ClimbLeft climbLeft;
+    private final ClimbRight climbRight;
 }

@@ -129,8 +129,8 @@ public class Superstructure {
 
     public Command spinUp() {
         return shooterCommands.setVelocityIndep(
-                () -> feedShot.getAsBoolean() ? 15 : shooterSpeedSupplierLeft.getAsDouble(),
-                () -> feedShot.getAsBoolean() ? 15 : shooterSpeedSupplierRight.getAsDouble());
+                () -> shooterSpeedSupplierRight.getAsDouble(),
+                () -> shooterSpeedSupplierLeft.getAsDouble());
     }
 
     public Command spinUpPreload() {
@@ -156,7 +156,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 6, () -> 1);
+        return shooterCommands.setVelocity(() -> 4, () -> 1);
     }
 
     public Command setShootModeStationary() {
@@ -236,8 +236,25 @@ public class Superstructure {
                 );
     }
 
+    public Command cleanShoot() {
+        return Commands.parallel(
+                prep(), spinUp(), kickerCommands.fastKick()
+                // Commands.sequence(
+                //         // Commands.waitSeconds(2.5),
+                //         Commands.waitUntil(
+                //                         () ->
+                //                                 shooterLeft.velocityReached(30, 2)
+                //                                         && pivot.angleReached(
+                //                                                 pivotAngleSupplier.getAsDouble(),
+                // 5)
+                //                                         && swerveAimed.getAsBoolean())
+                //                 .withTimeout(1.2),
+                //         feed())
+                );
+    }
+
     public boolean aimedAtSpeaker() {
-        return shooterLeft.velocityGreater(shooterSpeedSupplierLeft.getAsDouble() - 1)
+        return shooterRight.velocityGreater(shooterSpeedSupplierLeft.getAsDouble() - 1)
                 && pivot.angleReached(pivotAngleSupplier.getAsDouble(), 5)
                 && swerveAimed.getAsBoolean();
     }
@@ -368,7 +385,7 @@ public class Superstructure {
     }
 
     public boolean hasPiece() {
-        return getPiece() && (frontPiece());
+        return getPiece() && (frontPiece() || pivot.backPiece());
     }
 
     public Command stowFromBatterShoot() {
@@ -445,7 +462,7 @@ public class Superstructure {
     }
 
     public Command shootThroughClean() {
-        return Commands.parallel(intakeCommands.intake(), kickerCommands.fastKick())
+        return Commands.parallel(intakeCommands.intake())
                 // pivotCommands.setAngle(() -> 20))
                 .until(() -> pivot.frontPiece())
                 // .withTimeout(1)

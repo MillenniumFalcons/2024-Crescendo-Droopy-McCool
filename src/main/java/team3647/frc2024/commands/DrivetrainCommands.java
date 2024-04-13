@@ -60,12 +60,8 @@ public class DrivetrainCommands {
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
 
                     if (mode == DriveMode.SHOOT_AT_AMP && enabeld) {
-                        motionXComponent = autoDriveTwist2d.dx;
+                        // motionXComponent = autoDriveTwist2d.dx;
                         motionTurnComponent = autoDriveTwist2d.dtheta;
-
-                        if (Math.abs(motionXComponent) < 1) {
-                            motionYComponent = autoDriveTwist2d.dy;
-                        }
 
                         var translation = new Translation2d(motionXComponent, motionYComponent);
 

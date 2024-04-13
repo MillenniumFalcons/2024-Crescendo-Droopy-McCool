@@ -36,12 +36,12 @@ public class LEDs extends VirtualSubsystem {
     public LEDs(CANdle candle, LEDTriggers triggers) {
         this.m_candle = candle;
         m_candle.configBrightnessScalar(1);
-        m_candle.configLEDType(LEDStripType.RGB);
+        m_candle.configLEDType(LEDStripType.GRB);
         this.triggers = triggers;
 
         triggers.inOutTrigger.onTrue(setState("in"));
-        // triggers.inOutTrigger.onFalse(setState(defaultState));
-        triggers.outTrigger.onFalse(setState(defaultState));
+        triggers.inOutTrigger.onFalse(setState(defaultState));
+        // triggers.outTrigger.onFalse(setState(defaultState));
         triggers.noteTrigger.onTrue(setState("intaking"));
         triggers.noteTrigger.onFalse(setState(defaultState));
         triggers.targetTrigger.whileTrue(setState("ready"));

@@ -23,11 +23,11 @@ public class LEDTriggers {
 
     public final Trigger inOutTrigger = new Trigger(() -> superstructure.hasPiece());
 
-    public final Trigger outTrigger =
-            new Trigger(
-                    () ->
-                            modeSupplier.get() == DriveMode.SHOOT_STATIONARY
-                                    || modeSupplier.get() == DriveMode.SHOOT_ON_THE_MOVE);
+    //     public final Trigger outTrigger =
+    //             new Trigger(
+    //                     () ->
+    //                             modeSupplier.get() == DriveMode.SHOOT_STATIONARY
+    //                                     || modeSupplier.get() == DriveMode.SHOOT_ON_THE_MOVE);
 
     public final Trigger placeholdTarget = new Trigger(() -> superstructure.aimedAtSpeaker());
 

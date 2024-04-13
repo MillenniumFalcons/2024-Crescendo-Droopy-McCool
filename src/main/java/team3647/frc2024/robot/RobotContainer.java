@@ -28,7 +28,8 @@ import team3647.frc2024.constants.TunerConstants;
 import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
 import team3647.frc2024.subsystems.Churro;
-import team3647.frc2024.subsystems.Climb;
+import team3647.frc2024.subsystems.ClimbLeft;
+import team3647.frc2024.subsystems.ClimbRight;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
 import team3647.frc2024.subsystems.Pivot;
@@ -74,7 +75,8 @@ public class RobotContainer {
                 kicker,
                 pivot,
                 printer,
-                climb,
+                climbLeft,
+                climbRight,
                 churro);
 
         configureDefaultCommands();
@@ -84,7 +86,8 @@ public class RobotContainer {
         runningMode = autoCommands.redFullCenterS1;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
-        climb.setEncoder(ClimbConstants.kInitialLength);
+        climbLeft.setEncoder(ClimbConstants.kInitialLength);
+        climbRight.setEncoder(ClimbConstants.kInitialLength);
         churro.setEncoder(ChurroConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
 
@@ -126,8 +129,18 @@ public class RobotContainer {
                 .and(
                         () ->
                                 (!superstructure.getIsIntaking()
-                                        || autoDrive.getMode() == DriveMode.CLEAN))
+                                        && autoDrive.getMode() != DriveMode.CLEAN))
                 .whileTrue(superstructure.shoot())
+                .onFalse(
+                        superstructure
+                                .stowFromShoot()
+                                .andThen(superstructure.ejectPiece())
+                                .unless(mainController.buttonY));
+
+        mainController
+                .rightTrigger
+                .and(() -> (autoDrive.getMode() == DriveMode.CLEAN))
+                .whileTrue(superstructure.cleanShoot())
                 .onFalse(
                         superstructure
                                 .stowFromShoot()
@@ -198,7 +211,7 @@ public class RobotContainer {
                 .onTrue(superstructure.passToShooter());
         setPiece.and(isIntaking)
                 .and(() -> autoDrive.getMode() == DriveMode.CLEAN)
-                .onTrue(superstructure.setPiece())
+                .onTrue(superstructure.cleanShoot())
                 .onTrue(superstructure.passToShooterClean());
         mainController
                 .leftBumper
@@ -217,9 +230,9 @@ public class RobotContainer {
         coController.dPadRight.onTrue(targetingUtil.offsetDown());
 
         mainController.dPadUp.and(goodToClimb).whileTrue(climbCommands.goUp());
-        mainController.dPadUp.and(goodToClimb).onFalse(climbCommands.kill());
+        mainController.dPadUp.onFalse(climbCommands.kill());
         mainController.dPadDown.and(goodToClimb).whileTrue(climbCommands.goDown());
-        mainController.dPadDown.and(goodToClimb).onFalse(climbCommands.kill());
+        mainController.dPadDown.onFalse(climbCommands.kill());
 
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
@@ -267,7 +280,8 @@ public class RobotContainer {
                         autoDrive::getMode,
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
-        climb.setDefaultCommand(climbCommands.holdPositionAtCall());
+        climbLeft.setDefaultCommand(climbCommands.holdLeftPositionAtCall());
+        climbRight.setDefaultCommand(climbCommands.holdRightPositionAtCall());
         pivot.setDefaultCommand(superstructure.prep());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
@@ -289,6 +303,8 @@ public class RobotContainer {
         // printer.addDouble("back tof", pivot::tofBack);
         // printer.addBoolean("front tof", pivot::frontPiece);
         printer.addDouble("front tof", pivot::tofFront);
+        printer.addDouble("lef pos", climbLeft::getPosition);
+        printer.addDouble("right pos", climbRight::getPosition);
         // // printer.addDouble("wrist", wrist::getAngle);
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addDouble("churo", churro::getAngle);
@@ -388,9 +404,19 @@ public class RobotContainer {
                     PivotConstants.tofBack,
                     PivotConstants.tofFront);
 
-    private final Climb climb =
-            new Climb(
+    private final ClimbLeft climbLeft =
+            new ClimbLeft(
                     ClimbConstants.kLeft,
+                    1,
+                    1,
+                    ClimbConstants.kMinLength,
+                    ClimbConstants.kMaxDegreeLength,
+                    ClimbConstants.nominalVoltage,
+                    0,
+                    0.02);
+
+    private final ClimbRight climbRight =
+            new ClimbRight(
                     ClimbConstants.kRight,
                     1,
                     1,
@@ -411,7 +437,7 @@ public class RobotContainer {
                     ChurroConstants.kG,
                     0.02);
 
-    private final ClimbCommands climbCommands = new ClimbCommands(climb);
+    private final ClimbCommands climbCommands = new ClimbCommands(climbLeft, climbRight);
 
     private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
@@ -468,7 +494,8 @@ public class RobotContainer {
                     detector,
                     targetingUtil,
                     ShooterConstants.kLeftMap,
-                    ShooterConstants.kRightMap);
+                    ShooterConstants.kRightMap,
+                    ShooterConstants.kFeedMap);
 
     public final Superstructure superstructure =
             new Superstructure(
@@ -496,6 +523,7 @@ public class RobotContainer {
                     swerve,
                     autoDrive::getVelocities,
                     autoDrive::getDriveRotAmp,
+                    autoDrive::getDriveXCenter,
                     superstructure,
                     targetingUtil,
                     detector::hasTarget,
@@ -507,10 +535,15 @@ public class RobotContainer {
 
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
-    private final Trigger climbing = new Trigger(() -> climb.getPosition() > 1);
+    private final Trigger climbing =
+            new Trigger(() -> climbLeft.getPosition() > 1 && climbRight.getPosition() > 1);
 
     private final Trigger goodToAmp =
-            new Trigger(() -> !coController.buttonY.getAsBoolean() && climb.getPosition() < 5);
+            new Trigger(
+                    () ->
+                            !coController.buttonY.getAsBoolean()
+                                    && climbLeft.getPosition() < 5
+                                    && climbRight.getPosition() < 5);
 
     private final Trigger goodToClimb =
             new Trigger(() -> autoDrive.getMode() != DriveMode.SHOOT_AT_AMP);

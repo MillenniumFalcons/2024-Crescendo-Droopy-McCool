@@ -42,7 +42,7 @@ public class ShooterConstants {
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double masterKP = 17;
+    public static final double masterKP = 5;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 
@@ -56,6 +56,8 @@ public class ShooterConstants {
     public static final InterpolatingDoubleTreeMap kLeftMap = new InterpolatingDoubleTreeMap();
 
     public static final InterpolatingDoubleTreeMap kRightMap = new InterpolatingDoubleTreeMap();
+
+    public static final InterpolatingDoubleTreeMap kFeedMap = new InterpolatingDoubleTreeMap();
 
     static {
         kLeftMap.put(0.0, 18.0);
@@ -93,6 +95,11 @@ public class ShooterConstants {
         kRightMap.put(8.0, 19.5);
         kRightMap.put(8.5, 21.0);
         kRightMap.put(20.0, 21.0);
+
+        kFeedMap.put(0.0, 10.0);
+        kFeedMap.put(8.0, 10.0);
+        kFeedMap.put(12.0, 12.5);
+        kFeedMap.put(20.0, 12.5);
 
         Slot0Configs kRightSlot0 = new Slot0Configs();
         Slot0Configs kLeftSlot0 = new Slot0Configs();

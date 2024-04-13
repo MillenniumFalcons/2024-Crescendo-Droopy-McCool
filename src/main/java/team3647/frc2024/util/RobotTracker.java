@@ -42,7 +42,7 @@ public class RobotTracker extends VirtualSubsystem {
             InterpolatingDoubleTreeMap shootSpeedMap,
             boolean redSide) {
         this.speakerPose = speakerPose;
-        this.ampPose = ampPose;
+        this.ampPose = redSide ? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
         this.feedPose = feedPose;
         this.drivePose = drivePose;
@@ -52,7 +52,6 @@ public class RobotTracker extends VirtualSubsystem {
         if (redSide) {
             this.feedPose = AllianceFlip.flipForPP(feedPose);
             this.speakerPose = AllianceFlip.flipForPP(speakerPose);
-            this.ampPose = AllianceFlip.flipForPP(ampPose);
         }
 
         // DriverStation.getAlliance()
@@ -107,6 +106,17 @@ public class RobotTracker extends VirtualSubsystem {
                         periodicIO.speeds.vyMetersPerSecond * newTime,
                         0);
         return pose.exp(newTransform);
+    }
+
+    public Pose2d compensateFeed(Pose2d pose) {
+
+        double time = 0.3;
+        var transform =
+                new Twist2d(
+                        periodicIO.speeds.vxMetersPerSecond * time,
+                        periodicIO.speeds.vyMetersPerSecond * time,
+                        0);
+        return pose.exp(transform);
     }
 
     public void setDistanceFromSpeaker() {

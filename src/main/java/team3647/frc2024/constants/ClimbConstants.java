@@ -41,7 +41,8 @@ public class ClimbConstants {
 
     static {
         Slot0Configs kMasterSlot0 = new Slot0Configs();
-        MotorOutputConfigs kMasterMotorOutput = new MotorOutputConfigs();
+        MotorOutputConfigs kLeftMotorOutput = new MotorOutputConfigs();
+        MotorOutputConfigs kRightMotorOutput = new MotorOutputConfigs();
         SoftwareLimitSwitchConfigs kMasterSoftLimit = new SoftwareLimitSwitchConfigs();
         TalonFXConfigurator kLeftConfigurator = kLeft.getConfigurator();
         TalonFXConfigurator kRightConfigurator = kRight.getConfigurator();
@@ -51,18 +52,20 @@ public class ClimbConstants {
         kMasterSlot0.kP = masterKP;
         kMasterSlot0.kI = masterKI;
         kMasterSlot0.kD = masterKD;
-        kMasterMotorOutput.NeutralMode = NeutralModeValue.Brake;
-        kMasterMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        kLeftMotorOutput.NeutralMode = NeutralModeValue.Brake;
+        kLeftMotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        kRightMotorOutput.NeutralMode = NeutralModeValue.Brake;
+        kRightMotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         kMasterSoftLimit.ForwardSoftLimitEnable = true;
-        kMasterSoftLimit.ForwardSoftLimitThreshold = 90;
+        kMasterSoftLimit.ForwardSoftLimitThreshold = 80;
         kMasterSoftLimit.ReverseSoftLimitEnable = true;
         kMasterSoftLimit.ReverseSoftLimitThreshold = 0;
 
         kLeftConfigurator.apply(kMasterSlot0);
-        kLeftConfigurator.apply(kMasterMotorOutput);
+        kLeftConfigurator.apply(kLeftMotorOutput);
         kLeftConfigurator.apply(kMasterSoftLimit);
         kRightConfigurator.apply(kMasterSlot0);
-        kRightConfigurator.apply(kMasterMotorOutput);
+        kRightConfigurator.apply(kRightMotorOutput);
         kRightConfigurator.apply(kMasterSoftLimit);
     }
 

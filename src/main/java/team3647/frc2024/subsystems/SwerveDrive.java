@@ -478,6 +478,20 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         periodicIO.masterRequest = periodicIO.robotCentric;
     }
 
+    public void driveFieldOriented(DoubleSupplier x, double y, double rotation) {
+        if (!periodicIO.good) {
+            reset();
+            return;
+        }
+        SwerveSetpoint setpoint = generate(x.getAsDouble(), y, rotation);
+        periodicIO
+                .robotCentric
+                .withVelocityX(setpoint.mChassisSpeeds.vxMetersPerSecond)
+                .withVelocityY(setpoint.mChassisSpeeds.vyMetersPerSecond)
+                .withRotationalRate(setpoint.mChassisSpeeds.omegaRadiansPerSecond);
+        periodicIO.masterRequest = periodicIO.robotCentric;
+    }
+
     public void driveFieldOriented(DoubleSupplier x, DoubleSupplier y, DoubleSupplier rotation) {
         if (!periodicIO.good) {
             reset();

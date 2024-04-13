@@ -4,7 +4,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import java.util.function.BooleanSupplier;
 import team3647.lib.TalonFXSubsystem;
 
-public class Climb extends TalonFXSubsystem {
+public class ClimbRight extends TalonFXSubsystem {
 
     private final double minLength;
     private double maxLength;
@@ -13,9 +13,8 @@ public class Climb extends TalonFXSubsystem {
 
     private final double maxKG;
 
-    public Climb(
+    public ClimbRight(
             TalonFX master,
-            TalonFX slave,
             double ticksToMetersPerSec,
             double ticksToMeters,
             double minLength,
@@ -24,7 +23,6 @@ public class Climb extends TalonFXSubsystem {
             double maxKG,
             double kDt) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
-        super.addFollower(slave, true);
         this.minLength = minLength;
         this.maxLength = maxLength;
         this.maxKG = maxKG;
@@ -57,6 +55,6 @@ public class Climb extends TalonFXSubsystem {
 
     @Override
     public String getName() {
-        return "Climb";
+        return "Climb Right";
     }
 }

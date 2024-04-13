@@ -38,6 +38,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     private InterpolatingDoubleTreeMap shootSpeedMapLeft;
     private InterpolatingDoubleTreeMap shootSpeedMapRight;
+    private InterpolatingDoubleTreeMap feedMap;
 
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
@@ -76,12 +77,14 @@ public class AutoDrive extends VirtualSubsystem {
             NeuralDetector detector,
             TargetingUtil targeting,
             InterpolatingDoubleTreeMap shootSpeedMapLeft,
-            InterpolatingDoubleTreeMap shootSpeedMapRight) {
+            InterpolatingDoubleTreeMap shootSpeedMapRight,
+            InterpolatingDoubleTreeMap feedSpeedMap) {
         this.detector = detector;
         this.swerve = swerve;
         this.targeting = targeting;
         this.shootSpeedMapLeft = shootSpeedMapLeft;
         this.shootSpeedMapRight = shootSpeedMapRight;
+        this.feedMap = feedSpeedMap;
         // rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -98,12 +101,16 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("amp x", targeting.getAmpX());
+        // Logger.recordOutput("Robot/Compensated", targeting.32222getCompensatedPose());
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
+        SmartDashboard.putNumber("rot amo", targeting.rotToAmp());
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
         if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeaker().rotation;
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+        }
+        if (this.mode == DriveMode.CLEAN) {
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
@@ -164,9 +171,11 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getShootSpeedLeft() {
         if (DriverStation.isAutonomous()) {
-            return shootSpeedMapLeft.get(targeting.distance());
+            return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
         }
         switch (mode) {
+            case FEED:
+                return feedMap.get(targeting.getCompensatedDistance());
             case SHOOT_STATIONARY:
                 return shootSpeedMapLeft.get(targeting.distance());
             case SHOOT_ON_THE_MOVE:
@@ -178,9 +187,11 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getShootSpeedRight() {
         if (DriverStation.isAutonomous()) {
-            return shootSpeedMapRight.get(targeting.distance());
+            return shootSpeedMapRight.get(targeting.getCompensatedDistance());
         }
         switch (mode) {
+            case FEED:
+                return feedMap.get(targeting.getCompensatedDistance()) * 4 / 5;
             case SHOOT_STATIONARY:
                 return shootSpeedMapRight.get(targeting.distance());
             case SHOOT_ON_THE_MOVE:
@@ -192,7 +203,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getPivotAngle() {
         if (DriverStation.isAutonomous()) {
-            return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+            return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
         }
         switch (mode) {
             case FEED:
@@ -215,7 +226,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getX() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = fastXController.calculate(swerve.getOdoPose().getX(), targeting.getAmpX());
+            double k = fasterXController.calculate(targeting.pose().getX(), targeting.getAmpX());
             double setpoint = Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
         }
@@ -226,7 +237,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getY() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = fastYController.calculate(swerve.getOdoPose().getY(), targeting.getAmpY());
+            double k = fastYController.calculate(targeting.pose().getY(), targeting.getAmpY());
             double setpoint = Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
         }
@@ -236,15 +247,21 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double getDriveRotAmp() {
-        double k = rotController.calculate(0, targeting.rotToAmp());
+        double k = rotController.calculate(-targeting.rotToAmp(), 0);
         k += rotController.getSetpoint().velocity;
         double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
         return setpoint;
     }
 
+    public double getDriveXCenter() {
+        double k = 2 * (FieldConstants.kFieldLength / 2 - targeting.pose().getX());
+        double setpoint = Math.abs(k) < 0.04 ? 0 : k;
+        return setpoint;
+    }
+
     public double getRot() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = rotController.calculate(0, targeting.rotToAmp());
+            double k = rotController.calculate(-targeting.rotToAmp(), 0);
             k += rotController.getSetpoint().velocity;
             double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
             return setpoint;

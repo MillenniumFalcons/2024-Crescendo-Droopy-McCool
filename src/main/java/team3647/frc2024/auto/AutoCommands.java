@@ -91,6 +91,8 @@ public class AutoCommands {
 
     private final DoubleSupplier vel90;
 
+    private final DoubleSupplier driveX;
+
     //     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
@@ -123,7 +125,7 @@ public class AutoCommands {
 
     private MidlineNote lastNote = MidlineNote.ONE;
 
-    private final PIDController fastXController = new PIDController(0.1, 0, 0.3);
+    private final PIDController fastXController = new PIDController(2, 0, 0);
 
     //     public final AutonomousMode yes;
 
@@ -131,6 +133,7 @@ public class AutoCommands {
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
             DoubleSupplier vel90,
+            DoubleSupplier xSupplier,
             Superstructure superstructure,
             TargetingUtil targeting,
             BooleanSupplier hasTarget,
@@ -142,6 +145,7 @@ public class AutoCommands {
         this.hasTarget = hasTarget;
         this.getMode = getMode;
         this.vel90 = vel90;
+        this.driveX = xSupplier;
 
         noteNotSeen = new Trigger(() -> !hasTarget.getAsBoolean()).debounce(0.5);
 
@@ -398,10 +402,10 @@ public class AutoCommands {
                         swerve.drive(autoDriveVelocities.get().dx, autoDriveVelocities.get().dy, 0);
                     } else {
                         swerve.driveFieldOriented(
-                                fastXController.calculate(
-                                        swerve.getOdoPose().getX(),
-                                        FieldConstants.kFieldLength / 2),
-                                Math.abs(vel90.getAsDouble()) < 1 ? -3 : 0,
+                                driveX.getAsDouble(),
+                                Math.abs(vel90.getAsDouble()) < 1 && targeting.pose().getY() > 0.5
+                                        ? -3
+                                        : 0,
                                 vel90.getAsDouble());
                     }
                 },
