@@ -269,9 +269,13 @@ public class AutoDrive extends VirtualSubsystem {
         double k =
                 rotController.calculate(targetRot, 0)
                         * MathUtil.clamp(
-                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 1.5),
+                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 2), 1, 100)
+                        * MathUtil.clamp(
+                                3
+                                        / (Math.abs(swerve.getChassisSpeeds().omegaRadiansPerSecond)
+                                                + 0.1),
                                 1,
-                                100);
+                                4);
         k += rotController.getSetpoint().velocity;
         if (Math.abs(k) < 0.4 && swerve.getVel() < 0.2) {
             k = 0.4 * Math.signum(k);

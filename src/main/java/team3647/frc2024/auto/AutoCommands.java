@@ -76,6 +76,9 @@ public class AutoCommands {
     private final String f3_to_f4 = "f3 to f4";
     private final String f4_to_f5 = "f4 to f5";
     private final String shoot3_to_f5 = "shoot3 to f5";
+    private final String shoot4_to_f4 = "shoot4 to f4";
+    private final String f3_to_shoot4 = "f3 to shoot4";
+
     private final String s15_straight_forward = "s15 straight forward";
     private final String trap_test = "trap test 2";
 
@@ -339,15 +342,14 @@ public class AutoCommands {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
                 Commands.sequence(
-                        Commands.waitSeconds(0.8),
                         followChoreoPathWithOverrideFast(s35_to_f5, color),
                         followChoreoPathWithOverrideFast(f5_to_shoot3, color),
                         target().withTimeout(0.4),
-                        followChoreoPathWithOverrideFast(shoot3_to_f4, color),
+                        followChoreoPathWithOverrideFast(shoot4_to_f4, color),
                         followChoreoPathWithOverrideFast(f4_to_shoot3, color),
                         target().withTimeout(0.4),
                         followChoreoPathWithOverrideFast(shoot3_to_f3, color),
-                        followChoreoPathWithOverrideFast(f3_to_shoot2, color),
+                        followChoreoPathWithOverrideFast(f3_to_shoot4, color),
                         target()));
     }
 
