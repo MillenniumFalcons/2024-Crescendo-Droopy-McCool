@@ -34,6 +34,7 @@ public class Superstructure {
     private final DoubleSupplier pivotAngleSupplier;
     private final DoubleSupplier shooterSpeedSupplierLeft;
     private final DoubleSupplier shooterSpeedSupplierRight;
+    private final DoubleSupplier shooterSpeedThresholdSupplier;
     private final double pivotStowAngle = 40;
     private final double wristStowAngle = 100;
     private final double wristIntakeAngle = 0;
@@ -64,6 +65,7 @@ public class Superstructure {
             DoubleSupplier pivotAngleSupplier,
             DoubleSupplier shooterSpeedSupplerLeft,
             DoubleSupplier shooterSpeedSupplerRight,
+            DoubleSupplier shooterSpeedThresholdSupplier,
             double shootSpeed,
             BooleanSupplier feedShot,
             BooleanSupplier swerveAimed) {
@@ -76,6 +78,7 @@ public class Superstructure {
         this.pivotAngleSupplier = pivotAngleSupplier;
         this.shooterSpeedSupplierLeft = shooterSpeedSupplerLeft;
         this.shooterSpeedSupplierRight = shooterSpeedSupplerRight;
+        this.shooterSpeedThresholdSupplier = shooterSpeedThresholdSupplier;
         this.shootSpeed = shootSpeed;
         this.wrist = wrist;
         this.swerveAimed = swerveAimed;
@@ -254,7 +257,7 @@ public class Superstructure {
     }
 
     public boolean aimedAtSpeaker() {
-        return shooterRight.velocityGreater(shooterSpeedSupplierLeft.getAsDouble() - 1)
+        return shooterRight.velocityGreater(shooterSpeedThresholdSupplier.getAsDouble())
                 && pivot.angleReached(pivotAngleSupplier.getAsDouble(), 5)
                 && swerveAimed.getAsBoolean();
     }

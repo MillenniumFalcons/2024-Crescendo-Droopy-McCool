@@ -132,7 +132,11 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public boolean swerveAimed() {
-        return Math.abs(targetRot) < 0.035;
+        return Math.abs(targetRot) < 0.035 * MathUtil.clamp(4 / targeting.distance(), 1, 10);
+    }
+
+    public double flywheelThreshold() {
+        return getShootSpeedLeft() - (1 + MathUtil.clamp(10 - 2 * targeting.distance(), 0, 10));
     }
 
     private void setTargetPose(Pose2d targetPose) {
@@ -269,16 +273,18 @@ public class AutoDrive extends VirtualSubsystem {
         double k =
                 rotController.calculate(targetRot, 0)
                         * MathUtil.clamp(
-                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 2), 1, 100)
-                        * MathUtil.clamp(
-                                3
-                                        / (Math.abs(swerve.getChassisSpeeds().omegaRadiansPerSecond)
-                                                + 0.1),
+                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 1.5),
                                 1,
-                                4);
+                                100);
+        // * MathUtil.clamp(
+        //         3
+        //                 / (Math.abs(swerve.getChassisSpeeds().omegaRadiansPerSecond)
+        //                         + 0.1),
+        //         1,
+        //         4);
         k += rotController.getSetpoint().velocity;
         if (Math.abs(k) < 0.4 && swerve.getVel() < 0.2) {
-            k = 0.4 * Math.signum(k);
+            k = 0.5 * Math.signum(k);
         }
         Logger.recordOutput("k", k);
 

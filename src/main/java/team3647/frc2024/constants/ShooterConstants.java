@@ -36,13 +36,14 @@ public class ShooterConstants {
             kWheelRotationMeters / GlobalConstants.kFalconTicksPerRotation * kGearboxReduction;
 
     // tune ff
-    public static final double kS = 21.415; // 17.729; // 8.7167;
-    public static final double kV = 1.5; // 0.28947; // 0.24226;
+    public static final double kS = 9.8182; // 21.415; // 17.729; // 8.7167;
+    public static final double kV = 0.1822; // 1.5; // 0.28947; // 0.24226;
     public static final double kA = 0; // 0.88966; // 0.60231;
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double masterKP = 5;
+    public static final double leftKP = 15;
+    public static final double rightKP = 5;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 
@@ -60,41 +61,41 @@ public class ShooterConstants {
     public static final InterpolatingDoubleTreeMap kFeedMap = new InterpolatingDoubleTreeMap();
 
     static {
-        kLeftMap.put(0.0, 18.0);
-        kLeftMap.put(1.5, 18.0);
-        kLeftMap.put(2.0, 18.0);
-        kLeftMap.put(2.5, 20.0);
-        kLeftMap.put(3.0, 22.0);
-        kLeftMap.put(3.5, 24.0);
-        kLeftMap.put(4.0, 25.0);
-        kLeftMap.put(4.5, 27.0);
-        kLeftMap.put(5.0, 28.0);
-        kLeftMap.put(5.5, 28.0);
-        kLeftMap.put(6.0, 28.0);
-        kLeftMap.put(6.5, 30.0);
-        kLeftMap.put(7.0, 32.0);
-        kLeftMap.put(7.5, 32.0);
-        kLeftMap.put(8.0, 34.0);
+        kLeftMap.put(0.0, 28.0);
+        kLeftMap.put(1.5, 28.0);
+        kLeftMap.put(2.0, 28.0);
+        kLeftMap.put(2.5, 28.0);
+        kLeftMap.put(3.0, 28.0);
+        kLeftMap.put(3.5, 28.0);
+        kLeftMap.put(4.0, 28.0); //
+        kLeftMap.put(4.5, 28.0); //
+        kLeftMap.put(5.0, 28.0); //
+        kLeftMap.put(5.5, 28.0); //
+        kLeftMap.put(6.0, 28.0); //
+        kLeftMap.put(6.5, 30.0); //
+        kLeftMap.put(7.0, 32.0); //
+        kLeftMap.put(7.5, 34.0); //
+        kLeftMap.put(8.0, 36.0); //
         kLeftMap.put(8.5, 36.0);
         kLeftMap.put(20.0, 36.0);
 
-        kRightMap.put(0.0, 15.0);
-        kRightMap.put(1.5, 15.0);
-        kRightMap.put(2.0, 15.0);
-        kRightMap.put(2.5, 15.0);
-        kRightMap.put(3.0, 15.0);
+        kRightMap.put(0.0, 16.0);
+        kRightMap.put(1.5, 16.0);
+        kRightMap.put(2.0, 16.0);
+        kRightMap.put(2.5, 16.0);
+        kRightMap.put(3.0, 16.0);
         kRightMap.put(3.5, 16.0);
-        kRightMap.put(4.0, 16.0);
-        kRightMap.put(4.5, 16.0);
-        kRightMap.put(5.0, 16.0);
-        kRightMap.put(5.5, 16.0);
-        kRightMap.put(6.0, 16.0);
-        kRightMap.put(6.5, 17.0);
-        kRightMap.put(7.0, 18.0);
-        kRightMap.put(7.5, 18.0);
-        kRightMap.put(8.0, 19.5);
-        kRightMap.put(8.5, 21.0);
-        kRightMap.put(20.0, 21.0);
+        kRightMap.put(4.0, 16.0); //
+        kRightMap.put(4.5, 16.0); //
+        kRightMap.put(5.0, 16.0); //
+        kRightMap.put(5.5, 16.0); //
+        kRightMap.put(6.0, 16.0); //
+        kRightMap.put(6.5, 16.0); //
+        kRightMap.put(7.0, 16.0); //
+        kRightMap.put(7.5, 17.0); //
+        kRightMap.put(8.0, 18.0); //
+        kRightMap.put(8.5, 18.0);
+        kRightMap.put(20.0, 18.0);
 
         kFeedMap.put(0.0, 10.0);
         kFeedMap.put(8.0, 10.0);
@@ -122,14 +123,14 @@ public class ShooterConstants {
         kRightMotor.Inverted = InvertedValue.Clockwise_Positive;
         kLeftMotor.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        kRightSlot0.kP = masterKP;
+        kRightSlot0.kP = rightKP;
         kRightSlot0.kI = masterKI;
         kRightSlot0.kD = masterKD;
         kRightSlot0.kS = kS;
         kRightSlot0.kV = kV;
         kRightSlot0.kA = kA;
 
-        kLeftSlot0.kP = masterKP;
+        kLeftSlot0.kP = leftKP;
         kLeftSlot0.kI = masterKI;
         kLeftSlot0.kD = masterKD;
         kLeftSlot0.kS = kS;
