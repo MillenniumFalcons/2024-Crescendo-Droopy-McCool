@@ -206,10 +206,6 @@ public class Superstructure {
         return Commands.runOnce(() -> this.hasPiece = true);
     }
 
-    public Command geegeePrepForAuto() {
-        return pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble() - 6);
-    }
-
     public Command ejectPiece() {
         return Commands.runOnce(() -> this.hasPiece = false);
     }

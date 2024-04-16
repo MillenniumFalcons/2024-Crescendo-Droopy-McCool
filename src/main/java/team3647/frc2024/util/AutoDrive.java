@@ -211,7 +211,7 @@ public class AutoDrive extends VirtualSubsystem {
         }
         switch (mode) {
             case FEED:
-                return 40;
+                return 45;
             case SHOOT_ON_THE_MOVE:
                 return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
             case SHOOT_STATIONARY:

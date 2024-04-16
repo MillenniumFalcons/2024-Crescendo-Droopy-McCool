@@ -488,10 +488,10 @@ public class AutoCommands {
 
     public Command scorePreload() {
         return Commands.parallel(
-                        superstructure.spinUpPreload(),
+                        superstructure.spinUp(),
                         superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.8), superstructure.feed()))
-                .withTimeout(1.2);
+                        Commands.sequence(Commands.waitSeconds(0.7), superstructure.feed()))
+                .withTimeout(1.1);
     }
 
     public Pose2d getInitial(String path) {
@@ -576,7 +576,7 @@ public class AutoCommands {
                                                                                         .kFieldLength
                                                                                 - 5))
                                                 ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond * 0.5,
+                                                : speeds.vxMetersPerSecond * 0.8,
                                         (!hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX()
@@ -592,7 +592,7 @@ public class AutoCommands {
                                                                                         .kFieldLength
                                                                                 - 5))
                                                 ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond * 0.5,
+                                                : speeds.vyMetersPerSecond * 0.8,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
