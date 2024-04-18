@@ -264,6 +264,14 @@ public class TargetingUtil {
         }
     }
 
+    public double rotToOther90() {
+        if (robotTracker.getPose().getRotation().getRadians() < -Math.PI / 2) {
+            return Math.PI / 2 - (robotTracker.getPose().getRotation().getRadians() + 2 * Math.PI);
+        } else {
+            return Math.PI / 2 - robotTracker.getPose().getRotation().getRadians();
+        }
+    }
+
     public double getAmpX() {
         return robotTracker.getAmp().getX();
     }

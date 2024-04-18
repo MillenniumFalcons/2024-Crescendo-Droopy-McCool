@@ -257,6 +257,13 @@ public class AutoDrive extends VirtualSubsystem {
         return setpoint;
     }
 
+    public double getDriveRotOther90() {
+        double k = rotController.calculate(-targeting.rotToOther90(), 0);
+        k += rotController.getSetpoint().velocity;
+        double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+        return setpoint;
+    }
+
     public double getDriveXCenter() {
         double k = 2 * (FieldConstants.kFieldLength / 2 - targeting.pose().getX());
         double setpoint = Math.abs(k) < 0.04 ? 0 : k;

@@ -78,6 +78,7 @@ public class AutoCommands {
     private final String shoot3_to_f5 = "shoot3 to f5";
     private final String shoot4_to_f4 = "shoot4 to f4";
     private final String f3_to_shoot4 = "f3 to shoot4";
+    private final String shoot1_to_f1 = "shoot1 to f1";
 
     private final String s15_straight_forward = "s15 straight forward";
     private final String trap_test = "trap test 2";
@@ -93,6 +94,8 @@ public class AutoCommands {
     private final Supplier<DriveMode> getMode;
 
     private final DoubleSupplier vel90;
+
+    private final DoubleSupplier velOther90;
 
     private final DoubleSupplier driveX;
 
@@ -126,6 +129,10 @@ public class AutoCommands {
 
     public final AutonomousMode redFullCenterS1;
 
+    public final AutonomousMode blueFullCenterS3;
+
+    public final AutonomousMode redFullCenterS3;
+
     private MidlineNote lastNote = MidlineNote.ONE;
 
     private final PIDController fastXController = new PIDController(2, 0, 0);
@@ -136,6 +143,7 @@ public class AutoCommands {
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
             DoubleSupplier vel90,
+            DoubleSupplier velOther90,
             DoubleSupplier xSupplier,
             Superstructure superstructure,
             TargetingUtil targeting,
@@ -148,6 +156,7 @@ public class AutoCommands {
         this.hasTarget = hasTarget;
         this.getMode = getMode;
         this.vel90 = vel90;
+        this.velOther90 = velOther90;
         this.driveX = xSupplier;
 
         noteNotSeen = new Trigger(() -> !hasTarget.getAsBoolean()).debounce(0.5);
@@ -210,6 +219,13 @@ public class AutoCommands {
         this.redFullCenterS1 =
                 new AutonomousMode(
                         fullCenterS1(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+
+        this.blueFullCenterS3 =
+                new AutonomousMode(fullCenterS3(Alliance.Blue), getInitial(s35_to_f5));
+
+        this.redFullCenterS3 =
+                new AutonomousMode(
+                        fullCenterS3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)));
     }
 
     public enum MidlineNote {
@@ -281,6 +297,34 @@ public class AutoCommands {
                 followChoreoPathWithOverride(shoot3_to_f5, color));
     }
 
+    public Command getScoringSequenceF2F1(Alliance color) {
+        return Commands.sequence(
+                followChoreoPathWithOverrideFast(f2_to_shoot1, color),
+                target().withTimeout(0.2),
+                followChoreoPathWithOverride(shoot1_to_f1, color));
+    }
+
+    public Command getScoringSequenceF3F2(Alliance color) {
+        return Commands.sequence(
+                followChoreoPathWithOverrideFast(f3_to_shoot2, color),
+                target().withTimeout(0.2),
+                followChoreoPathWithOverride(shoot1_to_f2, color));
+    }
+
+    public Command getScoringSequenceF4F3(Alliance color) {
+        return Commands.sequence(
+                followChoreoPathWithOverrideFast(f4_to_shoot3, color),
+                target().withTimeout(0.2),
+                followChoreoPathWithOverride(shoot3_to_f3, color));
+    }
+
+    public Command getScoringSequenceF5F4(Alliance color) {
+        return Commands.sequence(
+                followChoreoPathWithOverrideFast(f5_to_shoot3, color),
+                target().withTimeout(0.2),
+                followChoreoPathWithOverride(shoot4_to_f4, color));
+    }
+
     public Command testS1(Alliance color) {
         return Commands.parallel(
                 masterSuperstructureSequence(color),
@@ -292,7 +336,17 @@ public class AutoCommands {
                 masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s15_to_f1, color),
-                        searchOrScore(() -> !noteNotSeen.getAsBoolean(), color).repeatedly()));
+                        searchOrScoreAmpToSource(() -> !noteNotSeen.getAsBoolean(), color)
+                                .repeatedly()));
+    }
+
+    public Command fullCenterS3(Alliance color) {
+        return Commands.parallel(
+                masterSuperstructureSequence(color),
+                Commands.sequence(
+                        followChoreoPathWithOverrideFast(s35_to_f5, color),
+                        searchOrScoreSourceToAmp(() -> !noteNotSeen.getAsBoolean(), color)
+                                .repeatedly()));
     }
 
     public Command six_S1F1F2N1N2N3(Alliance color) {
@@ -414,14 +468,44 @@ public class AutoCommands {
                 swerve);
     }
 
-    public Command searchOrScore(BooleanSupplier hasNote, Alliance color) {
+    public Command searchSourceToAmp() {
+        return Commands.run(
+                () -> {
+                    if (hasTarget.getAsBoolean()) {
+                        swerve.drive(autoDriveVelocities.get().dx, autoDriveVelocities.get().dy, 0);
+                    } else {
+                        swerve.driveFieldOriented(
+                                driveX.getAsDouble(),
+                                Math.abs(velOther90.getAsDouble()) < 1
+                                                && targeting.pose().getY()
+                                                        < FieldConstants.kFieldWidth - 0.5
+                                        ? 4
+                                        : 0,
+                                velOther90.getAsDouble());
+                    }
+                },
+                swerve);
+    }
+
+    public Command searchOrScoreAmpToSource(BooleanSupplier hasNote, Alliance color) {
         return new ConditionalCommand(
-                getScoringSequenceByPose(color),
-                searchAmpToSource().until(currentYes).andThen(getScoringSequenceByPose(color)),
+                getScoringSequenceByPoseAmpToSource(color),
+                searchAmpToSource()
+                        .until(currentYes)
+                        .andThen(getScoringSequenceByPoseAmpToSource(color)),
                 hasNote);
     }
 
-    public Command getScoringSequenceByPose(Alliance color) {
+    public Command searchOrScoreSourceToAmp(BooleanSupplier hasNote, Alliance color) {
+        return new ConditionalCommand(
+                getScoringSequenceByPoseSourceToAmp(color),
+                searchSourceToAmp()
+                        .until(currentYes)
+                        .andThen(getScoringSequenceByPoseSourceToAmp(color)),
+                hasNote);
+    }
+
+    public Command getScoringSequenceByPoseAmpToSource(Alliance color) {
         return new SelectCommand<>(
                 Map.of(
                         MidlineNote.ONE,
@@ -434,6 +518,22 @@ public class AutoCommands {
                         getScoringSequenceF4F5(color),
                         MidlineNote.FIVE,
                         followChoreoPathWithOverrideFast(f5_to_shoot3, color)),
+                () -> getNoteNumberByPose(swerve.getOdoPose().getY()));
+    }
+
+    public Command getScoringSequenceByPoseSourceToAmp(Alliance color) {
+        return new SelectCommand<>(
+                Map.of(
+                        MidlineNote.ONE,
+                        followChoreoPathWithOverrideFast(f1_to_shoot1, color),
+                        MidlineNote.TWO,
+                        getScoringSequenceF2F1(color),
+                        MidlineNote.THREE,
+                        getScoringSequenceF3F2(color),
+                        MidlineNote.FOUR,
+                        getScoringSequenceF4F3(color),
+                        MidlineNote.FIVE,
+                        getScoringSequenceF5F4(color)),
                 () -> getNoteNumberByPose(swerve.getOdoPose().getY()));
     }
 

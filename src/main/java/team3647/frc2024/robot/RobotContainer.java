@@ -524,6 +524,7 @@ public class RobotContainer {
                     swerve,
                     autoDrive::getVelocities,
                     autoDrive::getDriveRotAmp,
+                    autoDrive::getDriveRotOther90,
                     autoDrive::getDriveXCenter,
                     superstructure,
                     targetingUtil,

@@ -15602,6 +15602,173 @@
             "circleObstacles": [],
             "eventMarkers": [],
             "isTrajectoryStale": true
+        },
+        "shoot1 to f1": {
+            "waypoints": [
+                {
+                    "x": 5.406,
+                    "y": 6.737,
+                    "heading": 0.24776360937302858,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 10
+                },
+                {
+                    "x": 7.944450855255127,
+                    "y": 7.3950629234313965,
+                    "heading": 0.3152145956982849,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 40
+                }
+            ],
+            "trajectory": [
+                {
+                    "x": 5.406,
+                    "y": 6.737,
+                    "heading": 0.24776360937302855,
+                    "angularVelocity": -1.6235222940200825e-20,
+                    "velocityX": -8.048941695380958e-19,
+                    "velocityY": -2.086606994019546e-19,
+                    "timestamp": 0
+                },
+                {
+                    "x": 5.514197409594018,
+                    "y": 6.765048879504844,
+                    "heading": 0.25338455258787074,
+                    "angularVelocity": 0.0587581709557687,
+                    "velocityX": 1.1310347119517854,
+                    "velocityY": 0.29320717076654906,
+                    "timestamp": 0.09566232446332744
+                },
+                {
+                    "x": 5.730592226009334,
+                    "y": 6.82114663817409,
+                    "heading": 0.26462643428806537,
+                    "angularVelocity": 0.11751629247211559,
+                    "velocityX": 2.2620693952063333,
+                    "velocityY": 0.5864143380079231,
+                    "timestamp": 0.19132464892665488
+                },
+                {
+                    "x": 6.055184441315892,
+                    "y": 6.905293274492249,
+                    "heading": 0.2814892365705264,
+                    "angularVelocity": 0.1762742268396875,
+                    "velocityX": 3.3931039939316303,
+                    "velocityY": 0.8796214891900288,
+                    "timestamp": 0.2869869733899823
+                },
+                {
+                    "x": 6.468545099420667,
+                    "y": 7.012452062667675,
+                    "heading": 0.281489237838559,
+                    "angularVelocity": 1.3255299273740251e-8,
+                    "velocityX": 4.32103924338428,
+                    "velocityY": 1.1201775492337125,
+                    "timestamp": 0.38264929785330976
+                },
+                {
+                    "x": 6.881905757410416,
+                    "y": 7.119610850803908,
+                    "heading": 0.2814892391065977,
+                    "angularVelocity": 1.3255362503374202e-8,
+                    "velocityX": 4.321039243384487,
+                    "velocityY": 1.120177549232258,
+                    "timestamp": 0.4783116223166372
+                },
+                {
+                    "x": 7.2952664155240825,
+                    "y": 7.226769638967977,
+                    "heading": 0.2814892403746303,
+                    "angularVelocity": 1.325529888294781e-8,
+                    "velocityX": 4.321039243384027,
+                    "velocityY": 1.1201775492346937,
+                    "timestamp": 0.5739739467799646
+                },
+                {
+                    "x": 7.619858630216372,
+                    "y": 7.3109162797386675,
+                    "heading": 0.29835191573418474,
+                    "angularVelocity": 0.17627290005918814,
+                    "velocityX": 3.3931039867277244,
+                    "velocityY": 0.8796215356908047,
+                    "timestamp": 0.6696362712432921
+                },
+                {
+                    "x": 7.8362534459726145,
+                    "y": 7.367014041977426,
+                    "heading": 0.3095937010647339,
+                    "angularVelocity": 0.11751528507818046,
+                    "velocityX": 2.2620693892500823,
+                    "velocityY": 0.5864143751863649,
+                    "timestamp": 0.7652985957066195
+                },
+                {
+                    "x": 7.944450855255127,
+                    "y": 7.3950629234313965,
+                    "heading": 0.3152145956982849,
+                    "angularVelocity": 0.05875766311434386,
+                    "velocityX": 1.1310347085076795,
+                    "velocityY": 0.29320719119216154,
+                    "timestamp": 0.860960920169947
+                },
+                {
+                    "x": 7.944450855255127,
+                    "y": 7.3950629234313965,
+                    "heading": 0.3152145956982849,
+                    "angularVelocity": -3.0883548622300695e-20,
+                    "velocityX": -7.505306305865803e-19,
+                    "velocityY": -1.945678728969413e-19,
+                    "timestamp": 0.9566232446332744
+                }
+            ],
+            "trajectoryWaypoints": [
+                {
+                    "timestamp": 0,
+                    "isStopPoint": true,
+                    "x": 5.406,
+                    "y": 6.737,
+                    "heading": 0.24776360937302858,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 10
+                },
+                {
+                    "timestamp": 0.9566232446332744,
+                    "isStopPoint": true,
+                    "x": 7.944450855255127,
+                    "y": 7.3950629234313965,
+                    "heading": 0.3152145956982849,
+                    "isInitialGuess": false,
+                    "translationConstrained": true,
+                    "headingConstrained": true,
+                    "controlIntervalCount": 40
+                }
+            ],
+            "constraints": [
+                {
+                    "scope": [
+                        "first"
+                    ],
+                    "type": "StopPoint"
+                },
+                {
+                    "scope": [
+                        "last"
+                    ],
+                    "type": "StopPoint"
+                }
+            ],
+            "usesControlIntervalGuessing": true,
+            "defaultControlIntervalCount": 40,
+            "usesDefaultFieldObstacles": true,
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": false
         }
     },
     "splitTrajectoriesAtStopPoints": false,
