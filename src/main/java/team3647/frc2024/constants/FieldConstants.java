@@ -32,7 +32,7 @@ public class FieldConstants {
 
     public static final double kAmpHeight = Units.inchesToMeters(35);
 
-    public static final Pose2d kBlueFeed = new Pose2d(0, kFieldWidth, new Rotation2d());
+    public static final Pose2d kBlueFeed = new Pose2d(0, kFieldWidth - 1, new Rotation2d());
 
     public static final Pose2d kBlueAmp = new Pose2d(1.84, 7.82, new Rotation2d());
 

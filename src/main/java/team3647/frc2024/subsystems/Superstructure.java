@@ -159,7 +159,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 4, () -> 1);
+        return shooterCommands.setVelocity(() -> 3, () -> 1);
     }
 
     public Command setShootModeStationary() {
@@ -168,6 +168,10 @@ public class Superstructure {
 
     public Command setShootModeMoving() {
         return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.SHOOT_ON_THE_MOVE);
+    }
+
+    public Command tinyPivot() {
+        return pivotCommands.setAngle(() -> 11);
     }
 
     public Command setShootModeClean() {

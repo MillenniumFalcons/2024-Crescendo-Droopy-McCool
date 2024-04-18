@@ -49,7 +49,7 @@ public class ShooterConstants {
 
     public static final double kNominalVoltage = 11.0;
     public static final double kStallCurrent = 55.0;
-    public static final double kMaxCurrent = 80.0;
+    public static final double kMaxCurrent = 100.0;
 
     public static final double kLeftRatio = 1.65;
     public static final double kRightRatio = 2 - kLeftRatio;
@@ -97,10 +97,10 @@ public class ShooterConstants {
         kRightMap.put(8.5, 18.0);
         kRightMap.put(20.0, 18.0);
 
-        kFeedMap.put(0.0, 12.5);
-        kFeedMap.put(8.0, 12.5);
-        kFeedMap.put(12.0, 15.0);
-        kFeedMap.put(20.0, 15.0);
+        kFeedMap.put(0.0, 15.0);
+        kFeedMap.put(8.0, 15.0);
+        kFeedMap.put(12.0, 17.5);
+        kFeedMap.put(20.0, 17.5);
 
         Slot0Configs kRightSlot0 = new Slot0Configs();
         Slot0Configs kLeftSlot0 = new Slot0Configs();

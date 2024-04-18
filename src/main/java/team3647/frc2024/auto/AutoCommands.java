@@ -152,7 +152,7 @@ public class AutoCommands {
 
         noteNotSeen = new Trigger(() -> !hasTarget.getAsBoolean()).debounce(0.5);
 
-        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.1);
+        currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
 
         // this.yes = new AutonomousMode(four_S3N5N4N3(Alliance.Blue), getInitial(s3_to_f5));
 
@@ -257,28 +257,28 @@ public class AutoCommands {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f1_to_shoot1, color),
                 target().withTimeout(0.2),
-                followChoreoPathWithOverrideFast(shoot1_to_f2, color));
+                followChoreoPathWithOverride(shoot1_to_f2, color));
     }
 
     public Command getScoringSequenceF2F3(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f2_to_shoot1, color),
                 target().withTimeout(0.2),
-                followChoreoPathWithOverrideFast(shoot1_to_f3, color));
+                followChoreoPathWithOverride(shoot1_to_f3, color));
     }
 
     public Command getScoringSequenceF3F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f3_to_shoot2, color),
                 target().withTimeout(0.2),
-                followChoreoPathWithOverrideFast(shoot2_to_f4, color));
+                followChoreoPathWithOverride(shoot2_to_f4, color));
     }
 
     public Command getScoringSequenceF4F5(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f4_to_shoot3, color),
                 target().withTimeout(0.2),
-                followChoreoPathWithOverrideFast(shoot3_to_f5, color));
+                followChoreoPathWithOverride(shoot3_to_f5, color));
     }
 
     public Command testS1(Alliance color) {
@@ -343,13 +343,13 @@ public class AutoCommands {
                 masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s35_to_f5, color),
-                        followChoreoPathWithOverrideFast(f5_to_shoot3, color),
+                        followChoreoPathWithOverride(f5_to_shoot3, color),
                         target().withTimeout(0.4),
                         followChoreoPathWithOverrideFast(shoot4_to_f4, color),
-                        followChoreoPathWithOverrideFast(f4_to_shoot3, color),
+                        followChoreoPathWithOverride(f4_to_shoot3, color),
                         target().withTimeout(0.4),
                         followChoreoPathWithOverrideFast(shoot3_to_f3, color),
-                        followChoreoPathWithOverrideFast(f3_to_shoot4, color),
+                        followChoreoPathWithOverride(f3_to_shoot4, color),
                         target()));
     }
 
@@ -406,19 +406,12 @@ public class AutoCommands {
                         swerve.driveFieldOriented(
                                 driveX.getAsDouble(),
                                 Math.abs(vel90.getAsDouble()) < 1 && targeting.pose().getY() > 0.5
-                                        ? -3
+                                        ? -4
                                         : 0,
                                 vel90.getAsDouble());
                     }
                 },
                 swerve);
-        // .until(hasTarget)
-        // .andThen(
-        //         () ->
-        //                 swerve.drive(
-        //                         autoDriveVelocities.get().dx,
-        //                         autoDriveVelocities.get().dy,
-        //                         0));
     }
 
     public Command searchOrScore(BooleanSupplier hasNote, Alliance color) {
@@ -490,8 +483,8 @@ public class AutoCommands {
         return Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.7), superstructure.feed()))
-                .withTimeout(1.1);
+                        Commands.sequence(Commands.waitSeconds(0.8), superstructure.feed()))
+                .withTimeout(1.2);
     }
 
     public Pose2d getInitial(String path) {
@@ -576,7 +569,7 @@ public class AutoCommands {
                                                                                         .kFieldLength
                                                                                 - 5))
                                                 ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond * 0.8,
+                                                : speeds.vxMetersPerSecond * 0.9,
                                         (!hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX()
@@ -592,7 +585,7 @@ public class AutoCommands {
                                                                                         .kFieldLength
                                                                                 - 5))
                                                 ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond * 0.8,
+                                                : speeds.vyMetersPerSecond * 0.9,
                                         deeThetaOnTheMove()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));

@@ -136,7 +136,7 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double flywheelThreshold() {
-        return getShootSpeedLeft() - (1 + MathUtil.clamp(10 - 2 * targeting.distance(), 0, 10));
+        return getShootSpeedLeft() - (1 + MathUtil.clamp(8 - 2 * targeting.distance(), 0, 5));
     }
 
     private void setTargetPose(Pose2d targetPose) {
@@ -185,7 +185,7 @@ public class AutoDrive extends VirtualSubsystem {
             case SHOOT_ON_THE_MOVE:
                 return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
             default:
-                return 15;
+                return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
         }
     }
 
@@ -201,7 +201,7 @@ public class AutoDrive extends VirtualSubsystem {
             case SHOOT_ON_THE_MOVE:
                 return shootSpeedMapRight.get(targeting.getCompensatedDistance());
             default:
-                return 15;
+                return shootSpeedMapRight.get(targeting.getCompensatedDistance());
         }
     }
 
@@ -219,7 +219,7 @@ public class AutoDrive extends VirtualSubsystem {
             case SHOOT_AT_AMP:
                 return Units.radiansToDegrees(targeting.shootAtAmp().pivot);
             default:
-                return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+                return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
         }
     }
 
