@@ -83,7 +83,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFullCenterS3;
+        runningMode = autoCommands.blueFullCenterS1;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);

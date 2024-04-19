@@ -90,22 +90,22 @@ public class PivotConstants {
         // kMasterSpeakerMap.put(20.0, 26.5);
         kMasterSpeakerMap.put(0.0, 60.0);
         kMasterSpeakerMap.put(1.0, 60.0);
-        kMasterSpeakerMap.put(1.5, 56.0); //
-        kMasterSpeakerMap.put(2.0, 52.0); //
-        kMasterSpeakerMap.put(2.5, 44.0); //
+        kMasterSpeakerMap.put(1.5, 60.0); //
+        kMasterSpeakerMap.put(2.0, 49.0); //
+        kMasterSpeakerMap.put(2.5, 43.0); //
         kMasterSpeakerMap.put(3.0, 38.0); //
         kMasterSpeakerMap.put(3.5, 34.0); //
-        kMasterSpeakerMap.put(4.0, 32.0); //
-        kMasterSpeakerMap.put(4.5, 30.0); //
-        kMasterSpeakerMap.put(5.0, 28.0); //
-        kMasterSpeakerMap.put(5.5, 27.0); //
-        kMasterSpeakerMap.put(6.0, 26.5); //
-        kMasterSpeakerMap.put(6.5, 23.2); //
-        kMasterSpeakerMap.put(7.0, 22.0); //
-        kMasterSpeakerMap.put(7.5, 21.4 - 0.4); //
-        kMasterSpeakerMap.put(8.0, 20.7 - 0.6); //
-        kMasterSpeakerMap.put(8.5, 20.7 - 0.8); //
-        kMasterSpeakerMap.put(20.0, 20.7); //
+        kMasterSpeakerMap.put(4.0, 32.8); //
+        kMasterSpeakerMap.put(4.5, 31.5); //
+        kMasterSpeakerMap.put(5.0, 30.0); //
+        kMasterSpeakerMap.put(5.5, 28.5); //
+        kMasterSpeakerMap.put(6.0, 27.5); //
+        kMasterSpeakerMap.put(6.5, 25.5); //
+        kMasterSpeakerMap.put(7.0, 24.0); //
+        kMasterSpeakerMap.put(7.5, 23.0); //
+        kMasterSpeakerMap.put(8.0, 22.2); //
+        kMasterSpeakerMap.put(8.5, 21.8); //
+        kMasterSpeakerMap.put(20.0, 21.0); //
         kMasterAmpMap.put(0.0, 60.0);
         kMasterAmpMap.put(100.0, 60.0);
         Slot0Configs kMasterSlot0 = new Slot0Configs();

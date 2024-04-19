@@ -42,8 +42,8 @@ public class ShooterConstants {
 
     public static final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(kS, kV, kA);
 
-    public static final double leftKP = 5;
-    public static final double rightKP = 5;
+    public static final double leftKP = 6;
+    public static final double rightKP = 6;
     public static final double masterKI = 0;
     public static final double masterKD = 0;
 

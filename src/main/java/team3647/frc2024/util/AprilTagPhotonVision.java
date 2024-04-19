@@ -118,6 +118,9 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         double numTargets = result.getTargets().size();
+        if (hasPriority && numTargets < 2) {
+            return Optional.empty();
+        }
         final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
         double ambiguityScore =
                 1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));

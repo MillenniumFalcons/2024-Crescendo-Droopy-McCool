@@ -44,7 +44,7 @@ public class AutoDrive extends VirtualSubsystem {
             new ProfiledPIDController(
                     6,
                     0,
-                    0.3,
+                    0.1,
                     new TrapezoidProfile.Constraints(10, 10)); // new PIDController(0.4, 0, 0);
 
     // private final PIDController rotController =
