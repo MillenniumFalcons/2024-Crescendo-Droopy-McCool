@@ -13,7 +13,7 @@ public class TargetingUtil {
 
     private final RobotTracker robotTracker;
     private final double shootSpeed = 30;
-    private double offset = 0.4;
+    private double offset = 0;
     double kDt = 0.1;
 
     private final MedianFilter filter = new MedianFilter(3);
