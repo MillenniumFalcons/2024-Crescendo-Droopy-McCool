@@ -274,7 +274,7 @@ public class AutoDrive extends VirtualSubsystem {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
             double k = rotController.calculate(-targeting.rotToAmp(), 0);
             k += rotController.getSetpoint().velocity;
-            double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+            double setpoint = Math.abs(targetRot) < 0.025 ? 0 : k;
             return setpoint;
         }
         double k =
@@ -290,12 +290,12 @@ public class AutoDrive extends VirtualSubsystem {
         //         1,
         //         4);
         k += rotController.getSetpoint().velocity;
-        if (Math.abs(k) < 0.4 && swerve.getVel() < 0.2) {
+        if (Math.abs(k) < 0.5 && swerve.getChassisSpeeds().vyMetersPerSecond < 0.5) {
             k = 0.5 * Math.signum(k);
         }
         Logger.recordOutput("k", k);
 
-        double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+        double setpoint = Math.abs(targetRot) < 0.03 ? 0 : k;
         return setpoint;
     }
 

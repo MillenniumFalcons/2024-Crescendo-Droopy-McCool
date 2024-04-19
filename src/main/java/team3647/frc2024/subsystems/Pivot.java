@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class Pivot extends TalonFXSubsystem {
@@ -61,6 +62,9 @@ public class Pivot extends TalonFXSubsystem {
     @Override
     public void periodic() {
         super.periodic();
+        Logger.recordOutput("fornt tof", tofFront());
+        Logger.recordOutput("back tof", tofFront());
+
         // Logger.recordOutput(
         //         "Pivot/Pose",
         //         new Pose3d(

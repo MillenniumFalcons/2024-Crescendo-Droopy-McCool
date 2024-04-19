@@ -79,6 +79,7 @@ public class AutoCommands {
     private final String shoot4_to_f4 = "shoot4 to f4";
     private final String f3_to_shoot4 = "f3 to shoot4";
     private final String shoot1_to_f1 = "shoot1 to f1";
+    private final String shoot2_to_f2 = "shoot2 to f2";
 
     private final String s15_straight_forward = "s15 straight forward";
     private final String trap_test = "trap test 2";
@@ -272,56 +273,56 @@ public class AutoCommands {
     public Command getScoringSequenceF1F2(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f1_to_shoot1, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot1_to_f2, color));
     }
 
     public Command getScoringSequenceF2F3(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f2_to_shoot1, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot1_to_f3, color));
     }
 
     public Command getScoringSequenceF3F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f3_to_shoot2, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot2_to_f4, color));
     }
 
     public Command getScoringSequenceF4F5(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot3_to_f5, color));
     }
 
     public Command getScoringSequenceF2F1(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f2_to_shoot1, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot1_to_f1, color));
     }
 
     public Command getScoringSequenceF3F2(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f3_to_shoot2, color),
-                target().withTimeout(0.2),
-                followChoreoPathWithOverride(shoot1_to_f2, color));
+                target().withTimeout(0.4),
+                followChoreoPathWithOverride(shoot2_to_f2, color));
     }
 
     public Command getScoringSequenceF4F3(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot3_to_f3, color));
     }
 
     public Command getScoringSequenceF5F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f5_to_shoot3, color),
-                target().withTimeout(0.2),
+                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot4_to_f4, color));
     }
 
@@ -355,7 +356,7 @@ public class AutoCommands {
                 Commands.sequence(
                         followChoreoPathWithOverrideFast(s15_to_f1, color),
                         followChoreoPathWithOverride(f1_to_shoot1, color),
-                        target().withTimeout(0.2),
+                        target().withTimeout(0.5),
                         followChoreoPathWithOverrideFast(shoot1_to_f2, color),
                         followChoreoPathWithOverrideFast(f2_to_n1, color),
                         target().withTimeout(0.2),
@@ -583,8 +584,8 @@ public class AutoCommands {
         return Commands.parallel(
                         superstructure.spinUp(),
                         superstructure.prep(),
-                        Commands.sequence(Commands.waitSeconds(0.8), superstructure.feed()))
-                .withTimeout(1.2);
+                        Commands.sequence(Commands.waitSeconds(1), superstructure.feed()))
+                .withTimeout(1.4);
     }
 
     public Pose2d getInitial(String path) {

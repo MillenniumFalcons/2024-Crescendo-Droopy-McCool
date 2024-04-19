@@ -83,7 +83,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.blueFullCenterS3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);
@@ -104,8 +104,14 @@ public class RobotContainer {
         coController.leftBumper.whileTrue(superstructure.sourceIntake());
         coController.leftBumper.onFalse(superstructure.stowFromSourceIntake());
 
-        mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
-        mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
+        mainController
+                .buttonX
+                .whileTrue(superstructure.kickerCommands.unkick())
+                .whileTrue(superstructure.intakeCommands.spitOut());
+        mainController
+                .buttonX
+                .onFalse(superstructure.kickerCommands.kill())
+                .onFalse(superstructure.intakeCommands.kill());
 
         // coController.buttonY.onTrue(superstructure.setShootModeClean());
         coController.buttonX.onTrue(superstructure.setShootModeMoving());
@@ -456,10 +462,7 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     public final AprilTagPhotonVision zoom =
-            new AprilTagPhotonVision(
-                            VisionConstants.zoom,
-                            VisionConstants.robotToZoom,
-                            VisionConstants.zoomStdDevs)
+            new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
                     .withPriority(true);
 
     private final VisionController visionController =
@@ -484,7 +487,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    true);
+                    false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 

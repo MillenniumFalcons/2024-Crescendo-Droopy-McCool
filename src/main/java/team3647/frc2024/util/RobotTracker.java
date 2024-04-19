@@ -29,7 +29,7 @@ public class RobotTracker extends VirtualSubsystem {
     public static class PeriodicIO {
         private double distanceFromSpeaker = 0;
         private Pose2d pose = new Pose2d();
-        private ChassisSpeeds speeds;
+        private ChassisSpeeds speeds = new ChassisSpeeds();
     }
 
     public RobotTracker(
