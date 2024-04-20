@@ -34,6 +34,7 @@ public class AutoDrive extends VirtualSubsystem {
     private Pose2d targetPose = new Pose2d();
     private DriveMode mode = DriveMode.NONE;
     private double targetRot = 0;
+    private double targetRotOnTheMove = 0;
     private boolean enabled = true;
 
     private InterpolatingDoubleTreeMap shootSpeedMapLeft;
@@ -44,8 +45,15 @@ public class AutoDrive extends VirtualSubsystem {
             new ProfiledPIDController(
                     6,
                     0,
-                    0.1,
+                    0,
                     new TrapezoidProfile.Constraints(10, 10)); // new PIDController(0.4, 0, 0);
+
+    // private final ProfiledPIDController autoRotController =
+    //         new ProfiledPIDController(
+    //                 6,
+    //                 0,
+    //                 0.1,
+    //                 new TrapezoidProfile.Constraints(10, 10)); // new PIDController(0.4, 0, 0);
 
     // private final PIDController rotController =
     //         new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
@@ -101,13 +109,15 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("on the move rot", onTheMove());
         // Logger.recordOutput("Robot/Compensated", targeting.32222getCompensatedPose());
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         SmartDashboard.putNumber("rot amo", targeting.rotToAmp());
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
+        targetRotOnTheMove = targeting.shootAtSpeakerOnTheMove().rotation;
         if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
+            targetRot = targeting.shootAtSpeaker().rotation;
         }
         if (this.mode == DriveMode.CLEAN) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
@@ -171,6 +181,20 @@ public class AutoDrive extends VirtualSubsystem {
 
     public DriveMode getMode() {
         return this.mode;
+    }
+
+    public double onTheMove() {
+        double k =
+                rotController.calculate(targetRotOnTheMove, 0)
+                        * MathUtil.clamp(
+                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 1.5),
+                                1,
+                                100);
+        k += rotController.getSetpoint().velocity;
+        if (Math.abs(k) < 0.5 && swerve.getChassisSpeeds().vyMetersPerSecond < 0.5) {
+            k = 0.5 * Math.signum(k);
+        }
+        return k;
     }
 
     public double getShootSpeedLeft() {

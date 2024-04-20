@@ -53,7 +53,7 @@ public class AutoConstants {
     public static final PIDController kRotController =
             new PIDController(xRotControllerP, xRotControllerI, xRotControllerD);
 
-    public static final double kDrivetrainXShootingThreshold = 4.65;
+    public static final double kDrivetrainXShootingThreshold = 4.45;
 
     static {
         kRotController.enableContinuousInput(-Math.PI, Math.PI);

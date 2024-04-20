@@ -42,7 +42,7 @@ public class AutoCommands {
 
     private final String s1_to_n1 = "s1 to n1";
     private final String s1_to_n1_to_f1 = "s1 to n1 to f1";
-    private final String s2_to_n2 = "s2 to n2";
+    private final String s2_to_n2a = "s2 to n2";
     private final String n2_to_n1 = "n2 to n1";
     private final String n2_to_n3 = "n2 to n3";
     private final String s3_to_n3 = "s3 to n3";
@@ -100,6 +100,8 @@ public class AutoCommands {
 
     private final DoubleSupplier driveX;
 
+    private final DoubleSupplier onTheMoveRotSupplier;
+
     //     public final AutonomousMode blueFive_S1N1F1N2N3;
 
     public final AutonomousMode blueFour_S1N1N2N3;
@@ -143,6 +145,7 @@ public class AutoCommands {
     public AutoCommands(
             SwerveDrive swerve,
             Supplier<Twist2d> autoDriveVelocities,
+            DoubleSupplier onTheMoveRotSupplier,
             DoubleSupplier vel90,
             DoubleSupplier velOther90,
             DoubleSupplier xSupplier,
@@ -150,6 +153,7 @@ public class AutoCommands {
             TargetingUtil targeting,
             BooleanSupplier hasTarget,
             Supplier<DriveMode> getMode) {
+        this.onTheMoveRotSupplier = onTheMoveRotSupplier;
         this.swerve = swerve;
         this.autoDriveVelocities = autoDriveVelocities;
         this.superstructure = superstructure;
@@ -273,56 +277,48 @@ public class AutoCommands {
     public Command getScoringSequenceF1F2(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f1_to_shoot1, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot1_to_f2, color));
     }
 
     public Command getScoringSequenceF2F3(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f2_to_shoot1, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot1_to_f3, color));
     }
 
     public Command getScoringSequenceF3F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f3_to_shoot2, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot2_to_f4, color));
     }
 
     public Command getScoringSequenceF4F5(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot3_to_f5, color));
     }
 
     public Command getScoringSequenceF2F1(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f2_to_shoot1, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot1_to_f1, color));
     }
 
     public Command getScoringSequenceF3F2(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f3_to_shoot2, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot2_to_f2, color));
     }
 
     public Command getScoringSequenceF4F3(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f4_to_shoot3, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot3_to_f3, color));
     }
 
     public Command getScoringSequenceF5F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideFast(f5_to_shoot3, color),
-                target().withTimeout(0.4),
                 followChoreoPathWithOverride(shoot4_to_f4, color));
     }
 
@@ -639,7 +635,7 @@ public class AutoCommands {
     }
 
     public Command target() {
-        return Commands.run(() -> swerve.drive(0, 0, deeThetaOnTheMove()), swerve);
+        return Commands.run(() -> swerve.drive(0, 0, deeTheta()), swerve);
     }
 
     public Command followChoreoPathWithOverrideFast(String path, Alliance color) {
@@ -687,7 +683,57 @@ public class AutoCommands {
                                                                                 - 5))
                                                 ? autoDriveVelocities.get().dy
                                                 : speeds.vyMetersPerSecond * 0.9,
-                                        deeThetaOnTheMove()),
+                                        deeTheta()),
+                        () -> mirror)
+                .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
+    }
+
+    public Command followChoreoPathWithOverrideFastOnTheMove(String path, Alliance color) {
+        ChoreoTrajectory traj = Choreo.getTrajectory(path);
+        boolean mirror = color == Alliance.Red;
+        PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
+        return customChoreoFolloweForOverride(
+                        traj,
+                        swerve::getOdoPose,
+                        choreoSwerveController(
+                                AutoConstants.kXController,
+                                AutoConstants.kYController,
+                                new PIDController(0, 0, 0)),
+                        (ChassisSpeeds speeds) ->
+                                swerve.drive(
+                                        (!hasPiece
+                                                        && hasTarget.getAsBoolean()
+                                                        && swerve.getOdoPose().getX()
+                                                                > (color == Alliance.Blue
+                                                                        ? 5
+                                                                        : FieldConstants
+                                                                                        .kFieldLength
+                                                                                - 8.75)
+                                                        && swerve.getOdoPose().getX()
+                                                                < (color == Alliance.Blue
+                                                                        ? 8.75
+                                                                        : FieldConstants
+                                                                                        .kFieldLength
+                                                                                - 5))
+                                                ? autoDriveVelocities.get().dx
+                                                : speeds.vxMetersPerSecond * 0.9,
+                                        (!hasPiece
+                                                        && hasTarget.getAsBoolean()
+                                                        && swerve.getOdoPose().getX()
+                                                                > (color == Alliance.Blue
+                                                                        ? 5
+                                                                        : FieldConstants
+                                                                                        .kFieldLength
+                                                                                - 8.75)
+                                                        && swerve.getOdoPose().getX()
+                                                                < (color == Alliance.Blue
+                                                                        ? 8.75
+                                                                        : FieldConstants
+                                                                                        .kFieldLength
+                                                                                - 5))
+                                                ? autoDriveVelocities.get().dy
+                                                : speeds.vyMetersPerSecond * 0.9,
+                                        onTheMoveRotSupplier.getAsDouble()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
@@ -711,7 +757,7 @@ public class AutoCommands {
                                         (!this.hasPiece && hasTarget.getAsBoolean())
                                                 ? autoDriveVelocities.get().dy
                                                 : speeds.vyMetersPerSecond * 0.6,
-                                        deeThetaOnTheMove()),
+                                        deeTheta()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
@@ -791,7 +837,7 @@ public class AutoCommands {
                 },
                 () ->
                         timer.hasElapsed(0.5)
-                                && ((swerve.getVel() < 0.2
+                                && ((swerve.getVel() < 0.1
                                                 & swerve.getOdoPose()
                                                                 .minus(
                                                                         mirrorTrajectory
@@ -834,7 +880,7 @@ public class AutoCommands {
         };
     }
 
-    public double deeThetaOnTheMove() {
+    public double deeTheta() {
         return autoDriveVelocities.get().dtheta;
     }
 

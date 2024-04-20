@@ -78,7 +78,6 @@ public class RobotContainer {
                 climbLeft,
                 climbRight,
                 churro);
-
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
@@ -526,6 +525,7 @@ public class RobotContainer {
             new AutoCommands(
                     swerve,
                     autoDrive::getVelocities,
+                    autoDrive::onTheMove,
                     autoDrive::getDriveRotAmp,
                     autoDrive::getDriveRotOther90,
                     autoDrive::getDriveXCenter,

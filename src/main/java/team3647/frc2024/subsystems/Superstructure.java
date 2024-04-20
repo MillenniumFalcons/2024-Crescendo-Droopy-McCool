@@ -132,7 +132,7 @@ public class Superstructure {
 
     public Command spinUp() {
         return shooterCommands.setVelocityIndep(
-                () -> shooterSpeedSupplierRight.getAsDouble(),
+                () -> shooterSpeedSupplierRight.getAsDouble() + 4,
                 () -> shooterSpeedSupplierLeft.getAsDouble());
     }
 
@@ -159,7 +159,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 4, () -> 1);
+        return shooterCommands.setVelocity(() -> 4.5, () -> 1);
     }
 
     public Command setShootModeStationary() {
