@@ -17,11 +17,11 @@ public class KickerCommands {
     }
 
     public Command slowFeed() {
-        return Commands.run(() -> kicker.openLoop(0.25), kicker);
+        return Commands.run(() -> kicker.openLoop(0.2), kicker);
     }
 
     public Command unkick() {
-        return Commands.run(() -> kicker.openLoop(-0.5), kicker);
+        return Commands.run(() -> kicker.openLoop(-0.15), kicker);
     }
 
     public Command oscillate() {

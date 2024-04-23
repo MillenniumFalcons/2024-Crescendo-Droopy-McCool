@@ -89,7 +89,7 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                         .toTranslation2d()
                         .getNorm();
         if (hasPriority) {
-            targetDistance = MathUtil.clamp(targetDistance - 5, 1, 1000);
+            targetDistance = MathUtil.clamp(targetDistance - 3, 1, 1000);
         }
         // if (result.getBestTarget().getFiducialId() != 3
         //         && result.getBestTarget().getFiducialId() != 4) {
@@ -110,15 +110,23 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
                 || update.get().estimatedPose.getY() < 0) {
             return Optional.empty();
         }
+
+        if (result.getBestTarget().getFiducialId() == 5
+                || result.getBestTarget().getFiducialId() == 6) {
+            return Optional.empty();
+        }
         // Logger.recordOutput(
         //         "Cams/" + this.getName(), update.get().estimatedPose.transformBy(robotToCam));
         double numTargets = result.getTargets().size();
-        final var stdDevs = baseStdDevs.times(targetDistance).times(4 / Math.pow(numTargets, 2));
+        if (hasPriority && numTargets < 2) {
+            return Optional.empty();
+        }
+        final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
         double ambiguityScore =
                 1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
         // final double priorityScore = this.hasPriority ? 50 : 0;
         // ambiguityScore += priorityScore;
-        if (result.targets.stream().anyMatch(target -> target.getPoseAmbiguity() > 0.25)) {
+        if (result.targets.stream().anyMatch(target -> target.getPoseAmbiguity() > 0.2)) {
             return Optional.empty();
         }
         VisionMeasurement measurement =

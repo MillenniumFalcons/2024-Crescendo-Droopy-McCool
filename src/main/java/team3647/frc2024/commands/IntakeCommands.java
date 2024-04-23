@@ -16,6 +16,10 @@ public class IntakeCommands {
         return Commands.run(() -> intake.openLoop(-0.1), intake);
     }
 
+    public Command spitOut() {
+        return Commands.run(() -> intake.openLoop(-0.8), intake);
+    }
+
     public Command oscillate() {
         return Commands.run(() -> intake.openLoop(0.1))
                 .withTimeout(0.2)

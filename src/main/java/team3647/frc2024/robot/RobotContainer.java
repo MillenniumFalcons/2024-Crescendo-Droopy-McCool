@@ -28,7 +28,8 @@ import team3647.frc2024.constants.TunerConstants;
 import team3647.frc2024.constants.VisionConstants;
 import team3647.frc2024.constants.WristConstants;
 import team3647.frc2024.subsystems.Churro;
-import team3647.frc2024.subsystems.Climb;
+import team3647.frc2024.subsystems.ClimbLeft;
+import team3647.frc2024.subsystems.ClimbRight;
 import team3647.frc2024.subsystems.Intake;
 import team3647.frc2024.subsystems.Kicker;
 import team3647.frc2024.subsystems.Pivot;
@@ -74,17 +75,18 @@ public class RobotContainer {
                 kicker,
                 pivot,
                 printer,
-                climb,
+                climbLeft,
+                climbRight,
                 churro);
-
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueFullCenterS1;
+        runningMode = autoCommands.redFullCenterS1;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
-        climb.setEncoder(ClimbConstants.kInitialLength);
+        climbLeft.setEncoder(ClimbConstants.kInitialLength);
+        climbRight.setEncoder(ClimbConstants.kInitialLength);
         churro.setEncoder(ChurroConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
 
@@ -101,9 +103,16 @@ public class RobotContainer {
         coController.leftBumper.whileTrue(superstructure.sourceIntake());
         coController.leftBumper.onFalse(superstructure.stowFromSourceIntake());
 
-        mainController.buttonX.whileTrue(superstructure.kickerCommands.unkick());
-        mainController.buttonX.onFalse(superstructure.kickerCommands.kill());
+        mainController
+                .buttonX
+                .whileTrue(superstructure.kickerCommands.unkick())
+                .whileTrue(superstructure.intakeCommands.spitOut());
+        mainController
+                .buttonX
+                .onFalse(superstructure.kickerCommands.kill())
+                .onFalse(superstructure.intakeCommands.kill());
 
+        // coController.buttonY.onTrue(superstructure.setShootModeClean());
         coController.buttonX.onTrue(superstructure.setShootModeMoving());
         coController.buttonA.onTrue(superstructure.setShootModeFeed());
         coController.buttonB.onTrue(superstructure.setShootModeStationary());
@@ -122,8 +131,21 @@ public class RobotContainer {
         // mainController.leftTrigger.onFalse(autoCommands.pathToAmp(tracker.getColor()));
         mainController
                 .rightTrigger
-                .and(() -> (!superstructure.getIsIntaking()))
+                .and(
+                        () ->
+                                (!superstructure.getIsIntaking()
+                                        && autoDrive.getMode() != DriveMode.CLEAN))
                 .whileTrue(superstructure.shoot())
+                .onFalse(
+                        superstructure
+                                .stowFromShoot()
+                                .andThen(superstructure.ejectPiece())
+                                .unless(mainController.buttonY));
+
+        mainController
+                .rightTrigger
+                .and(() -> (autoDrive.getMode() == DriveMode.CLEAN))
+                .whileTrue(superstructure.cleanShoot())
                 .onFalse(
                         superstructure
                                 .stowFromShoot()
@@ -167,16 +189,35 @@ public class RobotContainer {
 
         mainController
                 .leftBumper
-                .and(() -> detector.hasTarget())
+                .and(() -> detector.hasTarget() && autoDrive.getMode() != DriveMode.CLEAN)
                 .whileTrue(autoDrive.setMode(DriveMode.INTAKE_IN_AUTO));
+        // mainController
+        //         .leftBumper
+        //         .and(
+        //                 () ->
+        //                         autoDrive.getMode() != DriveMode.INTAKE_IN_AUTO
+        //                                 && autoDrive.getMode() != DriveMode.NONE)
+        //         .whileTrue(superstructure.wristDown());
         mainController
                 .leftBumper
-                .and(() -> !superstructure.getPiece())
-                .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)))
-                .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
+                .and(() -> !superstructure.getPiece() && autoDrive.getMode() != DriveMode.CLEAN)
+                .whileTrue(superstructure.intake().until(setPiece.and(isIntaking)));
+        mainController
+                .leftBumper
+                .and(() -> !superstructure.getPiece() && autoDrive.getMode() == DriveMode.CLEAN)
+                .whileTrue(
+                        superstructure
+                                .intake(() -> superstructure.getPiece())
+                                .until(setPiece.and(isIntaking)));
+        // .whileTrue(superstructure.pivotCommands.setAngle(() -> 20));
         setPiece.and(isIntaking)
+                .and(() -> autoDrive.getMode() != DriveMode.CLEAN)
                 .onTrue(superstructure.setPiece())
                 .onTrue(superstructure.passToShooter());
+        setPiece.and(isIntaking)
+                .and(() -> autoDrive.getMode() == DriveMode.CLEAN)
+                .onTrue(superstructure.cleanShoot())
+                .onTrue(superstructure.passToShooterClean());
         mainController
                 .leftBumper
                 .or(() -> superstructure.getPiece())
@@ -184,7 +225,7 @@ public class RobotContainer {
                 .onFalse(superstructure.kickerCommands.kill());
         mainController
                 .leftBumper
-                .and(() -> detector.hasTarget())
+                .and(() -> detector.hasTarget() && autoDrive.getMode() != DriveMode.CLEAN)
                 .onFalse(autoDrive.setMode(DriveMode.NONE));
 
         mainController.buttonA.onTrue(superstructure.ejectPiece());
@@ -194,9 +235,9 @@ public class RobotContainer {
         coController.dPadRight.onTrue(targetingUtil.offsetDown());
 
         mainController.dPadUp.and(goodToClimb).whileTrue(climbCommands.goUp());
-        mainController.dPadUp.and(goodToClimb).onFalse(climbCommands.kill());
+        mainController.dPadUp.onFalse(climbCommands.kill());
         mainController.dPadDown.and(goodToClimb).whileTrue(climbCommands.goDown());
-        mainController.dPadDown.and(goodToClimb).onFalse(climbCommands.kill());
+        mainController.dPadDown.onFalse(climbCommands.kill());
 
 
         
@@ -247,7 +288,8 @@ public class RobotContainer {
                         autoDrive::getMode,
                         autoDrive::getEnabled,
                         autoDrive::getVelocities));
-        climb.setDefaultCommand(climbCommands.holdPositionAtCall());
+        climbLeft.setDefaultCommand(climbCommands.holdLeftPositionAtCall());
+        climbRight.setDefaultCommand(climbCommands.holdRightPositionAtCall());
         pivot.setDefaultCommand(superstructure.prep());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
@@ -262,12 +304,15 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
+        printer.addBoolean("note seen", () -> !autoCommands.noteNotSeen.getAsBoolean());
         // SmartDashboard.putNumber("pivot output", 0);
         // // SmartDashboard.putNumber("wrist kg", 0);
         // // printer.addDouble("wanted pivot", superstructure::getWantedPivot);
         // printer.addDouble("back tof", pivot::tofBack);
         // printer.addBoolean("front tof", pivot::frontPiece);
         printer.addDouble("front tof", pivot::tofFront);
+        printer.addDouble("lef pos", climbLeft::getPosition);
+        printer.addDouble("right pos", climbRight::getPosition);
         // // printer.addDouble("wrist", wrist::getAngle);
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addDouble("churo", churro::getAngle);
@@ -279,6 +324,8 @@ public class RobotContainer {
         // // printer.addBoolean("pviot ready", superstructure::pivotReady);
         // // printer.addDouble("flywheel speed", shooterLeft::getVelocity);
         SmartDashboard.putNumber("pivot interp angle", 40);
+        SmartDashboard.putNumber("shoot speed left", 15);
+        SmartDashboard.putNumber("shoot speed right", 15);
         // SmartDashboard.putNumber("shoot speed", 15);
         // SmartDashboard.putNumber("differential", 1.1);
         printer.addDouble("shooter distance", targetingUtil::distance);
@@ -365,9 +412,19 @@ public class RobotContainer {
                     PivotConstants.tofBack,
                     PivotConstants.tofFront);
 
-    private final Climb climb =
-            new Climb(
+    private final ClimbLeft climbLeft =
+            new ClimbLeft(
                     ClimbConstants.kLeft,
+                    1,
+                    1,
+                    ClimbConstants.kMinLength,
+                    ClimbConstants.kMaxDegreeLength,
+                    ClimbConstants.nominalVoltage,
+                    0,
+                    0.02);
+
+    private final ClimbRight climbRight =
+            new ClimbRight(
                     ClimbConstants.kRight,
                     1,
                     1,
@@ -388,7 +445,7 @@ public class RobotContainer {
                     ChurroConstants.kG,
                     0.02);
 
-    private final ClimbCommands climbCommands = new ClimbCommands(climb);
+    private final ClimbCommands climbCommands = new ClimbCommands(climbLeft, climbRight);
 
     private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
@@ -407,10 +464,7 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.right, VisionConstants.robotToRight);
 
     public final AprilTagPhotonVision zoom =
-            new AprilTagPhotonVision(
-                            VisionConstants.zoom,
-                            VisionConstants.robotToZoom,
-                            VisionConstants.zoomStdDevs)
+            new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
                     .withPriority(true);
 
     private final VisionController visionController =
@@ -418,9 +472,10 @@ public class RobotContainer {
                     swerve::addVisionData,
                     swerve::shouldAddData,
                     swerve::seedFieldRelative,
-                    backLeft,
-                    left,
                     right,
+                    left,
+                    backLeft,
+                    backRight,
                     zoom);
 
     public final NeuralDetector detector = new NeuralDetectorPhotonVision(VisionConstants.driver);
@@ -433,11 +488,19 @@ public class RobotContainer {
                     PivotConstants.robotToPivot2d,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
-                    false);
+                    ShooterConstants.kLeftMap,
+                    true);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
-    public final AutoDrive autoDrive = new AutoDrive(swerve, detector, targetingUtil);
+    public final AutoDrive autoDrive =
+            new AutoDrive(
+                    swerve,
+                    detector,
+                    targetingUtil,
+                    ShooterConstants.kLeftMap,
+                    ShooterConstants.kRightMap,
+                    ShooterConstants.kFeedMap);
 
     public final Superstructure superstructure =
             new Superstructure(
@@ -449,7 +512,9 @@ public class RobotContainer {
                     wrist,
                     churro,
                     autoDrive::getPivotAngle,
-                    autoDrive::getShootSpeed,
+                    autoDrive::getShootSpeedLeft,
+                    autoDrive::getShootSpeedRight,
+                    autoDrive::flywheelThreshold,
                     targetingUtil.exitVelocity(),
                     autoDrive::isFeed,
                     autoDrive::swerveAimed,
@@ -464,6 +529,10 @@ public class RobotContainer {
             new AutoCommands(
                     swerve,
                     autoDrive::getVelocities,
+                    autoDrive::onTheMove,
+                    autoDrive::getDriveRotAmp,
+                    autoDrive::getDriveRotOther90,
+                    autoDrive::getDriveXCenter,
                     superstructure,
                     targetingUtil,
                     detector::hasTarget,
@@ -475,10 +544,15 @@ public class RobotContainer {
 
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
-    private final Trigger climbing = new Trigger(() -> climb.getPosition() > 1);
+    private final Trigger climbing =
+            new Trigger(() -> climbLeft.getPosition() > 1 && climbRight.getPosition() > 1);
 
     private final Trigger goodToAmp =
-            new Trigger(() -> !coController.buttonY.getAsBoolean() && climb.getPosition() < 5);
+            new Trigger(
+                    () ->
+                            !coController.buttonY.getAsBoolean()
+                                    && climbLeft.getPosition() < 5
+                                    && climbRight.getPosition() < 5);
 
     private final Trigger goodToClimb =
             new Trigger(() -> autoDrive.getMode() != DriveMode.SHOOT_AT_AMP);

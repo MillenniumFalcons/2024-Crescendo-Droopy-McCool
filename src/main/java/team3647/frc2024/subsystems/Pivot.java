@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import java.util.function.BooleanSupplier;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class Pivot extends TalonFXSubsystem {
@@ -40,7 +41,7 @@ public class Pivot extends TalonFXSubsystem {
             TimeOfFlight tofBack,
             TimeOfFlight tofFront) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
-        // super.addFollower(slave, false);
+        super.addFollower(slave, false);
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
         this.maxAngleNormal = maxAngle;
@@ -49,6 +50,8 @@ public class Pivot extends TalonFXSubsystem {
         this.maxKG = maxKG;
         this.tofBack = tofBack;
         this.tofFront = tofFront;
+
+        master.getPosition().setUpdateFrequency(250);
     }
 
     @Override
@@ -59,6 +62,9 @@ public class Pivot extends TalonFXSubsystem {
     @Override
     public void periodic() {
         super.periodic();
+        Logger.recordOutput("fornt tof", tofFront());
+        Logger.recordOutput("back tof", tofFront());
+
         // Logger.recordOutput(
         //         "Pivot/Pose",
         //         new Pose3d(
@@ -99,7 +105,7 @@ public class Pivot extends TalonFXSubsystem {
     }
 
     public boolean backPiece() {
-        return tofBack.getRange() < 250;
+        return tofBack.getRange() < 125;
     }
 
     public double tofBack() {

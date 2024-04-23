@@ -1,7 +1,9 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.littletonrobotics.junction.Logger;
@@ -42,8 +44,7 @@ public class VisionController extends VirtualSubsystem {
             var getInputs = inputs.get();
 
             if (shouldAddData.apply(getInputs)) {
-                botPoseAcceptor.accept(getInputs);
-                Logger.recordOutput(String.format("Vision/%s", getInputs.name), getInputs.pose);
+                list.add(getInputs);
                 count = 0;
             } else {
                 count++;
@@ -57,18 +58,18 @@ public class VisionController extends VirtualSubsystem {
             // Logger.recordOutput("Robot/" + camera.getName(), getInputs.pose);
         }
 
-        // if (!list.isEmpty()) {
+        if (!list.isEmpty()) {
 
-        //     Collections.sort(list);
+            Collections.sort(list);
 
-        //     botPoseAcceptor.accept(list.get(0));
+            botPoseAcceptor.accept(list.get(0));
 
-        //     Logger.recordOutput("Robot/Vision", list.get(0).pose);
-        //     Logger.recordOutput("Robot/Camera", list.get(0).name);
-        //     Logger.recordOutput("stddev", list.get(0).stdDevs.get(0, 0));
-        // } else {
-        //     Logger.recordOutput("Robot/Vision", new Pose2d(1, 1, new Rotation2d()));
-        //     Logger.recordOutput("stddev", 0.0);
-        // }
+            Logger.recordOutput("Robot/Vision", list.get(0).pose);
+            Logger.recordOutput("Robot/Camera", list.get(0).name);
+            Logger.recordOutput("stddev", list.get(0).stdDevs.get(0, 0));
+        } else {
+            Logger.recordOutput("Robot/Vision", new Pose2d(1, 1, new Rotation2d()));
+            Logger.recordOutput("stddev", 0.0);
+        }
     }
 }

@@ -13,7 +13,7 @@ public class TargetingUtil {
 
     private final RobotTracker robotTracker;
     private final double shootSpeed = 30;
-    private double offset = 0.4;
+    private double offset = 0.5;
     double kDt = 0.1;
 
     private final MedianFilter filter = new MedianFilter(3);
@@ -40,10 +40,11 @@ public class TargetingUtil {
 
     // returns an object storing a pair of doubles, swerve angle change and pivot angle
     public AimingParameters shootAtPoseOnTheMove(Pose2d pose) {
+        Pose2d shotPose = robotTracker.compensate(robotTracker.getPose());
         double pivotAngle =
                 Math.toRadians(
-                        speakerMap.get(robotTracker.getCompensatedDistanceFromSpeaker()) + offset);
-        final var toPose = robotTracker.getCompensatedPose().minus(pose).getTranslation();
+                        speakerMap.get(robotTracker.getDistanceFromSpeaker(shotPose)) + offset);
+        final var toPose = shotPose.minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())
                         * Math.signum(toPose.getY())
@@ -69,8 +70,67 @@ public class TargetingUtil {
         // boolean shouldSubtract = Math.sin(newAngle) < 0;
         // pi = shouldSubtract ? -pi : pi;
         // newAngle = newAngle + pi; // field angle to pose
-        double robotAngleToPose =
-                robotTracker.getCompensatedPose().getRotation().getRadians() - newAngle;
+        double robotAngleToPose = robotTracker.getPose().getRotation().getRadians() - newAngle;
+        if (robotAngleToPose > Math.PI) {
+            robotAngleToPose -= 2 * Math.PI;
+        }
+        if (robotAngleToPose < -Math.PI) {
+            robotAngleToPose += 2 * Math.PI;
+        }
+        // SmartDashboard.putNumber("roobot angle", robotAngleToPose);
+        double angleOnTheMove = newAngle;
+        if (angleOnTheMove < 0) {
+            angleOnTheMove += Math.PI;
+        } else {
+            angleOnTheMove -= Math.PI;
+        }
+        double angleStationary = angle;
+        if (angleStationary < 0) {
+            angleStationary += Math.PI;
+        } else {
+            angleStationary -= Math.PI;
+        }
+        double newPivotAngle = pivotAngle;
+        // Math.atan(
+        //         (adjustedExit() * Math.sin(pivotAngle) * Math.cos(angleStationary))
+        //                 / (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angleOnTheMove)
+        //                         - robotTracker.getChassisSpeeds().vxMetersPerSecond
+        //                                 * invert));
+        return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
+    }
+
+    public AimingParameters feedOnTheMove(Pose2d pose) {
+        Pose2d shotPose = robotTracker.compensateFeed(robotTracker.getPose());
+        double pivotAngle =
+                Math.toRadians(
+                        speakerMap.get(robotTracker.getDistanceFromSpeaker(shotPose)) + offset);
+        final var toPose = shotPose.minus(pose).getTranslation();
+        double angle =
+                Math.acos(toPose.getX() / toPose.getNorm())
+                        * Math.signum(toPose.getY())
+                        * Math.signum(toPose.getX()); // field angle to pose stationary
+
+        double invert = 1;
+
+        if (DriverStation.getAlliance().isPresent()) {
+            if (DriverStation.getAlliance().get() == Alliance.Red) {
+                angle -= Math.PI;
+                invert = -1;
+            }
+        }
+        var newAngle = angle;
+        // Math.atan2(
+        //         (adjustedExit() * Math.cos(pivotAngle) * Math.sin(angle)
+        //                 + robotTracker.getChassisSpeeds().vyMetersPerSecond * invert),
+        //         (adjustedExit() * Math.cos(pivotAngle) * Math.cos(angle)
+        //                 + robotTracker.getChassisSpeeds().vxMetersPerSecond * invert));
+        // SmartDashboard.putNumber("new anle", newAngle);
+        // boolean shouldAddPi = Math.cos(newAngle) < 0;
+        // double pi = shouldAddPi ? Math.PI : 0;
+        // boolean shouldSubtract = Math.sin(newAngle) < 0;
+        // pi = shouldSubtract ? -pi : pi;
+        // newAngle = newAngle + pi; // field angle to pose
+        double robotAngleToPose = robotTracker.getPose().getRotation().getRadians() - newAngle;
         if (robotAngleToPose > Math.PI) {
             robotAngleToPose -= 2 * Math.PI;
         }
@@ -158,6 +218,14 @@ public class TargetingUtil {
         return new AimingParameters(robotAngleToPose, newPivotAngle, shootSpeed);
     }
 
+    public double getCompensatedDistance() {
+        return robotTracker.getDistanceFromSpeaker(robotTracker.compensate(robotTracker.getPose()));
+    }
+
+    public Pose2d getCompensatedPose() {
+        return robotTracker.compensate(robotTracker.getPose());
+    }
+
     public AimingParameters shootAtPose(Pose2d pose, double shootSpeed) {
         return shootAtPose(pose).withShootSpeed(shootSpeed);
     }
@@ -168,7 +236,7 @@ public class TargetingUtil {
     }
 
     public AimingParameters shootAtFeed() {
-        return shootAtPoseOnTheMove(robotTracker.getFeed());
+        return feedOnTheMove(robotTracker.getFeed());
     }
 
     public AimingParameters shootAtSpeakerOnTheMove() {
@@ -184,10 +252,6 @@ public class TargetingUtil {
         return robotTracker.getDistanceFromSpeaker();
     }
 
-    public Pose2d compensatedPose() {
-        return robotTracker.getCompensatedPose();
-    }
-
     public Pose2d pose() {
         return robotTracker.getPose();
     }
@@ -197,6 +261,14 @@ public class TargetingUtil {
             return -Math.PI / 2 - (robotTracker.getPose().getRotation().getRadians() - 2 * Math.PI);
         } else {
             return -Math.PI / 2 - robotTracker.getPose().getRotation().getRadians();
+        }
+    }
+
+    public double rotToOther90() {
+        if (robotTracker.getPose().getRotation().getRadians() < -Math.PI / 2) {
+            return Math.PI / 2 - (robotTracker.getPose().getRotation().getRadians() + 2 * Math.PI);
+        } else {
+            return Math.PI / 2 - robotTracker.getPose().getRotation().getRadians();
         }
     }
 

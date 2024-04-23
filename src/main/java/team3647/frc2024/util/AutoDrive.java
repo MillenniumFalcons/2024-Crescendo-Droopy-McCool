@@ -12,9 +12,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
@@ -32,14 +34,26 @@ public class AutoDrive extends VirtualSubsystem {
     private Pose2d targetPose = new Pose2d();
     private DriveMode mode = DriveMode.NONE;
     private double targetRot = 0;
+    private double targetRotOnTheMove = 0;
     private boolean enabled = true;
+
+    private InterpolatingDoubleTreeMap shootSpeedMapLeft;
+    private InterpolatingDoubleTreeMap shootSpeedMapRight;
+    private InterpolatingDoubleTreeMap feedMap;
 
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
                     6,
                     0,
-                    0.3,
+                    0,
                     new TrapezoidProfile.Constraints(10, 10)); // new PIDController(0.4, 0, 0);
+
+    // private final ProfiledPIDController autoRotController =
+    //         new ProfiledPIDController(
+    //                 6,
+    //                 0,
+    //                 0.1,
+    //                 new TrapezoidProfile.Constraints(10, 10)); // new PIDController(0.4, 0, 0);
 
     // private final PIDController rotController =
     //         new PIDController(6, 0, 0); // new PIDController(0.4, 0, 0);
@@ -50,22 +64,36 @@ public class AutoDrive extends VirtualSubsystem {
     private final PIDController xController =
             new PIDController(1, 0, 0); // new PIDController(0.4, 0, 0);
 
-    private final PIDController fastXController = new PIDController(2, 0, 0);
+    private final ProfiledPIDController fastXController =
+            new ProfiledPIDController(2, 0, 0.3, new TrapezoidProfile.Constraints(5, 10));
 
     private final PIDController fasterXController =
             new PIDController(3, 0, 0); // new PIDController(0.4, 0, 0);
 
-    private final PIDController fastYController =
-            new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
+    private final ProfiledPIDController fastYController =
+            new ProfiledPIDController(
+                    2,
+                    0,
+                    0.3,
+                    new TrapezoidProfile.Constraints(5, 10)); // new PIDController(0.4, 0, 0);
 
     private final PIDController yController =
             new PIDController(5, 0, 0); // new PIDController(0.4, 0, 0);
 
-    public AutoDrive(SwerveDrive swerve, NeuralDetector detector, TargetingUtil targeting) {
+    public AutoDrive(
+            SwerveDrive swerve,
+            NeuralDetector detector,
+            TargetingUtil targeting,
+            InterpolatingDoubleTreeMap shootSpeedMapLeft,
+            InterpolatingDoubleTreeMap shootSpeedMapRight,
+            InterpolatingDoubleTreeMap feedSpeedMap) {
         this.detector = detector;
         this.swerve = swerve;
         this.targeting = targeting;
-        rotController.enableContinuousInput(-Math.PI, Math.PI);
+        this.shootSpeedMapLeft = shootSpeedMapLeft;
+        this.shootSpeedMapRight = shootSpeedMapRight;
+        this.feedMap = feedSpeedMap;
+        // rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     public enum DriveMode {
@@ -73,6 +101,7 @@ public class AutoDrive extends VirtualSubsystem {
         SHOOT_AT_AMP,
         SHOOT_STATIONARY,
         SHOOT_ON_THE_MOVE,
+        CLEAN,
         FEED,
         INTAKE_IN_AUTO,
         NONE
@@ -80,11 +109,18 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("on the move rot", onTheMove());
+        // Logger.recordOutput("Robot/Compensated", targeting.32222getCompensatedPose());
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
+        SmartDashboard.putNumber("rot amo", targeting.rotToAmp());
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
+        targetRotOnTheMove = targeting.shootAtSpeakerOnTheMove().rotation;
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;
+        }
+        if (this.mode == DriveMode.CLEAN) {
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
         }
         if (this.mode == DriveMode.SHOOT_ON_THE_MOVE) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
@@ -106,7 +142,11 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public boolean swerveAimed() {
-        return Math.abs(targetRot) < 0.035;
+        return Math.abs(targetRot) < 0.035 * MathUtil.clamp(4 / targeting.distance(), 1, 10);
+    }
+
+    public double flywheelThreshold() {
+        return getShootSpeedLeft() - (1 + MathUtil.clamp(8 - 2 * targeting.distance(), 0, 5));
     }
 
     private void setTargetPose(Pose2d targetPose) {
@@ -143,11 +183,49 @@ public class AutoDrive extends VirtualSubsystem {
         return this.mode;
     }
 
-    public double getShootSpeed() {
-        if (targeting.distance() < 7) {
-            return 28;
-        } else {
-            return 36;
+    public double onTheMove() {
+        double k =
+                rotController.calculate(targetRotOnTheMove, 0)
+                        * MathUtil.clamp(
+                                Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 1.5),
+                                1,
+                                100);
+        k += rotController.getSetpoint().velocity;
+        if (Math.abs(k) < 0.5 && swerve.getChassisSpeeds().vyMetersPerSecond < 0.5) {
+            k = 0.5 * Math.signum(k);
+        }
+        return k;
+    }
+
+    public double getShootSpeedLeft() {
+        if (DriverStation.isAutonomous()) {
+            return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
+        }
+        switch (mode) {
+            case FEED:
+                return feedMap.get(targeting.getCompensatedDistance());
+            case SHOOT_STATIONARY:
+                return shootSpeedMapLeft.get(targeting.distance());
+            case SHOOT_ON_THE_MOVE:
+                return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
+            default:
+                return shootSpeedMapLeft.get(targeting.getCompensatedDistance());
+        }
+    }
+
+    public double getShootSpeedRight() {
+        if (DriverStation.isAutonomous()) {
+            return shootSpeedMapRight.get(targeting.getCompensatedDistance());
+        }
+        switch (mode) {
+            case FEED:
+                return feedMap.get(targeting.getCompensatedDistance()) * 4 / 5;
+            case SHOOT_STATIONARY:
+                return shootSpeedMapRight.get(targeting.distance());
+            case SHOOT_ON_THE_MOVE:
+                return shootSpeedMapRight.get(targeting.getCompensatedDistance());
+            default:
+                return shootSpeedMapRight.get(targeting.getCompensatedDistance());
         }
     }
 
@@ -157,7 +235,7 @@ public class AutoDrive extends VirtualSubsystem {
         }
         switch (mode) {
             case FEED:
-                return 40;
+                return 45;
             case SHOOT_ON_THE_MOVE:
                 return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
             case SHOOT_STATIONARY:
@@ -165,7 +243,7 @@ public class AutoDrive extends VirtualSubsystem {
             case SHOOT_AT_AMP:
                 return Units.radiansToDegrees(targeting.shootAtAmp().pivot);
             default:
-                return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
+                return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
         }
     }
 
@@ -176,7 +254,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getX() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = fastXController.calculate(swerve.getOdoPose().getX(), targeting.getAmpX());
+            double k = fasterXController.calculate(targeting.pose().getX(), targeting.getAmpX());
             double setpoint = Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
         }
@@ -187,7 +265,7 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getY() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = fastYController.calculate(swerve.getOdoPose().getY(), targeting.getAmpY());
+            double k = fastYController.calculate(targeting.pose().getY(), targeting.getAmpY());
             double setpoint = Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
         }
@@ -196,10 +274,31 @@ public class AutoDrive extends VirtualSubsystem {
         return setpoint;
     }
 
+    public double getDriveRotAmp() {
+        double k = rotController.calculate(-targeting.rotToAmp(), 0);
+        k += rotController.getSetpoint().velocity;
+        double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+        return setpoint;
+    }
+
+    public double getDriveRotOther90() {
+        double k = rotController.calculate(-targeting.rotToOther90(), 0);
+        k += rotController.getSetpoint().velocity;
+        double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+        return setpoint;
+    }
+
+    public double getDriveXCenter() {
+        double k = 2 * (FieldConstants.kFieldLength / 2 - targeting.pose().getX());
+        double setpoint = Math.abs(k) < 0.04 ? 0 : k;
+        return setpoint;
+    }
+
     public double getRot() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = rotController.calculate(0, targeting.rotToAmp());
-            double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+            double k = rotController.calculate(-targeting.rotToAmp(), 0);
+            k += rotController.getSetpoint().velocity;
+            double setpoint = Math.abs(targetRot) < 0.025 ? 0 : k;
             return setpoint;
         }
         double k =
@@ -208,13 +307,19 @@ public class AutoDrive extends VirtualSubsystem {
                                 Math.abs(swerve.getChassisSpeeds().vyMetersPerSecond / 1.5),
                                 1,
                                 100);
+        // * MathUtil.clamp(
+        //         3
+        //                 / (Math.abs(swerve.getChassisSpeeds().omegaRadiansPerSecond)
+        //                         + 0.1),
+        //         1,
+        //         4);
         k += rotController.getSetpoint().velocity;
-        if (Math.abs(k) < 0.4 && swerve.getVel() < 0.2) {
-            k = 0.4 * Math.signum(k);
+        if (Math.abs(k) < 0.5 && swerve.getChassisSpeeds().vyMetersPerSecond < 0.5) {
+            k = 0.5 * Math.signum(k);
         }
         Logger.recordOutput("k", k);
 
-        double setpoint = Math.abs(targetRot) < 0.02 ? 0 : k;
+        double setpoint = Math.abs(targetRot) < 0.03 ? 0 : k;
         return setpoint;
     }
 

@@ -33,8 +33,8 @@ public class PivotConstants {
     public static final double kMaxVelocityTicks = (400.0 / kNativeVelToDPS);
     public static final double kMaxAccelerationTicks = (200.0 / kNativeVelToDPS);
 
-    public static final double kMinDegree = 12;
-    public static final double kMaxDegree = 68.27;
+    public static final double kMinDegree = 8;
+    public static final double kMaxDegree = 63;
     public static final double kMaxDegreeUnderStage = 30;
 
     private static final double masterKP = 18;
@@ -47,7 +47,7 @@ public class PivotConstants {
     public static final double kStallCurrent = 30.0;
     public static final double kMaxCurrent = 80.0;
 
-    public static final double kInitialAngle = 68.27;
+    public static final double kInitialAngle = 63;
 
     public static final Transform3d robotToPivot =
             new Transform3d(
@@ -88,23 +88,24 @@ public class PivotConstants {
         // kMasterSpeakerMap.put(5.75, 27.7);
         // kMasterSpeakerMap.put(6.0, 27.4);
         // kMasterSpeakerMap.put(20.0, 26.5);
-        kMasterSpeakerMap.put(0.0, 60.2);
-        kMasterSpeakerMap.put(1.5, 50.0);
-        kMasterSpeakerMap.put(2.0, 41.0);
-        kMasterSpeakerMap.put(2.5, 36.0);
-        kMasterSpeakerMap.put(3.0, 32.0);
-        kMasterSpeakerMap.put(3.5, 28.0);
-        kMasterSpeakerMap.put(4.0, 25.0);
-        kMasterSpeakerMap.put(4.5, 24.0);
-        kMasterSpeakerMap.put(5.0, 22.0);
-        kMasterSpeakerMap.put(5.5, 21.0);
-        kMasterSpeakerMap.put(6.0, 20.0);
-        kMasterSpeakerMap.put(6.5, 19.5);
-        kMasterSpeakerMap.put(7.0, 19.2);
-        kMasterSpeakerMap.put(7.5, 18.7);
-        kMasterSpeakerMap.put(8.0, 18.0);
-        kMasterSpeakerMap.put(8.5, 17.5);
-        kMasterSpeakerMap.put(20.0, 17.5);
+        kMasterSpeakerMap.put(0.0, 60.0);
+        kMasterSpeakerMap.put(1.0, 60.0);
+        kMasterSpeakerMap.put(1.5, 60.0); //
+        kMasterSpeakerMap.put(2.0, 49.0); //
+        kMasterSpeakerMap.put(2.5, 43.0); //
+        kMasterSpeakerMap.put(3.0, 38.0); //
+        kMasterSpeakerMap.put(3.5, 32.5); //
+        kMasterSpeakerMap.put(4.0, 29.0); //
+        kMasterSpeakerMap.put(4.5, 28.7); //
+        kMasterSpeakerMap.put(5.0, 27.5); //
+        kMasterSpeakerMap.put(5.5, 26.0); //
+        kMasterSpeakerMap.put(6.0, 24.5); //
+        kMasterSpeakerMap.put(6.5, 23.2); //
+        kMasterSpeakerMap.put(7.0, 22.0); //
+        kMasterSpeakerMap.put(7.5, 21.4); //
+        kMasterSpeakerMap.put(8.0, 20.7); //
+        kMasterSpeakerMap.put(8.5, 20.7); //
+        kMasterSpeakerMap.put(20.0, 20.7); // //
         kMasterAmpMap.put(0.0, 60.0);
         kMasterAmpMap.put(100.0, 60.0);
         Slot0Configs kMasterSlot0 = new Slot0Configs();

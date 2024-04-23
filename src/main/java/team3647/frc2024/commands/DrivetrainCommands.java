@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.BooleanSupplier;
@@ -78,6 +79,7 @@ public class DrivetrainCommands {
                         if (mode != DriveMode.NONE && enabeld) {
                             motionTurnComponent = autoDriveTwist2d.dtheta;
                         }
+                        SmartDashboard.putNumber("theta", autoDriveTwist2d.dtheta);
 
                         var translation = new Translation2d(motionXComponent, motionYComponent);
 
