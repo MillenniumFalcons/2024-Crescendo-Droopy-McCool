@@ -48,6 +48,8 @@ public class Superstructure {
 
     private final BooleanSupplier feedShot;
 
+    private final BooleanSupplier dontShoot;
+
     private final Trigger front;
 
     private DriveMode wantedShootingMode = DriveMode.SHOOT_STATIONARY;
@@ -64,7 +66,8 @@ public class Superstructure {
             DoubleSupplier shooterSpeedSuppler,
             double shootSpeed,
             BooleanSupplier feedShot,
-            BooleanSupplier swerveAimed) {
+            BooleanSupplier swerveAimed,
+            BooleanSupplier dontShoot) {
         this.intake = intake;
         this.kicker = kicker;
         this.shooterRight = shooterRight;
@@ -77,6 +80,7 @@ public class Superstructure {
         this.wrist = wrist;
         this.swerveAimed = swerveAimed;
         this.feedShot = feedShot;
+        this.dontShoot = dontShoot;
 
         intakeCommands = new IntakeCommands(intake);
         kickerCommands = new KickerCommands(kicker);
@@ -216,6 +220,10 @@ public class Superstructure {
         return swerveAimed.getAsBoolean();
     }
 
+    public boolean readyForShot(){
+        return aimedAtSpeaker() && !dontShoot.getAsBoolean();
+    }
+
     public Command shoot() {
         return Commands.parallel(
                 prep(), spinUp()
@@ -230,7 +238,8 @@ public class Superstructure {
                 //                                         && swerveAimed.getAsBoolean())
                 //                 .withTimeout(1.2),
                 //         feed())
-                );
+                ).until(this::readyForShot)
+                .andThen(stowFromShoot());
     }
 
     public boolean aimedAtSpeaker() {
@@ -348,6 +357,15 @@ public class Superstructure {
                                 kickerCommands.kill())
                         .withTimeout(0.1));
     }
+
+    public Command stowNoShoot(){
+        return Commands.parallel(
+                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                                shooterCommands.kill(),
+                                kickerCommands.kill())
+                        .withTimeout(0.1);
+    }
+    
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(

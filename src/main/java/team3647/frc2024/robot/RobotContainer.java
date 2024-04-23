@@ -198,6 +198,9 @@ public class RobotContainer {
         mainController.dPadDown.and(goodToClimb).whileTrue(climbCommands.goDown());
         mainController.dPadDown.and(goodToClimb).onFalse(climbCommands.kill());
 
+
+        
+
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
 
@@ -449,7 +452,8 @@ public class RobotContainer {
                     autoDrive::getShootSpeed,
                     targetingUtil.exitVelocity(),
                     autoDrive::isFeed,
-                    autoDrive::swerveAimed);
+                    autoDrive::swerveAimed,
+                    mainController.buttonY);
 
     LEDTriggers ledTriggers = new LEDTriggers(superstructure, autoDrive::getMode);
 
