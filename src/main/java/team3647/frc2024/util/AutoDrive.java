@@ -104,6 +104,7 @@ public class AutoDrive extends VirtualSubsystem {
         CLEAN,
         FEED,
         INTAKE_IN_AUTO,
+        AMP_IN_AUTO,
         NONE
     }
 
@@ -241,7 +242,9 @@ public class AutoDrive extends VirtualSubsystem {
             case SHOOT_STATIONARY:
                 return Units.radiansToDegrees(targeting.shootAtSpeaker().pivot);
             case SHOOT_AT_AMP:
-                return Units.radiansToDegrees(targeting.shootAtAmp().pivot);
+                return 50;
+            case AMP_IN_AUTO:
+                return 50;
             default:
                 return Units.radiansToDegrees(targeting.shootAtSpeakerOnTheMove().pivot);
         }

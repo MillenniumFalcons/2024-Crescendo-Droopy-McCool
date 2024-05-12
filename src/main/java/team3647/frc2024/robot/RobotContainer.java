@@ -524,6 +524,7 @@ public class RobotContainer {
     public final AutoCommands autoCommands =
             new AutoCommands(
                     swerve,
+                    autoDrive::setMode,
                     autoDrive::getVelocities,
                     autoDrive::onTheMove,
                     autoDrive::getDriveRotAmp,
