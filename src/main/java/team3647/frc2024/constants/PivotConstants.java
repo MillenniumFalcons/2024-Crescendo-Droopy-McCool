@@ -94,9 +94,9 @@ public class PivotConstants {
         kMasterSpeakerMap.put(2.0, 49.0); //
         kMasterSpeakerMap.put(2.5, 43.0); //
         kMasterSpeakerMap.put(3.0, 38.0); //
-        kMasterSpeakerMap.put(3.5, 32.5); //
-        kMasterSpeakerMap.put(4.0, 29.0); //
-        kMasterSpeakerMap.put(4.5, 28.7); //
+        kMasterSpeakerMap.put(3.5, 33.5); //
+        kMasterSpeakerMap.put(4.0, 31.0); //
+        kMasterSpeakerMap.put(4.5, 29.0); //
         kMasterSpeakerMap.put(5.0, 27.5); //
         kMasterSpeakerMap.put(5.5, 26.0); //
         kMasterSpeakerMap.put(6.0, 24.5); //
