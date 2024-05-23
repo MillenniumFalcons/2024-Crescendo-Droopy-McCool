@@ -17,7 +17,7 @@ public class FieldConstants {
     public static final Rotation2d kZero = new Rotation2d();
     public static final Rotation2d kNinety = Rotation2d.fromDegrees(90);
 
-    public static final double kFieldLength = Units.inchesToMeters(651.25);
+    public static final double kFieldLength = Units.inchesToMeters(507.25);
     public static final double kFieldWidth = Units.inchesToMeters(315.5);
 
     public static final Pose2d kOrigin = new Pose2d();
