@@ -1,6 +1,7 @@
 package team3647.frc2024.util;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -92,11 +93,11 @@ public class RobotTracker extends VirtualSubsystem {
 
         double time = periodicIO.distanceFromSpeaker / shootSpeed;
         var transform =
-                new Twist2d(
+                new Transform2d(
                         periodicIO.speeds.vxMetersPerSecond * time,
                         periodicIO.speeds.vyMetersPerSecond * time,
-                        0);
-        var middlePose = periodicIO.pose.exp(transform);
+                        new Rotation2d());
+        var middlePose = periodicIO.pose.transformBy(transform);
         double newDistance = getDistanceFromSpeaker(middlePose);
         double newSpeed = 15 * (1 - newDistance / 40);
         double newTime = newDistance / newSpeed;
@@ -132,6 +133,10 @@ public class RobotTracker extends VirtualSubsystem {
 
     public double getDistanceFromSpeaker(Pose2d pose) {
         return pose.transformBy(robotToShooter).minus(speakerPose).getTranslation().getNorm();
+    }
+
+    public double getDistanceFromPose(Pose2d pose){
+        return periodicIO.pose.transformBy(robotToShooter).minus(pose).getTranslation().getNorm();
     }
 
     public Pose2d getPose() {
