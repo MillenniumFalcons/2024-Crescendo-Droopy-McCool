@@ -338,6 +338,10 @@ public class RobotContainer {
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
+    public boolean getIsRed(){
+        return this.runningMode.getPathplannerPose2d().getX() > 6.461565219116211;
+    }
+
     public Command getAutonomousCommand() {
         return runningMode.getAutoCommand();
     }
@@ -486,7 +490,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    true);
+                    getIsRed());
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 

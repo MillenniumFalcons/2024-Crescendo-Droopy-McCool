@@ -772,7 +772,7 @@ public class AutoCommands {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
-        boolean isAmp = path.toLowerCase().contains("amp");
+        boolean isAmp = path.toLowerCase().endsWith("amp");
         return customChoreoFolloweForOverride(
                         traj, 
                         swerve::getOdoPose, 
@@ -784,15 +784,15 @@ public class AutoCommands {
                                 var motionXComponent = speeds.vxMetersPerSecond;
                                 var motionYComponent = speeds.vyMetersPerSecond;
                                 var motionTurnComponent = isAmp ? speeds.omegaRadiansPerSecond : deeTheta();
-                                boolean nearMidline = swerve.getOdoPose().getX() > (mirror ? 
-                                                                                5 : 
-                                                                                FieldConstants.kFieldLength - 8.75);
+                                boolean nearMidline = swerve.getOdoPose().getX() > (!mirror ? 
+                                                                                4 : 
+                                                                                FieldConstants.kFieldLength - 6.9212);
                                 nearMidline &= swerve.getOdoPose().getX()
-                                                                < (mirror
-                                                                        ? 8.75
+                                                                < (!mirror
+                                                                        ? 6.9212
                                                                         : FieldConstants
                                                                                         .kFieldLength
-                                                                                - 5);
+                                                                                - 4);
 
                                 if(!hasPiece && hasTarget.getAsBoolean() && nearMidline){
                                     motionXComponent = autoDriveVelocities.get().dx;
