@@ -47,6 +47,12 @@ public class AutoCommands {
     private final Superstructure superstructure;
     private final TargetingUtil targeting;
 
+    /*
+     * LIST OF PATHS THAT ARE SIGNIFICANTLY MODIFIED
+     * - shoot4 to f4
+     *  - 
+     * 
+     */
     private final String s1_to_n1 = "s1 to n1";
     private final String s1_to_n1_to_f1 = "s1 to n1 to f1";
     private final String s2_to_n2a = "s2 to n2";
@@ -87,6 +93,8 @@ public class AutoCommands {
     private final String f3_to_shoot4 = "f3 to shoot4";
     private final String shoot1_to_f1 = "shoot1 to f1";
     private final String shoot2_to_f2 = "shoot2 to f2";
+    private final String s15_to_amp = "s15 to amp";
+    private final String amp_to_f1 = "amp to f1";
     private final String f1_to_amp = "f1 to amp";
     private final String amp_to_f2 = "amp to f2";
     private final String f2_to_amp = "f2 to amp";
