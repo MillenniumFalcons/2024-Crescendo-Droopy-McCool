@@ -3,7 +3,6 @@ package team3647.frc2024.auto;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
-import com.fasterxml.jackson.annotation.JsonFormat.Feature;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -22,24 +21,19 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import javax.swing.plaf.basic.BasicBorders.SplitPaneBorder;
-
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AllianceFlip;
-import team3647.frc2024.util.AutoDrive;
 import team3647.frc2024.util.AutoDrive.DriveMode;
-import team3647.lib.PoseUtils;
 import team3647.frc2024.util.TargetingUtil;
+import team3647.lib.PoseUtils;
 
 public class AutoCommands {
     private final SwerveDrive swerve;
@@ -50,8 +44,8 @@ public class AutoCommands {
     /*
      * LIST OF PATHS THAT ARE SIGNIFICANTLY MODIFIED
      * - shoot4 to f4
-     *  - 
-     * 
+     *  -
+     *
      */
     private final String s1_to_n1 = "s1 to n1";
     private final String s1_to_n1_to_f1 = "s1 to n1 to f1";
@@ -191,7 +185,6 @@ public class AutoCommands {
         this.driveX = xSupplier;
         this.setAutoDriveMode = setAutoDriveMode;
 
-
         noteNotSeen = new Trigger(() -> !hasTarget.getAsBoolean()).debounce(0.5);
 
         currentYes = new Trigger(() -> superstructure.currentYes()).debounce(0.06);
@@ -259,14 +252,14 @@ public class AutoCommands {
         this.redFullCenterS3 =
                 new AutonomousMode(
                         fullCenterS3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)));
-        
-        this.redThree_S1F1AF2A = 
-                new AutonomousMode(
-                    three_S1F1AF2A(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
 
-        this.blueThree_S1F1AF2A = 
+        this.redThree_S1F1AF2A =
                 new AutonomousMode(
-                    three_S1F1AF2A(Alliance.Blue), getInitial(s15_to_f1));
+                        three_S1F1AF2A(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+
+        this.blueThree_S1F1AF2A =
+                new AutonomousMode(three_S1F1AF2A(Alliance.Blue), getInitial(s15_to_f1));
     }
 
     public enum MidlineNote {
@@ -398,19 +391,17 @@ public class AutoCommands {
                         target()));
     }
 
-    public Command three_S1F1AF2A(Alliance color){
+    public Command three_S1F1AF2A(Alliance color) {
         return Commands.parallel(
-            masterSuperstructureSequence(color),
-            Commands.sequence(
-                good_followChoreoPathWithOverrideFast(s15_to_f1, color),
-                good_followChoreoPathWithOverrideFast(f1_to_amp, color),
-                Commands.waitSeconds(1),
-                good_followChoreoPathWithOverrideFast(amp_to_f2, color),
-                good_followChoreoPathWithOverrideFast(f2_to_amp, color),
-                Commands.waitSeconds(1),
-                good_followChoreoPathWithOverrideFast(amp_to_f3, color)
-            )
-        );
+                ampSuperStructureSequence(color),
+                Commands.sequence(
+                        good_followChoreoPathWithOverrideFast(s15_to_f1, color),
+                        good_followChoreoPathWithOverrideFast(f1_to_amp, color),
+                        Commands.waitSeconds(1),
+                        good_followChoreoPathWithOverrideFast(amp_to_f2, color),
+                        good_followChoreoPathWithOverrideFast(f2_to_amp, color),
+                        Commands.waitSeconds(1),
+                        good_followChoreoPathWithOverrideFast(amp_to_f3, color)));
     }
 
     public Command four_S3N5N4N3(Alliance color) {
@@ -475,8 +466,6 @@ public class AutoCommands {
                         followChoreoPathWithOverride(n1_to_n2, color),
                         followChoreoPathWithOverride(n2_to_n3, color)));
     }
-
-
 
     public Command pathToTrapTest() {
         return Commands.sequence(
@@ -545,9 +534,6 @@ public class AutoCommands {
                         .andThen(getScoringSequenceByPoseAmpToSource(color)),
                 hasNote);
     }
-
-
-
 
     public Command searchOrScoreSourceToAmp(BooleanSupplier hasNote, Alliance color) {
         return new ConditionalCommand(
@@ -623,16 +609,13 @@ public class AutoCommands {
                         superstructure.feed()));
     }
 
-    public Command SuperStructureSequence(Alliance color){
-        return Commands.parallel(
-            superstructure.prepAmp(),
-            continuouslyIntakeForShoot(color),
-            Commands.sequence(
-                Commands.waitUntil(() -> goodToGoAmp(color)),
-                superstructure.spinUpAmp(),
-                superstructure.spinUpAmp().alongWith(superstructure.feed())
-            )
-        );
+    public Command ampSuperStructureSequence(Alliance color) {
+        return scorePreload()
+                .andThen(
+                        Commands.parallel(
+                                superstructure.prepAmp(),
+                                intakeForAmpShot(color).repeatedly(),
+                                superstructure.feed()));
     }
 
     public boolean goodToGo(Alliance color) {
@@ -644,8 +627,8 @@ public class AutoCommands {
         }
     }
 
-    public boolean goodToGoAmp(Alliance color){
-        if(color == Alliance.Blue){
+    public boolean goodToGoAmp(Alliance color) {
+        if (color == Alliance.Blue) {
             return PoseUtils.boundingRadius(swerve.getOdoPose(), FieldConstants.kBlueAmp, 0.05);
         } else {
             return PoseUtils.boundingRadius(swerve.getOdoPose(), FieldConstants.kRedAmp, 0.05);
@@ -683,11 +666,11 @@ public class AutoCommands {
         return Commands.parallel(superstructure.shootStow());
     }
 
-    public Command setPiece(){
+    public Command setPiece() {
         return Commands.runOnce(() -> this.hasPiece = true);
     }
 
-    public Command setNoPeice(){
+    public Command setNoPeice() {
         return Commands.runOnce(() -> this.hasPiece = false);
     }
 
@@ -703,7 +686,17 @@ public class AutoCommands {
                                         new Trigger(() -> goodToGo(color)))));
     }
 
-
+    public Command intakeForAmpShot(Alliance color) {
+        return Commands.sequence(
+                setNoPeice(),
+                superstructure
+                        .intake()
+                        .until(currentYes)
+                        .andThen(setPiece())
+                        .andThen(
+                                superstructure.passToShooterForAmp(
+                                        new Trigger(() -> goodToGoAmp(color)))));
+    }
 
     public Pose2d flipForPP(Pose2d pose) {
         return new Pose2d(
@@ -719,7 +712,6 @@ public class AutoCommands {
         return Commands.parallel(
                 superstructure.shootStow(), followChoreoPathWithOverride(path, color));
     }
-
 
     public Command target() {
         return Commands.run(() -> swerve.drive(0, 0, deeTheta()), swerve);
@@ -775,43 +767,40 @@ public class AutoCommands {
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
 
-    //also accounts for amp auto
-    public Command good_followChoreoPathWithOverrideFast(String path, Alliance color){
+    // also accounts for amp auto
+    public Command good_followChoreoPathWithOverrideFast(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
         boolean isAmp = path.toLowerCase().endsWith("amp");
         return customChoreoFolloweForOverride(
-                        traj, 
-                        swerve::getOdoPose, 
+                        traj,
+                        swerve::getOdoPose,
                         choreoSwerveController(
-                            AutoConstants.kXController, 
-                            AutoConstants.kYController, 
-                            AutoConstants.kRotController),
-                            (ChassisSpeeds speeds) -> {
-                                var motionXComponent = speeds.vxMetersPerSecond;
-                                var motionYComponent = speeds.vyMetersPerSecond;
-                                var motionTurnComponent = isAmp ? speeds.omegaRadiansPerSecond : deeTheta();
-                                boolean nearMidline = swerve.getOdoPose().getX() > (!mirror ? 
-                                                                                4 : 
-                                                                                FieldConstants.kFieldLength - 6.9212);
-                                nearMidline &= swerve.getOdoPose().getX()
-                                                                < (!mirror
-                                                                        ? 6.9212
-                                                                        : FieldConstants
-                                                                                        .kFieldLength
-                                                                                - 4);
+                                AutoConstants.kXController,
+                                AutoConstants.kYController,
+                                AutoConstants.kRotController),
+                        (ChassisSpeeds speeds) -> {
+                            var motionXComponent = speeds.vxMetersPerSecond;
+                            var motionYComponent = speeds.vyMetersPerSecond;
+                            var motionTurnComponent =
+                                    isAmp ? speeds.omegaRadiansPerSecond : deeTheta();
+                            boolean nearMidline =
+                                    swerve.getOdoPose().getX()
+                                            > (!mirror ? 4 : FieldConstants.kFieldLength - 6.9212);
+                            nearMidline &=
+                                    swerve.getOdoPose().getX()
+                                            < (!mirror ? 6.9212 : FieldConstants.kFieldLength - 4);
 
-                                if(!hasPiece && hasTarget.getAsBoolean() && nearMidline){
-                                    motionXComponent = autoDriveVelocities.get().dx;
-                                    motionYComponent = autoDriveVelocities.get().dy;
-                                }
-                                
-                                swerve.drive(motionXComponent, motionYComponent, motionTurnComponent);
-                            },
-                            () -> mirror)
-                            .andThen(
-                                Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
+                            if (!hasPiece && hasTarget.getAsBoolean() && nearMidline) {
+                                motionXComponent = autoDriveVelocities.get().dx;
+                                motionYComponent = autoDriveVelocities.get().dy;
+                            }
+
+                            swerve.drive(motionXComponent, motionYComponent, motionTurnComponent);
+                        },
+                        () -> mirror)
+                .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
 
     public Command followChoreoPathWithOverrideFastOnTheMove(String path, Alliance color) {
@@ -950,7 +939,7 @@ public class AutoCommands {
                             trajectory
                                     .sample(timer.get(), mirrorTrajectory.getAsBoolean())
                                     .getPose());
-                    
+
                     outputChassisSpeeds.accept(
                             controller.apply(
                                     poseSupplier.get(),
@@ -1010,11 +999,11 @@ public class AutoCommands {
         return autoDriveVelocities.get().dtheta;
     }
 
-    public double deeX(){
+    public double deeX() {
         return autoDriveVelocities.get().dx;
     }
 
-    public double deeY(){
+    public double deeY() {
         return autoDriveVelocities.get().dy;
     }
 

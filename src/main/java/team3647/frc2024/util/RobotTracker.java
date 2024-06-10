@@ -135,7 +135,7 @@ public class RobotTracker extends VirtualSubsystem {
         return pose.transformBy(robotToShooter).minus(speakerPose).getTranslation().getNorm();
     }
 
-    public double getDistanceFromPose(Pose2d pose){
+    public double getDistanceFromPose(Pose2d pose) {
         return periodicIO.pose.transformBy(robotToShooter).minus(pose).getTranslation().getNorm();
     }
 

@@ -454,6 +454,20 @@ public class Superstructure {
                 .andThen(Commands.deadline(shootThroughNoKicker(), spinUp()));
     }
 
+    public Command passToShooterForAmp(Trigger shouldGo) {
+        return Commands.parallel(
+                        intakeCommands.kill(),
+                        wristCommands.setAngle(() -> wrist.getInverseKinematics(pivot.getAngle())))
+                .until(
+                        shouldGo.and(
+                                () ->
+                                        wrist.angleReached(
+                                                wrist.getInverseKinematics(pivot.getAngle()), 5)))
+                .andThen(
+                        Commands.deadline(
+                                shootThroughNoKicker(), spinUpAmp(), prepAmp(), deployChurro()));
+    }
+
     public Command shootThrough() {
         return Commands.parallel(intakeCommands.intake(), kickerCommands.fastKick())
                 // pivotCommands.setAngle(() -> 20))

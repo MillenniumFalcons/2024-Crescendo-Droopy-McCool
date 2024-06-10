@@ -338,7 +338,7 @@ public class RobotContainer {
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
-    public boolean getIsRed(){
+    public boolean getIsRed() {
         return this.runningMode.getPathplannerPose2d().getX() > 6.461565219116211;
     }
 
