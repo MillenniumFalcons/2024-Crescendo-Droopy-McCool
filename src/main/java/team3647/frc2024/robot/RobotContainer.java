@@ -2,6 +2,7 @@ package team3647.frc2024.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -9,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import java.sql.Driver;
 import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
@@ -82,7 +85,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFullCenterS1;
+        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);
@@ -184,8 +187,8 @@ public class RobotContainer {
                         Commands.sequence(
                                 Commands.waitSeconds(1), autoDrive.setMode(DriveMode.NONE)));
 
-        coController.leftMidButton.onTrue(autoDrive.enable());
-        coController.rightMidButton.onTrue(autoDrive.disable());
+        coController.leftMidButton.onTrue(autoDrive.enable()); // the one with the rectangles
+        coController.rightMidButton.onTrue(autoDrive.disable()); // the one with the lines
 
         mainController
                 .leftBumper
@@ -338,9 +341,7 @@ public class RobotContainer {
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 
-    public boolean getIsRed() {
-        return this.runningMode.getPathplannerPose2d().getX() > 6.461565219116211;
-    }
+
 
     public Command getAutonomousCommand() {
         return runningMode.getAutoCommand();
@@ -490,7 +491,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    getIsRed());
+                    false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 

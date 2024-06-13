@@ -106,6 +106,8 @@ public class AutoDrive extends VirtualSubsystem {
         INTAKE_IN_AUTO,
         AMP_IN_AUTO,
         NONE
+
+        
     }
 
     @Override
@@ -114,11 +116,12 @@ public class AutoDrive extends VirtualSubsystem {
         // Logger.recordOutput("Robot/Compensated", targeting.32222getCompensatedPose());
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         SmartDashboard.putNumber("rot amo", targeting.rotToAmp());
+        SmartDashboard.putString("drivemode", mode.toString());
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
         targetRotOnTheMove = targeting.shootAtSpeakerOnTheMove().rotation;
         if (DriverStation.isAutonomous()) {
-            targetRot = targeting.shootAtSpeaker().rotation;
+            targetRot = targeting.shootAtSpeakerOnTheMove().rotation;
         }
         if (this.mode == DriveMode.CLEAN) {
             targetRot = targeting.shootAtSpeakerOnTheMove().rotation;

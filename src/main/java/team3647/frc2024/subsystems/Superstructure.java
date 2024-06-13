@@ -41,7 +41,7 @@ public class Superstructure {
     private final double churroDeployAngle = 70;
     private final double churroStowAngle = ChurroConstants.kInitialDegree;
     private final double shootSpeed;
-    private double currentLimit = 32;
+    private double currentLimit = 28;
     private boolean hasPiece = false;
     private boolean isClimbing;
     private boolean isIntaking = false;
@@ -199,7 +199,7 @@ public class Superstructure {
     }
 
     public boolean currentYes() {
-        return intake.getMasterCurrent() > currentLimit && wrist.getAngle() < 5; // 41
+        return intake.getMasterCurrent() > currentLimit && wrist.getAngle() < 3; // 41
     }
 
     public boolean current() {
@@ -465,7 +465,7 @@ public class Superstructure {
                                                 wrist.getInverseKinematics(pivot.getAngle()), 5)))
                 .andThen(
                         Commands.deadline(
-                                shootThroughNoKicker(), spinUpAmp(), prepAmp(), deployChurro()));
+                                shootThroughNoKicker(), spinUpAmp(), deployChurro()));
     }
 
     public Command shootThrough() {
