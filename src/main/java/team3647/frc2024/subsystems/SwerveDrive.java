@@ -262,15 +262,15 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
     public boolean underStage() {
         return ((getOdoPose().getX() > 3.2 && getOdoPose().getX() < 6.5)
-                        || (getOdoPose().getX() > 9.9 && getOdoPose().getX() < 13.3))
+                        || (getOdoPose().getX() > 6.2265 && getOdoPose().getX() < 9.6265))
                 && ((Math.abs(getOdoPose().getY() - 4) /*dist from mid */
                                         < ((getOdoPose().getX() - 2.6)
                                                 * 1
                                                 / 1.73 /*slope of stage*/)
                                 && getOdoPose().getX() < 6.5)
                         || (Math.abs(getOdoPose().getY() - 4)
-                                        < ((13.9 - getOdoPose().getX()) * 1 / 1.73)
-                                && getOdoPose().getX() > 9.9));
+                                        < ((10.2265 - getOdoPose().getX()) * 1 / 1.73)
+                                && getOdoPose().getX() > 6.2265));
     }
 
     public Command runDriveQuasiTest(Direction direction) {
