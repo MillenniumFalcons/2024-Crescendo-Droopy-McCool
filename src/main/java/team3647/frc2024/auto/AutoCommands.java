@@ -3,6 +3,7 @@ package team3647.frc2024.auto;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
+import com.choreo.lib.ChoreoTrajectoryState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -160,6 +161,8 @@ public class AutoCommands {
 
     public final AutonomousMode redThree_S1F1AF2A;
 
+    public final AutonomousMode jshoot;
+
     private MidlineNote lastNote = MidlineNote.ONE;
 
     private final PIDController fastXController = new PIDController(2, 0, 0);
@@ -267,6 +270,8 @@ public class AutoCommands {
 
         this.blueThree_S1F1AF2A =
                 new AutonomousMode(three_S1F1AF2A(Alliance.Blue), getInitial(s15_to_f1));
+        this.jshoot = new AutonomousMode(jshoot(), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+        
     }
 
     public enum MidlineNote {
@@ -514,6 +519,10 @@ public class AutoCommands {
                 swerve);
     }
 
+    public Command jshoot(){
+        return scorePreload();
+    }
+
     public Command searchSourceToAmp() {
         return Commands.run(
                 () -> {
@@ -607,15 +616,14 @@ public class AutoCommands {
 
     public Command masterSuperstructureSequence(Alliance color) {
         return Commands.sequence(
-                scorePreload()
-                .alongWith(Commands.runOnce(() -> setAutoDriveMode.accept(DriveMode.INTAKE_IN_AUTO))),
+                scorePreload(),
                 Commands.parallel(
                         // superstructure.spinUp(),
                         superstructure.prep(),
                         // superstructure.fastFeed(),
                         continuouslyIntakeForShoot(color).repeatedly(),
-                        superstructure.feed()),
-                Commands.runOnce(() -> setAutoDriveMode.accept(DriveMode.NONE)));
+                        superstructure.feed())
+               );
     }
 
     public Command ampSuperStructureSequence(Alliance color) {
@@ -733,7 +741,7 @@ public class AutoCommands {
         SmartDashboard.putBoolean("autodrivethings", swerve.getOdoPose().getX() > 4 && hasTarget.getAsBoolean());
         SmartDashboard.putBoolean("target?", hasTarget.getAsBoolean());
         SmartDashboard.putBoolean("nearmidline?", swerve.getOdoPose().getX() > 4);
-        boolean noOverride = path.toLowerCase().endsWith("f2");
+        boolean noOverride = path.toLowerCase().endsWith("f2") || path.toLowerCase().endsWith("f4");
         SmartDashboard.putBoolean("nooverie?", noOverride);
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
         return customChoreoFolloweForOverride(
@@ -922,6 +930,17 @@ public class AutoCommands {
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
 
+    public ChoreoTrajectoryState flip(ChoreoTrajectoryState state){
+        return new ChoreoTrajectoryState(
+            state.timestamp,
+            FieldConstants.kFieldLength - state.x,
+            state.y,
+            Math.PI - state.heading,
+            -state.velocityX,
+            state.velocityY,
+            -state.angularVelocity);
+  }
+
     public Command customChoreoFolloweForOverride(
             ChoreoTrajectory trajectory,
             Supplier<Pose2d> poseSupplier,
@@ -941,8 +960,8 @@ public class AutoCommands {
                     outputChassisSpeeds.accept(
                             controller.apply(
                                     poseSupplier.get(),
-                                    trajectory.sample(
-                                            timer.get(), mirrorTrajectory.getAsBoolean())));
+                                    mirrorTrajectory.getAsBoolean()? flip(trajectory.sample(timer.get())) 
+                                    :trajectory.sample(timer.get())));
                 },
                 (interrupted) -> {
                     timer.stop();
@@ -988,8 +1007,8 @@ public class AutoCommands {
                     outputChassisSpeeds.accept(
                             controller.apply(
                                     poseSupplier.get(),
-                                    trajectory.sample(
-                                            timer.get(), mirrorTrajectory.getAsBoolean())));
+                                    mirrorTrajectory.getAsBoolean()? flip(trajectory.sample(timer.get())) 
+                                    :trajectory.sample(timer.get())));
                 },
                 (interrupted) -> {
                     timer.stop();

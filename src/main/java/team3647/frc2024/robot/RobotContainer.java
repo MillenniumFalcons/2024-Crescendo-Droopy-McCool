@@ -85,7 +85,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.blueSix_S1F1F2N1N2N3;
+        runningMode = autoCommands.redSix_S1F1F2N1N2N3;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);
@@ -491,7 +491,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    false);
+                    true);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
@@ -503,7 +503,6 @@ public class RobotContainer {
                     ShooterConstants.kLeftMap,
                     ShooterConstants.kRightMap,
                     ShooterConstants.kFeedMap);
-
     public final Superstructure superstructure =
             new Superstructure(
                     intake,

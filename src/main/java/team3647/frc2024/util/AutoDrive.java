@@ -260,8 +260,8 @@ public class AutoDrive extends VirtualSubsystem {
 
     public double getX() {
         if (this.mode == DriveMode.SHOOT_AT_AMP) {
-            double k = fasterXController.calculate(targeting.pose().getX(), targeting.getAmpX());
-            double setpoint = Math.abs(k) < 0.04 ? 0 : k;
+            double k = 0;//fasterXController.calculate(targeting.pose().getX(), targeting.getAmpX());
+            double setpoint = 0;//Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
         }
         double k = xController.calculate(-2, Units.degreesToRadians(detector.getTY()));
