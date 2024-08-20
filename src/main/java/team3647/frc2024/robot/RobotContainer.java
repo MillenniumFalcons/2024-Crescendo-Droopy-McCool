@@ -518,7 +518,8 @@ public class RobotContainer {
                     autoDrive::flywheelThreshold,
                     targetingUtil.exitVelocity(),
                     autoDrive::isFeed,
-                    autoDrive::swerveAimed);
+                    autoDrive::swerveAimed,
+                    mainController.buttonY);
 
     LEDTriggers ledTriggers = new LEDTriggers(superstructure, autoDrive::getMode);
 
