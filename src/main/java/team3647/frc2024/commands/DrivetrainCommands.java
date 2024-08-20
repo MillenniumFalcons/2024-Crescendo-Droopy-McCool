@@ -60,7 +60,7 @@ public class DrivetrainCommands {
                             -turnSpeedFunction.getAsDouble() * maxRotationRadpS * triggerSlow;
 
                     if (mode == DriveMode.SHOOT_AT_AMP && enabeld) {
-                        motionXComponent = autoDriveTwist2d.dx + motionXComponent *0.1;
+                        motionXComponent = autoDriveTwist2d.dx + motionXComponent * 0.1;
                         motionTurnComponent = autoDriveTwist2d.dtheta + motionTurnComponent * 0.1;
 
                         var translation = new Translation2d(motionXComponent, motionYComponent);
@@ -68,8 +68,8 @@ public class DrivetrainCommands {
                         var rotation = motionTurnComponent;
                         swerve.driveFieldOriented(translation.getX(), translation.getY(), rotation);
                     } else if (mode == DriveMode.INTAKE_IN_AUTO && enabeld) {
-                        motionXComponent = autoDriveTwist2d.dx  + 0.1 * motionXComponent;
-                        motionYComponent = autoDriveTwist2d.dy + 0.1 * motionYComponent;
+                        motionXComponent = autoDriveTwist2d.dx;
+                        motionYComponent = autoDriveTwist2d.dy;
 
                         var translation = new Translation2d(motionXComponent, motionYComponent);
 
@@ -77,7 +77,7 @@ public class DrivetrainCommands {
                         swerve.drive(translation.getX(), translation.getY(), rotation);
                     } else {
                         if (mode != DriveMode.NONE && enabeld) {
-                            motionTurnComponent = autoDriveTwist2d.dtheta + motionTurnComponent * 0.1;
+                            motionTurnComponent = autoDriveTwist2d.dtheta;
                         }
                         SmartDashboard.putNumber("theta", autoDriveTwist2d.dtheta);
 

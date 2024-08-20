@@ -226,25 +226,27 @@ public class Superstructure {
         return swerveAimed.getAsBoolean();
     }
 
-    public boolean readyForShot(){
+    public boolean readyForShot() {
         return aimedAtSpeaker() && !dontShoot.getAsBoolean();
     }
 
     public Command shoot() {
         return Commands.parallel(
-                prep(), spinUp()
-                // Commands.sequence(
-                //         // Commands.waitSeconds(2.5),
-                //         Commands.waitUntil(
-                //                         () ->
-                //                                 shooterLeft.velocityReached(30, 2)
-                //                                         && pivot.angleReached(
-                //                                                 pivotAngleSupplier.getAsDouble(),
-                // 5)
-                //                                         && swerveAimed.getAsBoolean())
-                //                 .withTimeout(1.2),
-                //         feed())
-                ).until(this::readyForShot)
+                        prep(), spinUp()
+                        // Commands.sequence(
+                        //         // Commands.waitSeconds(2.5),
+                        //         Commands.waitUntil(
+                        //                         () ->
+                        //                                 shooterLeft.velocityReached(30, 2)
+                        //                                         && pivot.angleReached(
+                        //
+                        // pivotAngleSupplier.getAsDouble(),
+                        // 5)
+                        //                                         && swerveAimed.getAsBoolean())
+                        //                 .withTimeout(1.2),
+                        //         feed())
+                        )
+                .until(this::readyForShot)
                 .andThen(stowFromShoot());
     }
 
@@ -381,14 +383,13 @@ public class Superstructure {
                         .withTimeout(0.1));
     }
 
-    public Command stowNoShoot(){
+    public Command stowNoShoot() {
         return Commands.parallel(
-                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
-                                shooterCommands.kill(),
-                                kickerCommands.kill())
-                        .withTimeout(0.1);
+                        pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                        shooterCommands.kill(),
+                        kickerCommands.kill())
+                .withTimeout(0.1);
     }
-    
 
     public Command stowFromAmpShoot() {
         return Commands.sequence(

@@ -239,9 +239,6 @@ public class RobotContainer {
         mainController.dPadDown.and(goodToClimb).whileTrue(climbCommands.goDown());
         mainController.dPadDown.onFalse(climbCommands.kill());
 
-
-        
-
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
 
