@@ -51,8 +51,8 @@ public class ShooterCommands {
     public Command setVelocityIndep(DoubleSupplier left, DoubleSupplier right) {
         return Commands.run(
                 () -> {
-                    shooterRight.setVelocity(right.getAsDouble());
-                    shooterLeft.setVelocity(left.getAsDouble());
+                    shooterRight.setVelocityVoltage(right.getAsDouble());
+                    shooterLeft.setVelocityVoltage(left.getAsDouble());
                 },
                 shooterRight,
                 shooterLeft);

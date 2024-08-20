@@ -6,6 +6,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.FieldCentric;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.RobotCentric;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -105,6 +106,9 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
                 new FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
         public RobotCentric robotCentric =
                 new RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        public FieldCentricFacingAngle facingAngleRequest = 
+                new FieldCentricFacingAngle().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        
     }
 
     public SwerveDrive(
@@ -188,6 +192,8 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
                 },
                 this // Reference to this subsystem to set requirements
                 );
+
+        periodicIO.facingAngleRequest.HeadingController.setPID(6, 0, 0);
     }
 
     public void zeroPitch() {
@@ -505,6 +511,17 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
                 .withVelocityY(setpoint.mChassisSpeeds.vyMetersPerSecond)
                 .withRotationalRate(setpoint.mChassisSpeeds.omegaRadiansPerSecond);
         periodicIO.masterRequest = periodicIO.robotCentric;
+    }
+
+    public void driveFacingAngle(double x, double y, double angle){
+        if(!periodicIO.good){
+            reset();
+            return;
+        }
+
+        SwerveSetpoint setpoint = generate(x, y, 0);
+
+
     }
 
     public SwerveModuleState[] getModuleStates() {

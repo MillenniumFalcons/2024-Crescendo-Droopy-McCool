@@ -79,6 +79,10 @@ public class DrivetrainCommands {
                         if (mode != DriveMode.NONE && enabeld) {
                             motionTurnComponent = autoDriveTwist2d.dtheta;
                         }
+                    if(mode == DriveMode.AIM_AT_AMP){
+                        swerve.driveFacingAngle(motionXComponent, motionYComponent, autoDriveTwist2d.dtheta);
+                        return;
+                    }
                         SmartDashboard.putNumber("theta", autoDriveTwist2d.dtheta);
 
                         var translation = new Translation2d(motionXComponent, motionYComponent);

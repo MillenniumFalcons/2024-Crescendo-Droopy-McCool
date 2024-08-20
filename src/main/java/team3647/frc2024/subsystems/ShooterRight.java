@@ -37,6 +37,10 @@ public class ShooterRight extends TalonFXSubsystem {
         super.setVelocityFOC(velocity, 0);
     }
 
+    public void setVelocityVoltage(double velocity){
+        super.setVelocityVoltage(velocity, 0);
+    }
+
     public void setVoltage(double voltage) {
         super.setVoltage(voltage);
     }

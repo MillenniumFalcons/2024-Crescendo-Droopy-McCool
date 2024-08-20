@@ -104,6 +104,7 @@ public class AutoDrive extends VirtualSubsystem {
         CLEAN,
         FEED,
         INTAKE_IN_AUTO,
+        AIM_AT_AMP,
         NONE
     }
 
