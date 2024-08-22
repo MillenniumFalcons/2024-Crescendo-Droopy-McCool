@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
+
+import com.ctre.phoenix6.hardware.TalonFX;
+
 import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
@@ -82,6 +85,7 @@ public class RobotContainer {
         climb.setEncoder(0);
         churro.setEncoder(ChurroConstants.kInitialDegree);
         swerve.setRobotPose(runningMode.getPathplannerPose2d());
+        shooterLeft.addFollower(new TalonFX(33, GlobalConstants.subsystemsLoopName));
 
         RobotController.setBrownoutVoltage(5.5);
     }

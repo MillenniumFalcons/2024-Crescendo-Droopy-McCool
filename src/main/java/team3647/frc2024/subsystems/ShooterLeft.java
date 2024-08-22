@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -29,12 +30,12 @@ public class ShooterLeft extends TalonFXSubsystem {
         this.m_shooterSysIdRoutine =
                 new SysIdRoutine(
                         new SysIdRoutine.Config(
-                                Units.Volts.of(6).per(Units.Seconds.of(1)),
-                                Units.Volts.of(30),
-                                Units.Seconds.of(20),
+                                Units.Volts.of(0.8).per(Units.Seconds.of(1)),
+                                Units.Volts.of(7.5),
+                                Units.Seconds.of(10),
                                 ModifiedSignalLogger.logState()),
                         new SysIdRoutine.Mechanism(
-                                (Measure<Voltage> volts) -> setTorque(volts.in(Units.Volts)),
+                                (Measure<Voltage> volts) -> setVoltage(volts.in(Units.Volts)),
                                 null,
                                 this));
     }
@@ -49,6 +50,10 @@ public class ShooterLeft extends TalonFXSubsystem {
 
     public void openLoop(double demand) {
         super.setOpenloop(demand);
+    }
+
+    public void addFollower(TalonFX follower){
+        this.addFollower(follower, true);
     }
 
     public void setTorque(double torque) {
