@@ -82,7 +82,7 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFullCenterS1;
+        runningMode = autoCommands.blueFullCenterS1;
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);
@@ -135,10 +135,10 @@ public class RobotContainer {
                         () ->
                                 (!superstructure.getIsIntaking()
                                         && autoDrive.getMode() != DriveMode.CLEAN))
-                .whileTrue(superstructure.shoot())
+                .whileTrue(superstructure.shootManual())
                 .onFalse(
                         superstructure
-                                .stowFromShoot()
+                                .stowFromManualShoot()
                                 .andThen(superstructure.ejectPiece())
                                 .unless(mainController.buttonY));
 
@@ -486,7 +486,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    true);
+                false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 

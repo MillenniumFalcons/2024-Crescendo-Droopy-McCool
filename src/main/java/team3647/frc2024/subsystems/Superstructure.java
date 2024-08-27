@@ -372,6 +372,17 @@ public class Superstructure {
                         .withTimeout(0.1));
     }
 
+    public Command stowFromManualShoot(){
+        return Commands.sequence(
+            Commands.parallel(prep(), spinUp(), feed()).withTimeout(0.5),
+            Commands.parallel(
+                            pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                            shooterCommands.kill(),
+                            kickerCommands.kill())
+                    .withTimeout(0.1)
+        );
+    }
+
     public Command stowFromAmpShoot() {
         return Commands.sequence(
                 Commands.parallel(
