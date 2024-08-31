@@ -374,9 +374,9 @@ public class Superstructure {
 
     public Command stowFromManualShoot(){
         return Commands.sequence(
-            Commands.parallel(prep(), spinUp(), feed()).withTimeout(0.5),
+            Commands.parallel(prepManual(), spinUp(), feed()).withTimeout(0.6),
             Commands.parallel(
-                            pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                            pivotCommands.setAngle(() -> SmartDashboard.getNumber("pivot interp angle", pivotAngleSupplier.getAsDouble())),
                             shooterCommands.kill(),
                             kickerCommands.kill())
                     .withTimeout(0.1)
