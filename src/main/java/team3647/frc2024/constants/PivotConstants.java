@@ -92,17 +92,17 @@ public class PivotConstants {
         kMasterSpeakerMap.put(1.0, 60.0);
         kMasterSpeakerMap.put(1.5, 60.0); //
         kMasterSpeakerMap.put(2.0, 49.0); //
-        kMasterSpeakerMap.put(2.5, 43.0); //
-        kMasterSpeakerMap.put(3.0, 38.0); //
-        kMasterSpeakerMap.put(3.5, 33.5); //
-        kMasterSpeakerMap.put(4.0, 31.0); //
-        kMasterSpeakerMap.put(4.5, 29.0); //
-        kMasterSpeakerMap.put(5.0, 27.5); //
+        kMasterSpeakerMap.put(2.5, 45.0); //
+        kMasterSpeakerMap.put(3.0, 35.0); //
+        kMasterSpeakerMap.put(3.5, 31.7); //
+        kMasterSpeakerMap.put(4.0, 30.0); //
+        kMasterSpeakerMap.put(4.5, 27.9); //
+        kMasterSpeakerMap.put(5.0, 26.5); //
         kMasterSpeakerMap.put(5.5, 26.0); //
-        kMasterSpeakerMap.put(6.0, 24.5); //
-        kMasterSpeakerMap.put(6.5, 23.2); //
-        kMasterSpeakerMap.put(7.0, 22.0); //
-        kMasterSpeakerMap.put(7.5, 21.4); //
+        kMasterSpeakerMap.put(6.0, 23.4); //
+        kMasterSpeakerMap.put(6.52, 22.35); //
+        kMasterSpeakerMap.put(7.04, 22.0); //
+        kMasterSpeakerMap.put(7.4961, 20.7); //it stops working here
         kMasterSpeakerMap.put(8.0, 20.7); //
         kMasterSpeakerMap.put(8.5, 20.7); //
         kMasterSpeakerMap.put(20.0, 20.7); // //
@@ -144,7 +144,7 @@ public class PivotConstants {
         kMasterConfigurator.apply(kMasterSoftLimit);
         kSlaveConfigurator.apply(kMasterSlot0);
         kSlaveConfigurator.apply(kMasterCurrent);
-        kSlaveConfigurator.apply(kMasterMotionMagic);
+                kSlaveConfigurator.apply(kMasterMotionMagic);
         kSlaveConfigurator.apply(kMasterMotorOutput);
         kSlaveConfigurator.apply(kMasterSoftLimit);
     }
