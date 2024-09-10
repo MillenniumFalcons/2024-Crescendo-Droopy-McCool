@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.proto.Controller.ProtobufDifferentialDriveFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,7 +22,12 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
@@ -33,8 +39,9 @@ import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AllianceFlip;
 import team3647.frc2024.util.AutoDrive.DriveMode;
 import team3647.frc2024.util.TargetingUtil;
+import team3647.lib.team9442.AllianceObserver;
 
-public class AutoCommands {
+public class AutoCommands implements AllianceObserver  {
     private final SwerveDrive swerve;
     private final Supplier<Twist2d> autoDriveVelocities;
     private final Superstructure superstructure;
@@ -112,6 +119,10 @@ public class AutoCommands {
 
     public final AutonomousMode blueSix_S1F1F2N1N2N3;
 
+    public final AutonomousMode blueForwardTest;
+
+    public final AutonomousMode blueRightTest;
+
     //     public final AutonomousMode redFive_S1N1F1N2N3;
 
     public final AutonomousMode redFour_S1F1F2F3;
@@ -136,7 +147,15 @@ public class AutoCommands {
 
     public final AutonomousMode redFullCenterS3;
 
+    public final AutonomousMode redTest;
+
+    public List<AutonomousMode> redAutoModes;
+    
+    public List<AutonomousMode> blueAutoModes;
+
     private MidlineNote lastNote = MidlineNote.ONE;
+
+    Alliance color = Alliance.Red;
 
     private final PIDController fastXController = new PIDController(2, 0, 0);
 
@@ -179,18 +198,18 @@ public class AutoCommands {
         //                 AllianceFlip.flipForPP(getInitial(s1_to_n1_to_f1)));
 
         this.blueTest_S15 =
-                new AutonomousMode(testS1(Alliance.Blue), getInitial(s15_straight_forward));
+                new AutonomousMode(testS1(Alliance.Blue), getInitial(s15_straight_forward), "blue test");
 
         this.redTwo_S2F3 =
                 new AutonomousMode(
-                        two_S2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s2_to_f3)));
+                        two_S2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s2_to_f3)), "red two note mid");
         this.redFour_S3F5F4F3 =
                 new AutonomousMode(
-                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)));
+                        four_S3F5F4F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)), "red 4 source");
 
         this.redFour_S1N1N2N3 =
                 new AutonomousMode(
-                        four_S1N1N2N3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_n1)));
+                        four_S1N1N2N3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s1_to_n1)), "red 4 amp near");
 
         // this.redFive_S1N1F1F2F3 = // DONT USE
         //         new AutonomousMode(
@@ -199,38 +218,66 @@ public class AutoCommands {
 
         this.redFour_S1F1F2F3 =
                 new AutonomousMode(
-                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+                        four_S1F1F2F3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)), "red 4 amp far");
 
         this.redSix_S1F1F2N1N2N3 =
                 new AutonomousMode(
                         six_S1F1F2N1N2N3(Alliance.Red),
-                        AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+                        AllianceFlip.flipForPP(getInitial(s15_to_f1)), "red six note");
 
         this.blueFour_S1N1N2N3 =
-                new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1));
+                new AutonomousMode(four_S1N1N2N3(Alliance.Blue), getInitial(s1_to_n1), "blue 4 amp near");
 
         this.blueSix_S1F1F2N1N2N3 =
-                new AutonomousMode(six_S1F1F2N1N2N3(Alliance.Blue), getInitial(s15_to_f1));
+                new AutonomousMode(six_S1F1F2N1N2N3(Alliance.Blue), getInitial(s15_to_f1), "blue six note");
 
         this.blueFour_S3F5F4F3 =
-                new AutonomousMode(four_S3F5F4F3(Alliance.Blue), getInitial(s35_to_f5));
+                new AutonomousMode(four_S3F5F4F3(Alliance.Blue), getInitial(s35_to_f5), "blue 4 source far");
 
         this.blueFour_S1F1F2F3 =
-                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1));
+                new AutonomousMode(four_S1F1F2F3(Alliance.Blue), getInitial(s15_to_f1), "blue 4 amp far");
 
         this.blueFullCenterS1 =
-                new AutonomousMode(fullCenterS1(Alliance.Blue), getInitial(s15_to_f1));
+                new AutonomousMode(fullCenterS1(Alliance.Blue), getInitial(s15_to_f1), "blue all mid amp");
 
         this.redFullCenterS1 =
                 new AutonomousMode(
-                        fullCenterS1(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)));
+                        fullCenterS1(Alliance.Red), AllianceFlip.flipForPP(getInitial(s15_to_f1)), "red all mid amp");   
 
         this.blueFullCenterS3 =
-                new AutonomousMode(fullCenterS3(Alliance.Blue), getInitial(s35_to_f5));
+                new AutonomousMode(fullCenterS3(Alliance.Blue), getInitial(s35_to_f5), "blue all mid source");
 
         this.redFullCenterS3 =
                 new AutonomousMode(
-                        fullCenterS3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)));
+                        fullCenterS3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s35_to_f5)), "red all mid source");
+        
+        this.blueForwardTest = 
+                new AutonomousMode(testForward(), getInitial("test Forward"), "blue forward test");
+        this.blueRightTest = 
+                new AutonomousMode(testRight(), getInitial("test right"), "blue right test");
+        this.redTest = 
+                new AutonomousMode(testForward(), AllianceFlip.flipForPP(getInitial(f1_to_f2)));
+
+        redAutoModes = new ArrayList<AutonomousMode>(Set.of(
+                redFullCenterS1, 
+                redFullCenterS3, 
+                redFour_S1F1F2F3, 
+                redFour_S1N1N2N3, 
+                redFour_S3F5F4F3,
+                redSix_S1F1F2N1N2N3,
+                redTwo_S2F3));
+
+        blueAutoModes = new ArrayList<AutonomousMode>(Set.of(
+                blueFour_S1F1F2F3,
+                blueFour_S1N1N2N3,
+                blueFour_S3F5F4F3,
+                blueFullCenterS1,
+                blueFullCenterS3,
+                blueSix_S1F1F2N1N2N3,
+                blueForwardTest,
+                blueRightTest));
+        
+
     }
 
     public enum MidlineNote {
@@ -239,6 +286,11 @@ public class AutoCommands {
         THREE,
         FOUR,
         FIVE
+    }
+
+    @Override
+    public void onAllianceFound(Alliance color) {
+        this.color = color;
     }
 
     public void registerCommands() {}
@@ -320,6 +372,14 @@ public class AutoCommands {
         return Commands.sequence(
                 followChoreoPathWithOverride(f5_to_shoot3, color),
                 followChoreoPathWithOverrideFast(shoot4_to_f4, color));
+    }
+
+    public Command testForward(){
+        return followChoreoPath("test Forward", Alliance.Blue);
+    }
+
+    public Command testRight(){
+        return followChoreoPath("test right", Alliance.Blue);
     }
 
     public Command testS1(Alliance color) {
@@ -901,4 +961,6 @@ public class AutoCommands {
                 () -> mirror,
                 swerve);
     }
+
+ 
 }

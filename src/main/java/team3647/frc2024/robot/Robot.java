@@ -8,6 +8,7 @@ import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.AutoLogOutputManager;
@@ -18,6 +19,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import team3647.lib.team6328.VirtualSubsystem;
+import team3647.lib.team9442.AllianceChecker;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,7 +32,10 @@ public class Robot extends LoggedRobot {
     public static final double kTenMSLoopTime = 0.01;
     public static final double kTwentyMSLoopTime = 0.02;
 
+
     private RobotContainer robotContainer = new RobotContainer();
+    
+    
 
     public Robot() {
         super(.02);
@@ -99,6 +104,8 @@ public class Robot extends LoggedRobot {
         // robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+        
+        
     }
 
     /** This function is called once each time the robot enters Disabled mode. */
@@ -106,7 +113,10 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {}
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        
+        robotContainer.allianceChecker.periodic();
+    }
 
     /**
      * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.

@@ -26,13 +26,21 @@ public class InverseKinematics {
 
     public static Pose2d getPivotReceivingPosition(double pivot) {
         return new Pose2d(
-                pivotX - pivotLength * Math.cos(Math.toRadians(pivot + interestingOffset)),
+                pivotX - pivotLength * Math.cos(Math.toRadians(pivot + interestingOffset)),// offset in rads then reconverted to rads???
                 pivotHeight - pivotLength * Math.sin(Math.toRadians(pivot + interestingOffset)),
                 new Rotation2d());
-    }
+    } 
 
+
+    /**
+     * 
+     * shitty diagram of IK
+     * https://drive.google.com/file/d/1bnx3PpZeSeFPfKqN4SnjKoJX9bxIdk7v/view?usp=sharing
+     * 
+     * see the comments for math explanation
+     */
     public static double getWristHandoffAngleByPivot(double pivot) {
-        Pose2d pivotReceivingPose = getPivotReceivingPosition(pivot);
+        Pose2d pivotReceivingPose = getPivotReceivingPosition(pivot);   
         double triangleBaseSqaured =
                 GeomUtil.distanceSquared(
                         wristOriginPos,
@@ -43,19 +51,32 @@ public class InverseKinematics {
         double quadraticA = 1; // law of cos
         double quadraticB = -2 * triangleSide1 * Math.cos(wristRollersAngle);
         double quadraticC = triangleSide1 * triangleSide1 - triangleBaseSqaured;
+
+        //create a quadratic from law of cos, x=b (aka unknown), quadratic a b and c derived from law of cos
+
+        //c^2 = a^2+b^2-2abCosL -> -b^2 = a^2-c^2-2abcosL -> 0=1b^2-(2acosL) b + (a^2-c^2)
+        // therefore quadraicA = 1, quadraticb = 2acosL + quadraticC = a^2-c^2
+
         if (quadraticB * quadraticB - 4 * quadraticA * quadraticC < 0) {
             return defaultAngle;
         }
         double triangleSide2 =
                 (-quadraticB + Math.sqrt(quadraticB * quadraticB - 4 * quadraticA * quadraticC))
                         / (2 * quadraticA); // pick greater solution
+        // use quad formula, solve for b
+        //b is the side from intake exit to pivot entrance
+        
         Pose2d intersection =
                 getCircleIntersection(
                         wristOriginPos, triangleSide1, pivotReceivingPose, triangleSide2);
+        //create circles, find intersection
+
         double wristAngle =
                 Math.atan(
                         (intersection.getY() - wristOriginPos.getY())
                                 / (wristOriginPos.getX() - intersection.getX()));
+        //make a right triangle and solve for theta
+        
         if (wristAngle < 0) { // account for domain
             wristAngle += Math.PI;
         }
@@ -63,6 +84,12 @@ public class InverseKinematics {
         return Math.toDegrees(wristAngle);
     }
 
+    /**
+     * magic and wizardry 
+     * 
+     * https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect
+     * ill figure out the math later
+     */
     public static Pose2d getCircleIntersection(Pose2d c1, double r1, Pose2d c2, double r2) {
         double distance = GeomUtil.distance(c1, c2);
         double d1 = (r1 * r1 - r2 * r2 + distance * distance) / (2 * distance);

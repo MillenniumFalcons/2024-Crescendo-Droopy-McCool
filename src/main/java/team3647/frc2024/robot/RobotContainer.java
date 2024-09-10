@@ -49,6 +49,8 @@ import team3647.frc2024.util.TargetingUtil;
 import team3647.frc2024.util.VisionController;
 import team3647.lib.GroupPrinter;
 import team3647.lib.inputs.Joysticks;
+import team3647.lib.team9442.AllianceChecker;
+import team3647.lib.team9442.AutoChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,7 +60,7 @@ import team3647.lib.inputs.Joysticks;
  */
 public class RobotContainer {
 
-    private AutonomousMode runningMode;
+    
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -82,17 +84,22 @@ public class RobotContainer {
         configureButtonBindings();
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
-        runningMode = autoCommands.redFullCenterS1;
+        configAllianceChecker();
+        
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);
         climbRight.setEncoder(ClimbConstants.kInitialLength);
         churro.setEncoder(ChurroConstants.kInitialDegree);
-        swerve.setRobotPose(runningMode.getPathplannerPose2d());
+        autoChooser.addAutos(); 
+        SmartDashboard.putData("Autos",autoChooser);
 
         RobotController.setBrownoutVoltage(5.5);
     }
 
+    private void configAllianceChecker(){
+        allianceChecker.registerObservers(autoCommands, autoChooser);
+    }
     private void configureButtonBindings() {
 
         ledTriggers.inOutTrigger.onTrue(mainController.rumble());
@@ -339,7 +346,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return runningMode.getAutoCommand();
+        return autoChooser.getSelected().getAutoCommand();
     }
 
     private final Joysticks mainController = new Joysticks(0);
@@ -464,6 +471,9 @@ public class RobotContainer {
             new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
                     .withPriority(true);
 
+    public AllianceChecker allianceChecker = new AllianceChecker();
+
+
     private final VisionController visionController =
             new VisionController(
                     swerve::addVisionData,
@@ -522,6 +532,8 @@ public class RobotContainer {
     private final team3647.frc2024.subsystems.LEDs LEDs =
             new team3647.frc2024.subsystems.LEDs(LEDConstants.m_candle, ledTriggers);
 
+    
+
     public final AutoCommands autoCommands =
             new AutoCommands(
                     swerve,
@@ -534,6 +546,8 @@ public class RobotContainer {
                     targetingUtil,
                     detector::hasTarget,
                     autoDrive::getMode);
+
+    public final AutoChooser autoChooser = new  AutoChooser(autoCommands, swerve::setRobotPose);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 
