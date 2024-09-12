@@ -8,6 +8,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.util.ModifiedSignalLogger;
 import team3647.lib.TalonFXSubsystem;
 
@@ -58,7 +59,7 @@ public class ShooterLeft extends TalonFXSubsystem {
     }
 
     public void setVelocity(double velocity) {
-        super.setVelocityFOC(velocity, 0);
+        super.setVelocityVoltage(velocity, 0);
     }
 
     public void setVoltage(double voltage) {
@@ -71,6 +72,13 @@ public class ShooterLeft extends TalonFXSubsystem {
 
     public boolean velocityGreater(double setpoint) {
         return super.getVelocity() > setpoint;
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+        Logger.recordOutput(
+                "real shoot demadn", super.velocityVoltage.Velocity * velocityConversion);
     }
 
     @Override

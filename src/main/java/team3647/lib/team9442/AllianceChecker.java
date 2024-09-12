@@ -14,14 +14,13 @@ public class AllianceChecker {
         observers.add(observer);
     }
 
-
     public void registerObservers(AllianceObserver... addObservers) {
         for (final AllianceObserver o : addObservers) {
             observers.add(o);
         }
     }
 
-    public  void periodic() {
+    public void periodic() {
         alliance = DriverStation.getAlliance();
 
         alliance.ifPresent(color -> observers.forEach(observer -> observer.onAllianceFound(color)));

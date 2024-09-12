@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
-import team3647.frc2024.auto.AutonomousMode;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
 import team3647.frc2024.constants.ChurroConstants;
@@ -60,8 +59,6 @@ import team3647.lib.team9442.AutoChooser;
  */
 public class RobotContainer {
 
-    
-
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
 
@@ -85,21 +82,22 @@ public class RobotContainer {
         configureSmartDashboardLogging();
         autoCommands.registerCommands();
         configAllianceChecker();
-        
+
         pivot.setEncoder(PivotConstants.kInitialAngle);
         wrist.setEncoder(WristConstants.kInitialDegree);
         climbLeft.setEncoder(ClimbConstants.kInitialLength);
         climbRight.setEncoder(ClimbConstants.kInitialLength);
         churro.setEncoder(ChurroConstants.kInitialDegree);
-        autoChooser.addAutos(); 
-        SmartDashboard.putData("Autos",autoChooser);
+        autoChooser.addAutos();
+        SmartDashboard.putData("Autos", autoChooser);
 
         RobotController.setBrownoutVoltage(5.5);
     }
 
-    private void configAllianceChecker(){
+    private void configAllianceChecker() {
         allianceChecker.registerObservers(autoCommands, autoChooser);
     }
+
     private void configureButtonBindings() {
 
         ledTriggers.inOutTrigger.onTrue(mainController.rumble());
@@ -473,7 +471,6 @@ public class RobotContainer {
 
     public AllianceChecker allianceChecker = new AllianceChecker();
 
-
     private final VisionController visionController =
             new VisionController(
                     swerve::addVisionData,
@@ -532,8 +529,6 @@ public class RobotContainer {
     private final team3647.frc2024.subsystems.LEDs LEDs =
             new team3647.frc2024.subsystems.LEDs(LEDConstants.m_candle, ledTriggers);
 
-    
-
     public final AutoCommands autoCommands =
             new AutoCommands(
                     swerve,
@@ -547,7 +542,7 @@ public class RobotContainer {
                     detector::hasTarget,
                     autoDrive::getMode);
 
-    public final AutoChooser autoChooser = new  AutoChooser(autoCommands, swerve::setRobotPose);
+    public final AutoChooser autoChooser = new AutoChooser(autoCommands, swerve::setRobotPose);
 
     private final CommandScheduler scheduler = CommandScheduler.getInstance();
 

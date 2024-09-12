@@ -34,7 +34,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     private final MotionMagicDutyCycle motionMagicDutyCycle = new MotionMagicDutyCycle(0);
     private final VelocityDutyCycle velocityDutyCycle = new VelocityDutyCycle(0);
     private final VoltageOut voltageOut = new VoltageOut(0);
-    private final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
+    protected final VelocityVoltage velocityVoltage = new VelocityVoltage(0);
     private final PositionVoltage positionVoltage = new PositionVoltage(0);
     private final MotionMagicExpoTorqueCurrentFOC motionMagicExpoTorqueCurrentFOC =
             new MotionMagicExpoTorqueCurrentFOC(0);
@@ -47,7 +47,7 @@ public abstract class TalonFXSubsystem implements PeriodicSubsystem {
     public ControlRequest controlMode = new EmptyControl();
     private Follower masterOutput;
     private final double positionConversion;
-    private final double velocityConversion;
+    protected final double velocityConversion;
     private final double nominalVoltage;
     protected final double kDt;
     public static final int kLongStatusTimeMS = 255;

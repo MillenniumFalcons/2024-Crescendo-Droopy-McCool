@@ -115,6 +115,8 @@ public class AutoDrive extends VirtualSubsystem {
         SmartDashboard.putNumber("rot amo", targeting.rotToAmp());
         Logger.recordOutput("offset", targeting.getOffset());
         Logger.recordOutput("rot", targetRot);
+        Logger.recordOutput("shoot speed left demand", getShootSpeedLeft());
+        Logger.recordOutput("shoot speed right demand", getShootSpeedRight());
         targetRotOnTheMove = targeting.shootAtSpeakerOnTheMove().rotation;
         if (DriverStation.isAutonomous()) {
             targetRot = targeting.shootAtSpeaker().rotation;

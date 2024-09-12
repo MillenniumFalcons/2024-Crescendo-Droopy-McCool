@@ -102,7 +102,7 @@ public class PivotConstants {
         kMasterSpeakerMap.put(6.0, 23.4); //
         kMasterSpeakerMap.put(6.52, 22.35); //
         kMasterSpeakerMap.put(7.04, 22.0); //
-        kMasterSpeakerMap.put(7.4961, 20.7); //it stops working here
+        kMasterSpeakerMap.put(7.4961, 20.7); // it stops working here
         kMasterSpeakerMap.put(8.0, 20.7); //
         kMasterSpeakerMap.put(8.5, 20.7); //
         kMasterSpeakerMap.put(20.0, 20.7); // //
@@ -144,7 +144,7 @@ public class PivotConstants {
         kMasterConfigurator.apply(kMasterSoftLimit);
         kSlaveConfigurator.apply(kMasterSlot0);
         kSlaveConfigurator.apply(kMasterCurrent);
-                kSlaveConfigurator.apply(kMasterMotionMagic);
+        kSlaveConfigurator.apply(kMasterMotionMagic);
         kSlaveConfigurator.apply(kMasterMotorOutput);
         kSlaveConfigurator.apply(kMasterSoftLimit);
     }

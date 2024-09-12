@@ -10,7 +10,7 @@ public class AutonomousMode {
         this.name = name;
     }
 
-    public AutonomousMode(Command autoCommand, Pose2d ppinitial){
+    public AutonomousMode(Command autoCommand, Pose2d ppinitial) {
         this(autoCommand, ppinitial, "no name");
     }
 
@@ -28,7 +28,7 @@ public class AutonomousMode {
 
     private final String name;
 
-    public String getName(){
+    public String getName() {
         return name;
     }
 }
