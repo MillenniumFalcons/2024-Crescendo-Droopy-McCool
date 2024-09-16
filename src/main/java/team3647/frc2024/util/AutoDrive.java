@@ -19,11 +19,15 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
+import team3647.frc2024.constants.SwerveDriveConstants;
+import team3647.frc2024.constants.TunerConstants;
 import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.lib.team6328.VirtualSubsystem;
 
@@ -327,6 +331,78 @@ public class AutoDrive extends VirtualSubsystem {
 
     public Twist2d getVelocities() {
         return new Twist2d(getX(), getY(), getRot());
+    }
+
+    public Command updateWhelRadius() {
+
+        return new Command() {
+            double rotTarget = 0.0;
+            double initialPosFR = 0.0;
+            double initialPosFL = 0;
+            double initialPosBL = 0;
+            double initialPosBR = 0;
+            double deltaRot = 0;
+
+            @Override
+            public void initialize() {
+                rotTarget = swerve.getOdoRot().getRadians() + Math.PI;
+                initialPosFR =
+                        swerve.getModule(1).getDriveMotor().getRotorPosition().getValueAsDouble();
+                initialPosFL = swerve.getModulePosition(0);
+                initialPosBL = swerve.getModulePosition(2);
+                initialPosBR = swerve.getModulePosition(3);
+                deltaRot = swerve.getOdoRot().getRadians();
+            }
+
+            @Override
+            public void execute() {
+                swerve.drive(
+                        0, 0, rotController.calculate(rotTarget - swerve.getOdoRot().getRadians()));
+            }
+
+            @Override
+            public boolean isFinished() {
+                return Math.abs(rotTarget - swerve.getOdoRot().getRadians()) < 0.01;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                swerve.drive(0, 0, 0);
+
+                var finalPosFR = swerve.getModulePosition(1);
+                var finalPosFL = swerve.getModulePosition(0);
+                var finalPosBL = swerve.getModulePosition(2);
+                var finalPosBR = swerve.getModulePosition(3);
+                deltaRot = swerve.getOdoRot().getRadians() - deltaRot;
+                var idealDist = deltaRot * SwerveDriveConstants.kDriveRadius;
+
+                SmartDashboard.putNumber("drot FR", finalPosFR - initialPosFR);
+                SmartDashboard.putNumber("drot FL", finalPosFL - initialPosFL);
+                SmartDashboard.putNumber("drot BL", finalPosBL - initialPosBL);
+                SmartDashboard.putNumber("drot BR", finalPosBR - initialPosBR);
+
+                var radiusFR = getwheelRadius(idealDist, finalPosFR - initialPosFR);
+                var radisuFL = getwheelRadius(idealDist, finalPosFL - initialPosFL);
+                var radisuBL = getwheelRadius(idealDist, finalPosBL - initialPosBL);
+                var radisuBR = getwheelRadius(idealDist, finalPosBR - initialPosBR);
+
+                SmartDashboard.putNumber(
+                        "kWheelRadisu", (radisuBL + radisuBR + radisuFL + radiusFR) / 4);
+            }
+
+            @Override
+            public Set<Subsystem> getRequirements() {
+                return Set.of(swerve);
+            }
+        };
+    }
+
+    public double getwheelRadius(double idealDistanceM, double realDistRot) {
+        // 2pir*rot/gr = d
+        // d = dOdoRot * driveRadius
+        // r=(d/2pi*rot) *gr
+
+        return ((idealDistanceM / (2 * Math.PI * realDistRot)) * TunerConstants.kDriveGearRatio);
     }
 
     public PathPlannerPath getPathToAmp() {

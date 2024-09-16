@@ -194,6 +194,10 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         this.pitchZero = this.getPitch();
     }
 
+    public double getModulePosition(int index) {
+        return getModule(index).getDriveMotor().getRotorPosition().getValueAsDouble();
+    }
+
     @Override
     public void readPeriodicInputs() {
         periodicIO.roll = this.m_pigeon2.getRoll().getValue();

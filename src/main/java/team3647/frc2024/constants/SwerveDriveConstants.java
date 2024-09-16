@@ -107,6 +107,11 @@ public class SwerveDriveConstants {
     public static final double kCouplingGearRatio = 3.57;
     public static final double kWheelDiameterMeters = 0.097; // 97mm
     public static final double kWheelRadiusInches = 1.9;
+    public static final double kDriveRadius =
+            Math.sqrt(
+                    TunerConstants.kBackLeftXPosInches * TunerConstants.kBackLeftXPosInches
+                            + TunerConstants.kBackLeftYPosInches
+                                    * TunerConstants.kBackLeftYPosInches);
 
     // // divide for tick to deg
     public static final double kTurnMotorNativeToDeg = kTurnMotorGearRatio * 360.0;
