@@ -122,40 +122,40 @@ public class RobotContainer {
         coController.buttonA.onTrue(superstructure.setShootModeFeed());
         coController.buttonB.onTrue(superstructure.setShootModeStationary());
 
-        mainController.rightTrigger.whileTrue(
-                autoDrive.setMode(() -> superstructure.getWantedShootingMode()));
-        mainController
-                .rightTrigger
-                .and(() -> !swerve.getIsAccel())
-                .onTrue(swerve.setAccelLimit(SwerveDriveConstants.shootingAccel))
-                .onFalse(swerve.setAccelLimit(SwerveDriveConstants.defaultAccel));
+        // mainController.rightTrigger.whileTrue(
+        //         autoDrive.setMode(() -> superstructure.getWantedShootingMode()));
+        // mainController
+        //         .rightTrigger
+        //         .and(() -> !swerve.getIsAccel())
+        //         .onTrue(swerve.setAccelLimit(SwerveDriveConstants.shootingAccel))
+        //         .onFalse(swerve.setAccelLimit(SwerveDriveConstants.defaultAccel));
         mainController
                 .leftTrigger
                 .and(goodToAmp)
                 .whileTrue(autoDrive.setMode(DriveMode.SHOOT_AT_AMP));
         // mainController.leftTrigger.onFalse(autoCommands.pathToAmp(tracker.getColor()));
-        mainController
-                .rightTrigger
-                .and(
-                        () ->
-                                (!superstructure.getIsIntaking()
-                                        && autoDrive.getMode() != DriveMode.CLEAN))
-                .whileTrue(superstructure.shoot())
-                .onFalse(
-                        superstructure
-                                .stowFromShoot()
-                                .andThen(superstructure.ejectPiece())
-                                .unless(mainController.buttonY));
+        // mainController
+        //         .rightTrigger
+        //         .and(
+        //                 () ->
+        //                         (!superstructure.getIsIntaking()
+        //                                 && autoDrive.getMode() != DriveMode.CLEAN))
+        //         .whileTrue(superstructure.shoot())
+        //         .onFalse(
+        //                 superstructure
+        //                         .stowFromShoot()
+        //                         .andThen(superstructure.ejectPiece())
+        //                         .unless(mainController.buttonY));
 
-        mainController
-                .rightTrigger
-                .and(() -> (autoDrive.getMode() == DriveMode.CLEAN))
-                .whileTrue(superstructure.cleanShoot())
-                .onFalse(
-                        superstructure
-                                .stowFromShoot()
-                                .andThen(superstructure.ejectPiece())
-                                .unless(mainController.buttonY));
+        // mainController
+        //         .rightTrigger
+        //         .and(() -> (autoDrive.getMode() == DriveMode.CLEAN))
+        //         .whileTrue(superstructure.cleanShoot())
+        //         .onFalse(
+        //                 superstructure
+        //                         .stowFromShoot()
+        //                         .andThen(superstructure.ejectPiece())
+        //                         .unless(mainController.buttonY));
         // coController
         //         .buttonX
         //         .whileTrue(autoCommands.pathToTrapTest())
@@ -180,8 +180,8 @@ public class RobotContainer {
                                 .stowFromAmpShoot()
                                 .andThen(superstructure.ejectPiece())
                                 .unless(mainController.buttonY));
-        mainController.rightTrigger.onFalse(
-                Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
+        // mainController.rightTrigger.onFalse(
+        //         Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController
                 .leftTrigger
                 .and(goodToAmp)
@@ -246,6 +246,10 @@ public class RobotContainer {
 
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
+
+        mainController.rightTrigger
+                    .onTrue(autoDrive.updateWhelRadius());
+
 
         // characterization
 
