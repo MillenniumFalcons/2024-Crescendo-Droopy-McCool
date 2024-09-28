@@ -245,9 +245,7 @@ public class Superstructure {
                         //                                         && swerveAimed.getAsBoolean())
                         //                 .withTimeout(1.2),
                         //         feed())
-                        )
-                .until(this::readyForShot)
-                .andThen(stowFromShoot());
+                        );
     }
 
     public Command cleanShoot() {

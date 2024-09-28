@@ -36,6 +36,7 @@ import team3647.frc2024.subsystems.SwerveDrive;
 import team3647.frc2024.util.AllianceFlip;
 import team3647.frc2024.util.AutoDrive.DriveMode;
 import team3647.frc2024.util.TargetingUtil;
+import team3647.lib.team9442.AllianceChecker;
 import team3647.lib.team9442.AllianceObserver;
 
 public class AutoCommands implements AllianceObserver {
@@ -87,6 +88,7 @@ public class AutoCommands implements AllianceObserver {
 
     private final String s15_straight_forward = "s15 straight forward";
     private final String trap_test = "trap test 2";
+    private final String s3_preload_move = "s3 preload and move";
 
     public final Trigger currentYes;
 
@@ -145,6 +147,12 @@ public class AutoCommands implements AllianceObserver {
     public final AutonomousMode redFullCenterS3;
 
     public final AutonomousMode redTest;
+
+    public final AutonomousMode doNothing;
+
+    public final AutonomousMode preloadOnly;
+
+    public final AutonomousMode preloadMove;
 
     public List<AutonomousMode> redAutoModes;
 
@@ -273,8 +281,15 @@ public class AutoCommands implements AllianceObserver {
         this.blueRightTest =
                 new AutonomousMode(testRight(), getInitial("test right"), "blue right test");
         this.redTest =
-                new AutonomousMode(testForward(), AllianceFlip.flipForPP(getInitial(f1_to_f2)));
-
+                new AutonomousMode(testForward(), AllianceFlip.flipForPP(getInitial(s15_straight_forward)));
+        this.doNothing = 
+                new AutonomousMode(Commands.none(), AllianceFlip.flipForPP(getInitial(s15_straight_forward), color == Alliance.Red));
+        this.preloadOnly = 
+                new AutonomousMode(preloadOnly(), AllianceFlip.flipForPP(getInitial(s15_straight_forward), color == Alliance.Red));
+        this.preloadMove = 
+                new AutonomousMode(preloadMove(), AllianceFlip.flipForPP(getInitial(s3_preload_move), color == Alliance.Red));
+        
+                
         redAutoModes =
                 new ArrayList<AutonomousMode>(
                         Set.of(
@@ -284,7 +299,9 @@ public class AutoCommands implements AllianceObserver {
                                 redFour_S1N1N2N3,
                                 redFour_S3F5F4F3,
                                 redSix_S1F1F2N1N2N3,
-                                redTwo_S2F3));
+                                redTwo_S2F3,
+                                doNothing,
+                                preloadOnly));
 
         blueAutoModes =
                 new ArrayList<AutonomousMode>(
@@ -296,7 +313,10 @@ public class AutoCommands implements AllianceObserver {
                                 blueFullCenterS3,
                                 blueSix_S1F1F2N1N2N3,
                                 blueForwardTest,
-                                blueRightTest));
+                                blueRightTest,
+                                doNothing,
+                                preloadOnly));
+        
     }
 
     public enum MidlineNote {
@@ -414,6 +434,18 @@ public class AutoCommands implements AllianceObserver {
                         followChoreoPathWithOverrideFast(s15_to_f1, color),
                         searchOrScoreAmpToSource(() -> !noteNotSeen.getAsBoolean(), color)
                                 .repeatedly()));
+    }
+
+    public Command preloadOnly(){
+        return scorePreload();
+    }
+
+    public Command preloadMove(){
+        return Commands.sequence(
+            scorePreload(),
+            Commands.waitSeconds(2),
+            followChoreoPath(s3_preload_move, color)
+        );
     }
 
     public Command fullCenterS3(Alliance color) {

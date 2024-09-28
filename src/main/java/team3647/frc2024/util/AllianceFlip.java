@@ -7,7 +7,7 @@ import team3647.frc2024.constants.FieldConstants;
 
 public class AllianceFlip {
     public static Pose2d flipForPP(Pose2d pose, boolean shouldFlip) {
-        if (shouldFlip) {
+        if (!shouldFlip) {
             return pose;
         }
         return new Pose2d(
