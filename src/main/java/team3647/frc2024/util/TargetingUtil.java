@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import team3647.frc2024.constants.PivotConstants;
+import team3647.frc2024.subsystems.Pivot;
 
 public class TargetingUtil {
 
@@ -103,7 +104,7 @@ public class TargetingUtil {
         Pose2d shotPose = robotTracker.compensateFeed(robotTracker.getPose());
         double pivotAngle =
                 Math.toRadians(
-                        speakerMap.get(robotTracker.getDistanceFromSpeaker(shotPose)) + offset);
+                        PivotConstants.feedmap.get(robotTracker.getDistanceFromSpeaker(shotPose)) + offset);
         final var toPose = shotPose.minus(pose).getTranslation();
         double angle =
                 Math.acos(toPose.getX() / toPose.getNorm())

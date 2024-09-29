@@ -71,6 +71,9 @@ public class PivotConstants {
     public static final InterpolatingDoubleTreeMap kMasterTrapMap =
             new InterpolatingDoubleTreeMap();
 
+    public static final InterpolatingDoubleTreeMap feedmap = 
+        new InterpolatingDoubleTreeMap();
+
     static {
         // kMasterSpeakerMap.put(0.0, 60.0);
         // kMasterSpeakerMap.put(1.3, 60.0);
@@ -108,6 +111,9 @@ public class PivotConstants {
         kMasterSpeakerMap.put(20.0, 20.7); // //
         kMasterAmpMap.put(0.0, 60.0);
         kMasterAmpMap.put(100.0, 60.0);
+        feedmap.put(10.0, 60.0);
+        feedmap.put(0.0, 20.7);
+
         Slot0Configs kMasterSlot0 = new Slot0Configs();
         CurrentLimitsConfigs kMasterCurrent = new CurrentLimitsConfigs();
         MotionMagicConfigs kMasterMotionMagic = new MotionMagicConfigs();

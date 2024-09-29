@@ -493,7 +493,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    true);
+                    false);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
