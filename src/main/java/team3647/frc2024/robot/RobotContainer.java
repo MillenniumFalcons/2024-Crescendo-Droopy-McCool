@@ -315,6 +315,7 @@ public class RobotContainer {
         printer.addDouble("front tof", pivot::tofFront);
         printer.addDouble("lef pos", climbLeft::getPosition);
         printer.addDouble("right pos", climbRight::getPosition);
+        printer.addDouble("current", () -> superstructure.currentLimit);
         // // printer.addDouble("wrist", wrist::getAngle);
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addDouble("churo", churro::getAngle);
@@ -493,7 +494,7 @@ public class RobotContainer {
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
                     ShooterConstants.kLeftMap,
-                    false);
+                    true);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
@@ -551,7 +552,7 @@ public class RobotContainer {
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
     private final Trigger climbing =
-            new Trigger(() -> climbLeft.getPosition() > 1 && climbRight.getPosition() > 1);
+            new Trigger(() ->  climbRight.getPosition() > 1);
 
     private final Trigger goodToAmp =
             new Trigger(

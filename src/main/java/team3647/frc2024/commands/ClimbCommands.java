@@ -14,7 +14,7 @@ public class ClimbCommands {
     public Command goUp() {
         return Commands.run(
                 () -> {
-                    climbLeft.openLoop(1);
+                    // climbLeft.openLoop(1);
                     climbRight.openLoop(1);
                 },
                 climbLeft,
@@ -24,7 +24,7 @@ public class ClimbCommands {
     public Command goDown() {
         return Commands.run(
                 () -> {
-                    climbLeft.openLoop(-1);
+                    // climbLeft.openLoop(-1);
                     climbRight.openLoop(-1);
                 },
                 climbLeft,
