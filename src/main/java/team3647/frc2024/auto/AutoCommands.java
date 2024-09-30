@@ -85,10 +85,20 @@ public class AutoCommands implements AllianceObserver {
     private final String f3_to_shoot4 = "f3 to shoot4";
     private final String shoot1_to_f1 = "shoot1 to f1";
     private final String shoot2_to_f2 = "shoot2 to f2";
+    private final String f3_to_shoot3 = "f3 to shoot3";
+    private final String shoot3_to_f2 = "shoot3 to f2";
+    private final String f2_to_shoot3 = "f2 to shoot3";
+    private final String shoot3_to_f1 = "shoot3 to f1";
+    private final String f1_to_shoot3 = "shoot3 to f1";
+    private final String shoot2_to_f5 = "shoot2 to f5";
+    private final String f4_to_shoot2 = "f4 to shoot2";
+
 
     private final String s15_straight_forward = "s15 straight forward";
     private final String trap_test = "trap test 2";
     private final String s3_preload_move = "s3 preload and move";
+
+    
 
     public final Trigger currentYes;
 
@@ -385,20 +395,20 @@ public class AutoCommands implements AllianceObserver {
 
     public Command getScoringSequenceF4F5(Alliance color) {
         return Commands.sequence(
-                followChoreoPathWithOverride(f4_to_shoot3, color),
-                followChoreoPathWithOverrideFast(shoot3_to_f5, color));
+                followChoreoPathWithOverride(f4_to_shoot2, color),
+                followChoreoPathWithOverrideFast(shoot2_to_f5, color));
     }
 
     public Command getScoringSequenceF2F1(Alliance color) {
         return Commands.sequence(
-                followChoreoPathWithOverride(f2_to_shoot1, color),
-                followChoreoPathWithOverrideFast(shoot1_to_f1, color));
+                followChoreoPathWithOverride(f2_to_shoot3, color),
+                followChoreoPathWithOverrideFast(shoot3_to_f1, color));
     }
 
     public Command getScoringSequenceF3F2(Alliance color) {
         return Commands.sequence(
-                followChoreoPathWithOverride(f3_to_shoot2, color),
-                followChoreoPathWithOverrideFast(shoot2_to_f2, color));
+                followChoreoPathWithOverride(f3_to_shoot3, color),
+                followChoreoPathWithOverrideFast(shoot3_to_f2, color));
     }
 
     public Command getScoringSequenceF4F3(Alliance color) {

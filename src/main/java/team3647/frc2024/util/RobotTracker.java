@@ -9,8 +9,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import team3647.lib.team6328.VirtualSubsystem;
+import team3647.lib.team9442.AllianceObserver;
 
-public class RobotTracker extends VirtualSubsystem {
+public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
 
     private Pose2d speakerPose;
     private Pose2d ampPose;
@@ -39,20 +40,15 @@ public class RobotTracker extends VirtualSubsystem {
             Transform2d robotToShooter,
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> driveSpeeds,
-            InterpolatingDoubleTreeMap shootSpeedMap,
-            boolean redSide) {
+            InterpolatingDoubleTreeMap shootSpeedMap) {
         this.speakerPose = speakerPose;
-        this.ampPose = redSide ? AllianceFlip.flipForPP(ampPose) : ampPose;
+        this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
         this.feedPose = feedPose;
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
         this.shootSpeedMap = shootSpeedMap;
-        this.color = redSide ? Alliance.Red : Alliance.Blue;
-        if (redSide) {
-            this.feedPose = AllianceFlip.flipForPP(feedPose);
-            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
-        }
+        this.color = Alliance.Red;
 
         // DriverStation.getAlliance()
         //         .ifPresent(
@@ -160,5 +156,14 @@ public class RobotTracker extends VirtualSubsystem {
 
     public Pose2d getFeed() {
         return this.feedPose;
+    }
+
+    @Override
+    public void onAllianceFound(Alliance color) {
+        this.color = color;
+        this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
+        this.speakerPose = AllianceFlip.flipForPP(speakerPose, color == Alliance.Red);
+        this.feedPose = AllianceFlip.flipForPP(feedPose, color == Alliance.Red);
+
     }
 }

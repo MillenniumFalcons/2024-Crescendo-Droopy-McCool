@@ -493,8 +493,7 @@ public class RobotContainer {
                     PivotConstants.robotToPivot2d,
                     swerve::getOdoPose,
                     swerve::getChassisSpeeds,
-                    ShooterConstants.kLeftMap,
-                    true);
+                    ShooterConstants.kLeftMap);
 
     public final TargetingUtil targetingUtil = new TargetingUtil(tracker);
 
