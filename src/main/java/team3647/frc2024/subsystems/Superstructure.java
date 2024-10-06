@@ -165,7 +165,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 6.5, () -> 4.0);
+        return shooterCommands.setVelocity(() -> 3.5, () -> 1);
     }
 
     public Command setShootModeStationary() {

@@ -1,6 +1,7 @@
 package team3647.frc2024.auto;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutonomousMode {
@@ -12,6 +13,7 @@ public class AutonomousMode {
 
     public AutonomousMode(Command autoCommand, Pose2d ppinitial) {
         this(autoCommand, ppinitial, "no name");
+        DriverStation.reportWarning("you have an unamed auto!", false);
     }
 
     private final Command autoCommand;

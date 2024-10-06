@@ -29,6 +29,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import org.littletonrobotics.junction.Logger;
+
 import team3647.frc2024.constants.AutoConstants;
 import team3647.frc2024.constants.FieldConstants;
 import team3647.frc2024.subsystems.Superstructure;
@@ -105,6 +108,8 @@ public class AutoCommands implements AllianceObserver {
     private boolean hasPiece = true;
 
     private final BooleanSupplier hasTarget;
+
+    double SLOWDOWN = 1;
 
     public final BooleanSupplier noteNotSeen;
 
@@ -420,7 +425,7 @@ public class AutoCommands implements AllianceObserver {
     public Command getScoringSequenceF5F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverride(f5_to_shoot3, color),
-                followChoreoPathWithOverrideFast(shoot4_to_f4, color));
+                followChoreoPathWithOverrideFast(shoot3_to_f4, color));
     }
 
     public Command testForward() {
@@ -635,7 +640,7 @@ public class AutoCommands implements AllianceObserver {
                         MidlineNote.FOUR,
                         getScoringSequenceF4F5(color),
                         MidlineNote.FIVE,
-                        followChoreoPathWithOverride(f5_to_shoot3, color)),
+                        followChoreoPathWithOverride(f1_to_shoot1, color)),
                 () -> getNoteNumberByPose(swerve.getOdoPose().getY()));
     }
 
@@ -643,7 +648,7 @@ public class AutoCommands implements AllianceObserver {
         return new SelectCommand<>(
                 Map.of(
                         MidlineNote.ONE,
-                        followChoreoPathWithOverride(f1_to_shoot1, color),
+                        followChoreoPathWithOverride(f1_to_shoot3, color),
                         MidlineNote.TWO,
                         getScoringSequenceF2F1(color),
                         MidlineNote.THREE,
@@ -725,7 +730,7 @@ public class AutoCommands implements AllianceObserver {
     //     }
 
     public Command shoot() {
-        return Commands.parallel(superstructure.shootStow());
+        return Commands.parallel(superstructure.shoot());
     }
 
     public Command continuouslyIntakeForShoot(Alliance color) {
@@ -763,6 +768,7 @@ public class AutoCommands implements AllianceObserver {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
+        Logger.recordOutput("Autos/current path", path);
         return customChoreoFolloweForOverride(
                         traj,
                         swerve::getOdoPose,
@@ -786,8 +792,8 @@ public class AutoCommands implements AllianceObserver {
                                                                         : FieldConstants
                                                                                         .kFieldLength
                                                                                 - 5))
-                                                ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond,
+                                                ? autoDriveVelocities.get().dx * SLOWDOWN
+                                                : speeds.vxMetersPerSecond * SLOWDOWN,
                                         (!hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX()
@@ -802,8 +808,8 @@ public class AutoCommands implements AllianceObserver {
                                                                         : FieldConstants
                                                                                         .kFieldLength
                                                                                 - 5))
-                                                ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond,
+                                                ? autoDriveVelocities.get().dy * SLOWDOWN
+                                                : speeds.vyMetersPerSecond * SLOWDOWN,
                                         deeTheta()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
@@ -836,8 +842,8 @@ public class AutoCommands implements AllianceObserver {
                                                                         : FieldConstants
                                                                                         .kFieldLength
                                                                                 - 5))
-                                                ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond * 0.9,
+                                                ? autoDriveVelocities.get().dx * SLOWDOWN
+                                                : speeds.vxMetersPerSecond * 0.9 * SLOWDOWN,
                                         (!hasPiece
                                                         && hasTarget.getAsBoolean()
                                                         && swerve.getOdoPose().getX()
@@ -852,8 +858,8 @@ public class AutoCommands implements AllianceObserver {
                                                                         : FieldConstants
                                                                                         .kFieldLength
                                                                                 - 5))
-                                                ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond * 0.9,
+                                                ? autoDriveVelocities.get().dy * SLOWDOWN
+                                                : speeds.vyMetersPerSecond * 0.9 * SLOWDOWN,
                                         onTheMoveRotSupplier.getAsDouble()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
@@ -863,6 +869,7 @@ public class AutoCommands implements AllianceObserver {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
+        Logger.recordOutput("Autos/current path", path);
         return customChoreoFolloweForOverrideSlow(
                         traj,
                         swerve::getOdoPose,
@@ -873,11 +880,11 @@ public class AutoCommands implements AllianceObserver {
                         (ChassisSpeeds speeds) ->
                                 swerve.drive(
                                         (!this.hasPiece && hasTarget.getAsBoolean())
-                                                ? autoDriveVelocities.get().dx
-                                                : speeds.vxMetersPerSecond * 0.6,
+                                                ? autoDriveVelocities.get().dx * SLOWDOWN
+                                                : speeds.vxMetersPerSecond * 0.6 * SLOWDOWN,
                                         (!this.hasPiece && hasTarget.getAsBoolean())
-                                                ? autoDriveVelocities.get().dy
-                                                : speeds.vyMetersPerSecond * 0.6,
+                                                ? autoDriveVelocities.get().dy * SLOWDOWN
+                                                : speeds.vyMetersPerSecond * 0.6 * SLOWDOWN,
                                         deeTheta()),
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
