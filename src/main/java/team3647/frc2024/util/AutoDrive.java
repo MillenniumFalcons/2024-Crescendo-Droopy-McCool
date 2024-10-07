@@ -110,6 +110,9 @@ public class AutoDrive extends VirtualSubsystem {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("y controller p", yController.getP());
+        SmartDashboard.putNumber("y controller I", yController.getI());
+        SmartDashboard.putNumber("y controller d", yController.getD());
         SmartDashboard.putNumber("on the move rot", onTheMove());
         // Logger.recordOutput("Robot/Compensated", targeting.32222getCompensatedPose());
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
@@ -142,6 +145,9 @@ public class AutoDrive extends VirtualSubsystem {
         }
         // rotController.setP(SmartDashboard.getNumber("kp", kp));
         // SmartDashboard.putNumber("auto drive", getRot());
+        yController.setP(SmartDashboard.getNumber("y controller p", yController.getP()));
+        yController.setI(SmartDashboard.getNumber("y controller I", yController.getI()));
+        yController.setD(SmartDashboard.getNumber("y controller d", yController.getD()));
     }
 
     public boolean swerveAimed() {
