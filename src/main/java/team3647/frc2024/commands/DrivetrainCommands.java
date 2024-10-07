@@ -75,7 +75,9 @@ public class DrivetrainCommands {
 
                         var rotation = motionTurnComponent;
                         swerve.drive(translation.getX(), translation.getY(), rotation);
-                    } else {
+                    } else if (mode == DriveMode.aligny && enabeld){
+                        motionYComponent = autoDriveTwist2d.dy;
+                    }else {
                         if (mode != DriveMode.NONE && enabeld) {
                             motionTurnComponent = autoDriveTwist2d.dtheta;
                         }

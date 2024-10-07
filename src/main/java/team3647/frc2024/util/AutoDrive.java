@@ -104,6 +104,7 @@ public class AutoDrive extends VirtualSubsystem {
         CLEAN,
         FEED,
         INTAKE_IN_AUTO,
+        aligny,
         NONE
     }
 
@@ -270,6 +271,10 @@ public class AutoDrive extends VirtualSubsystem {
             double k = fastYController.calculate(targeting.pose().getY(), targeting.getAmpY());
             double setpoint = Math.abs(k) < 0.04 ? 0 : k;
             return setpoint;
+        }
+        if(this.mode == DriveMode.aligny){
+            double k = yController.calculate(swerve.getPoseY(), FieldConstants.kFieldWidth/2);
+            return k;
         }
         double k = yController.calculate(Units.degreesToRadians(detector.getTX()), 0);
         double setpoint = Math.abs(k) < 0.02 ? 0 : k;
