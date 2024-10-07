@@ -247,6 +247,9 @@ public class RobotContainer {
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
 
+        coController.rightTrigger.onTrue(autoDrive.setMode(DriveMode.aligny))
+                .onFalse(autoDrive.setMode(DriveMode.NONE));
+
         // characterization
 
         // swerve
