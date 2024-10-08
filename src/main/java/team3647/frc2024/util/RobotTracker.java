@@ -45,7 +45,7 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
         this.speakerPose = AllianceFlip.flipForPP(speakerPose, this.color == Alliance.Red);
         this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
-        this.feedPose = feedPose;
+        this.feedPose = AllianceFlip.flipForPP(feedPose, color == Alliance.Red);
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
         this.shootSpeedMap = shootSpeedMap;

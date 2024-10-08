@@ -41,7 +41,7 @@ public class Superstructure {
     private final double churroDeployAngle = 70;
     private final double churroStowAngle = ChurroConstants.kInitialDegree;
     private final double shootSpeed;
-    public double currentLimit = 59;
+    public double currentLimit = 49;
     
     ;
     private boolean hasPiece = false;
@@ -165,7 +165,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 3.5, () -> 1);
+        return shooterCommands.setVelocity(() -> 6, () -> 1);
     }
 
     public Command setShootModeStationary() {

@@ -306,6 +306,8 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
+        //logging offset for interp
+        printer.addDouble("offset", targetingUtil::getOffset);
         printer.addBoolean("note seen", () -> !autoCommands.noteNotSeen.getAsBoolean());
         // SmartDashboard.putNumber("pivot output", 0);
         // // SmartDashboard.putNumber("wrist kg", 0);
