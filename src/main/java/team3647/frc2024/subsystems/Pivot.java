@@ -18,6 +18,7 @@ public class Pivot extends TalonFXSubsystem {
     private final double maxAngleUnderStage;
 
     BooleanSupplier underStage;
+    BooleanSupplier isIntaking;
 
     private final double maxKG;
 
@@ -39,7 +40,8 @@ public class Pivot extends TalonFXSubsystem {
             double maxKG,
             double kDt,
             TimeOfFlight tofBack,
-            TimeOfFlight tofFront) {
+            TimeOfFlight tofFront,
+            BooleanSupplier isIntaking) {
         super(master, ticksToMetersPerSec, ticksToMeters, nominalVoltage, kDt);
         super.addFollower(slave, false);
         this.minAngle = minAngle;
@@ -50,6 +52,7 @@ public class Pivot extends TalonFXSubsystem {
         this.maxKG = maxKG;
         this.tofBack = tofBack;
         this.tofFront = tofFront;
+        this.isIntaking = isIntaking;
 
         master.getPosition().setUpdateFrequency(250);
     }

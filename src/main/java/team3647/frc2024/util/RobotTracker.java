@@ -5,10 +5,14 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
+import java.sql.Driver;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import team3647.lib.team6328.VirtualSubsystem;
+import team3647.lib.team9442.AllianceChecker;
 import team3647.lib.team9442.AllianceObserver;
 
 public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
@@ -41,7 +45,34 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> driveSpeeds,
             InterpolatingDoubleTreeMap shootSpeedMap) {
-        this.color = Alliance.Red;
+        this.color = Alliance.Blue;
+
+        
+        
+
+        DriverStation.getAlliance()
+                .ifPresent(
+                        (alliance) ->
+                                this.speakerPose =
+                                        alliance == Alliance.Red
+                                                ? AllianceFlip.flipForPP(speakerPose)
+                                                : speakerPose);
+
+        DriverStation.getAlliance()
+                .ifPresent(
+                        (alliance) ->
+                                this.ampPose =
+                                        alliance == Alliance.Red
+                                                ? AllianceFlip.flipForPP(ampPose)
+        : ampPose);
+ DriverStation.getAlliance()
+                .ifPresent(
+                        (alliance) ->
+                                this.ampPose =
+                                        alliance == Alliance.Red
+                                                ? AllianceFlip.flipForPP(feedPose)
+        : feedPose);
+        
         this.speakerPose = AllianceFlip.flipForPP(speakerPose, this.color == Alliance.Red);
         this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
@@ -49,23 +80,7 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
         this.shootSpeedMap = shootSpeedMap;
-        
 
-        // DriverStation.getAlliance()
-        //         .ifPresent(
-        //                 (alliance) ->
-        //                         this.speakerPose =
-        //                                 alliance == Alliance.Red
-        //                                         ? AllianceFlip.flipForPP(speakerPose)
-        //                                         : speakerPose);
-
-        // DriverStation.getAlliance()
-        //         .ifPresent(
-        //                 (alliance) ->
-        //                         this.ampPose =
-        //                                 alliance == Alliance.Red
-        //                                         ? AllianceFlip.flipForPP(ampPose)
-        // : ampPose);
     }
 
     @Override
@@ -161,10 +176,14 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
 
     @Override
     public void onAllianceFound(Alliance color) {
-        this.color = color;
-        this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
-        this.speakerPose = AllianceFlip.flipForPP(speakerPose, color == Alliance.Red);
-        this.feedPose = AllianceFlip.flipForPP(feedPose, color == Alliance.Red);
-
+        // for(int i = 0; i <5; i++){
+        //     DriverStation.reportError("METHODRUN" + DriverStation.getAlliance().isPresent(), false);
+        // }
+        // this.color = color;
+        // DriverStation.reportError(color.name(), false);
+        // this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
+        // this.speakerPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(speakerPose) : speakerPose;
+        // DriverStation.reportError(String.valueOf(speakerPose.getX()), false);
+        // this.feedPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(feedPose) : feedPose;
     }
 }

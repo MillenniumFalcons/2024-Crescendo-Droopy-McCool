@@ -95,7 +95,7 @@ public class RobotContainer {
     }
 
     private void configAllianceChecker() {
-        allianceChecker.registerObservers(autoCommands, autoChooser);
+        allianceChecker.registerObservers(autoCommands, autoChooser, tracker);
     }
 
     private void configureButtonBindings() {
@@ -400,7 +400,12 @@ public class RobotContainer {
 
     public final Intake intake =
             new Intake(IntakeConstants.kMaster, 1, 1, IntakeConstants.kNominalVoltage, 0.02);
+    private final Trigger isIntaking =
+            new Trigger(() -> mainController.leftBumper.getAsBoolean() && !DriverStation.isAutonomous());
 
+    private final Trigger isNotIntaking = 
+            new Trigger(() -> !isIntaking.getAsBoolean()).debounce(0.1);
+    
     public final Pivot pivot =
             new Pivot(
                     PivotConstants.kMaster,
@@ -415,7 +420,8 @@ public class RobotContainer {
                     PivotConstants.maxKG,
                     0.02,
                     PivotConstants.tofBack,
-                    PivotConstants.tofFront);
+                    PivotConstants.tofFront,
+                    isIntaking);
 
     private final ClimbLeft climbLeft =
             new ClimbLeft(
@@ -471,6 +477,8 @@ public class RobotContainer {
     public final AprilTagPhotonVision zoom =
             new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
                     .withPriority(true);
+
+
 
     public AllianceChecker allianceChecker = new AllianceChecker();
 
@@ -570,6 +578,5 @@ public class RobotContainer {
                     .debounce(0.06)
                     .or(mainController.buttonB);
 
-    private final BooleanSupplier isIntaking =
-            () -> mainController.leftBumper.getAsBoolean() && !DriverStation.isAutonomous();
+
 }

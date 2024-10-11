@@ -1,10 +1,17 @@
 package team3647.frc2024.constants;
 
-import com.ctre.phoenix6.configs.*;
-import com.ctre.phoenix6.controls.*;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.*;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -91,18 +98,18 @@ public class PivotConstants {
         // kMasterSpeakerMap.put(5.75, 27.7);
         // kMasterSpeakerMap.put(6.0, 27.4);
         // kMasterSpeakerMap.put(20.0, 26.5);
-        kMasterSpeakerMap.put(0.0, 60.0);
-        kMasterSpeakerMap.put(1.0, 60.0);
-        kMasterSpeakerMap.put(1.5, 60.0); //
-        kMasterSpeakerMap.put(2.0, 49.0); //
+        kMasterSpeakerMap.put(0.0, 60.0+1.4);
+        kMasterSpeakerMap.put(1.0, 60.0+1.4);
+        kMasterSpeakerMap.put(1.5, 60.0+1.4); //
+        kMasterSpeakerMap.put(2.0, 49.0+1.4); //
         kMasterSpeakerMap.put(2.5, 45.0); //
-        kMasterSpeakerMap.put(3.0, 35.0); //
-        kMasterSpeakerMap.put(3.5, 31.7); //
-        kMasterSpeakerMap.put(4.0, 30.0); //
-        kMasterSpeakerMap.put(4.5, 27.9); //
-        kMasterSpeakerMap.put(5.0, 26.5); //
-        kMasterSpeakerMap.put(5.5, 26.0); //
-        kMasterSpeakerMap.put(6.0, 23.4); //
+        kMasterSpeakerMap.put(3.0, 35.0+1.4); //
+        kMasterSpeakerMap.put(3.5, 31.7+2.2); //
+        kMasterSpeakerMap.put(4.0, 30.0+0.6); //
+        kMasterSpeakerMap.put(4.5, 27.9-1.4); //
+        kMasterSpeakerMap.put(5.0, 26.5+0.6); //
+        kMasterSpeakerMap.put(5.5, 26.0-2.2); //
+        kMasterSpeakerMap.put(6.0, 23.4+0.6); //
         kMasterSpeakerMap.put(6.52, 22.35); //
         kMasterSpeakerMap.put(7.04, 22.0); //
         kMasterSpeakerMap.put(7.4961, 20.7); // it stops working here
