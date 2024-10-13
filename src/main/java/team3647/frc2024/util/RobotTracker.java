@@ -50,37 +50,19 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
         
         
 
-        DriverStation.getAlliance()
-                .ifPresent(
-                        (alliance) ->
-                                this.speakerPose =
-                                        alliance == Alliance.Red
-                                                ? AllianceFlip.flipForPP(speakerPose)
-                                                : speakerPose);
-
-        DriverStation.getAlliance()
-                .ifPresent(
-                        (alliance) ->
-                                this.ampPose =
-                                        alliance == Alliance.Red
-                                                ? AllianceFlip.flipForPP(ampPose)
-        : ampPose);
- DriverStation.getAlliance()
-                .ifPresent(
-                        (alliance) ->
-                                this.ampPose =
-                                        alliance == Alliance.Red
-                                                ? AllianceFlip.flipForPP(feedPose)
-        : feedPose);
         
-        this.speakerPose = AllianceFlip.flipForPP(speakerPose, this.color == Alliance.Red);
-        this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
+        this.speakerPose = speakerPose;
+        this.ampPose = this.color == Alliance.Red? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
-        this.feedPose = AllianceFlip.flipForPP(feedPose, color == Alliance.Red);
+        this.feedPose = feedPose;
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
         this.shootSpeedMap = shootSpeedMap;
-
+        
+        if(this.color == Alliance.Red){
+            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
+            this.feedPose = AllianceFlip.flipForPP(feedPose);
+        }
     }
 
     @Override
@@ -91,6 +73,9 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
         setDistanceFromSpeaker();
         Logger.recordOutput("Robot/Distance", getDistanceFromSpeaker());
         Logger.recordOutput("Robot/Pose", periodicIO.pose);
+        Logger.recordOutput("field/speakerPose", this.speakerPose);
+        Logger.recordOutput("field/ampPose", this.ampPose);
+        Logger.recordOutput("field/feedpose", this.feedPose);
         // Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }

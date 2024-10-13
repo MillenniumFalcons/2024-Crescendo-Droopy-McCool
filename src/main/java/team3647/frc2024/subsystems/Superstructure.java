@@ -143,7 +143,7 @@ public class Superstructure {
     }
 
     public Command spinUpPreload() {
-        return shooterCommands.setVelocityIndep(() -> 28, () -> 28);
+        return shooterCommands.setVelocityIndep(() -> 3, () -> 3);
     }
 
     public Command spinUpTrap() {
@@ -394,13 +394,11 @@ public class Superstructure {
     public Command stowFromAmpShoot() {
         return Commands.sequence(
                 Commands.parallel(
-                                deployChurro(),
                                 prepAmp(),
                                 spinUpAmp(),
                                 Commands.sequence(Commands.waitSeconds(0.3), feed()))
                         .withTimeout(1),
                 Commands.deadline(
-                        stowChurro(),
                         pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                         shooterCommands.kill(),
                         kickerCommands.kill()));

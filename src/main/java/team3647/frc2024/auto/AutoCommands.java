@@ -704,7 +704,7 @@ public class AutoCommands implements AllianceObserver {
 
     public Command scorePreload() {
         return Commands.parallel(
-                        superstructure.spinUp(),
+                        superstructure.spinUpPreload(),
                         superstructure.prep(),
                         Commands.sequence(Commands.waitSeconds(1), superstructure.feed()))
                 .withTimeout(1.4);
@@ -889,6 +889,42 @@ public class AutoCommands implements AllianceObserver {
                         () -> mirror)
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
+
+    public Command followChoreoPathWithOverrideNoverride(String path, Alliance color) {
+        ChoreoTrajectory traj = Choreo.getTrajectory(path);
+        boolean mirror = color == Alliance.Red;
+        PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
+        Logger.recordOutput("Autos/current path", path);
+        return customChoreoFolloweForOverrideSlow(
+                        traj,
+                        swerve::getOdoPose,
+                        choreoSwerveController(
+                                AutoConstants.kXController,
+                                AutoConstants.kYController,
+                                AutoConstants.kRotController),
+                        (ChassisSpeeds speeds) ->
+                                {
+                                    var motionRotComponent = deeTheta();
+                                    var motionXComponent = speeds.vxMetersPerSecond;
+                                    var motionYComponent = speeds.vyMetersPerSecond;
+
+                                    var posexthresholdlow = color == Alliance.Blue ? 5 : FieldConstants.kFieldLength - 8.75;
+                                    var posexThresholdHigh = color == Alliance.Blue ? 8.75 : FieldConstants.kFieldLength - 5;
+
+                                    if(!this.hasPiece && hasTarget.getAsBoolean()){
+                                        motionXComponent = autoDriveVelocities.get().dx;
+                                        motionYComponent = autoDriveVelocities.get().dy;
+                                        motionRotComponent = autoDriveVelocities.get().dtheta;
+                                    }
+
+                                    if(swerve.getOdoPose().getX() > posexthresholdlow && swerve.getOdoPose().getX() < posexThresholdHigh){
+                                        motionRotComponent = speeds.omegaRadiansPerSecond;
+                                    }
+                                    swerve.drive(motionXComponent, motionYComponent, motionRotComponent);},
+                        () -> mirror)
+                .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
+    }
+
 
     public Command followChoreoPathWithOverrideLongTimer(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);

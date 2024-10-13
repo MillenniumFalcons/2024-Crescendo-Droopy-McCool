@@ -98,9 +98,9 @@ public class ShooterConstants {
         kRightMap.put(20.0, 18.0);
 
         kFeedMap.put(0.0, 3.0);
-        kFeedMap.put(8.0, 3.0);
-        kFeedMap.put(12.0, 3.0);
-        kFeedMap.put(20.0, 3.0);
+        kFeedMap.put(8.0, 3.5);
+        kFeedMap.put(12.0, 4.0);
+        kFeedMap.put(20.0, 4.0);
 
         Slot0Configs kRightSlot0 = new Slot0Configs();
         Slot0Configs kLeftSlot0 = new Slot0Configs();

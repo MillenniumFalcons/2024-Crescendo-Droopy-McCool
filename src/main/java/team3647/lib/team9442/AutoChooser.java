@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.littletonrobotics.junction.inputs.LoggedDriverStation.DriverStationInputs;
+
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
 
@@ -16,6 +19,7 @@ public class AutoChooser extends SendableChooser<AutonomousMode> implements Alli
     public AutoCommands autoCommands;
     Consumer<Pose2d> setStartPose;
     List<AutonomousMode> autosList;
+    Alliance chachedColor = Alliance.Red;
 
     public AutoChooser(AutoCommands commands, Consumer<Pose2d> setStartPose) {
         super();
@@ -33,10 +37,14 @@ public class AutoChooser extends SendableChooser<AutonomousMode> implements Alli
 
     @Override
     public void onAllianceFound(Alliance color) {
-
-        setStartPose.accept(getSelected().getPathplannerPose2d());
+        if(color != chachedColor){
+            setStartPose.accept(getSelected().getPathplannerPose2d());
+        }
+        
+        
         autosList = color == Alliance.Blue ? autoCommands.blueAutoModes : autoCommands.redAutoModes;
         addAutos();
+        chachedColor = color;
     }
 
     public void addAutos() {
