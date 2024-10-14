@@ -32,7 +32,7 @@ public class AutoChooser extends SendableChooser<AutonomousMode> implements Alli
                     SmartDashboard.putString("sellected", getSelected().getName());
                 });
         autosList = autoCommands.redAutoModes;
-        setDefaultOption("rDEFAULT AUTO CHANE THIS red full center", autosList.get(0));
+        setDefaultOption("DEFAULT AUTO CHANE THIS red preload", autosList.get(0));
     }
 
     @Override

@@ -247,6 +247,12 @@ public class RobotContainer {
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
 
+        coController.leftJoyStickPress.and(coController.rightJoyStickPress)
+            .onTrue(superstructure.stowChurro());
+
+        coController.leftTrigger.and(coController.rightTrigger)
+            .onTrue(superstructure.stowAll());
+
         // characterization
 
         // swerve
@@ -295,7 +301,7 @@ public class RobotContainer {
         pivot.setDefaultCommand(superstructure.prep());
         intake.setDefaultCommand(superstructure.intakeCommands.kill());
         kicker.setDefaultCommand(superstructure.kickerCommands.kill());
-        churro.setDefaultCommand(superstructure.churroCommands.holdPositionAtCall());
+        churro.setDefaultCommand(superstructure.stowChurro());
         wrist.setDefaultCommand(superstructure.wristCommands.holdPositionAtCall());
         shooterRight.setDefaultCommand(superstructure.shooterCommands.killRight());
         shooterLeft.setDefaultCommand(superstructure.shooterCommands.killLeft());

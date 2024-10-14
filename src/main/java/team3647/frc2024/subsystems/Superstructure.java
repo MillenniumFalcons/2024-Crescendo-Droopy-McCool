@@ -165,11 +165,11 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 4, () -> 1);
+        return shooterCommands.setVelocity(() -> 0.0005, () -> 1);
     }
 
     public Command setShootModeStationary() {
-        return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.SHOOT_STATIONARY);
+        return Commands.runOnce(() -> this.wantedShootingMode= DriveMode.SHOOT_STATIONARY);
     }
 
     public Command setShootModeMoving() {
@@ -202,6 +202,21 @@ public class Superstructure {
 
     public boolean getPiece() {
         return hasPiece;
+    }
+
+    public Command stowAll(){
+        return Commands.parallel(
+             wristCommands
+                        .setAngle(wristStowAngle)
+                        .until(() -> wrist.angleReached(wristStowAngle, 5)),
+                Commands.parallel(
+                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                                shooterCommands.kill(),
+                                kickerCommands.kill(),
+                                intakeCommands.kill(),
+                                stowChurro())
+            
+        );
     }
 
     public boolean currentYes() {
@@ -394,11 +409,13 @@ public class Superstructure {
     public Command stowFromAmpShoot() {
         return Commands.sequence(
                 Commands.parallel(
+                                deployChurro(),
                                 prepAmp(),
                                 spinUpAmp(),
                                 Commands.sequence(Commands.waitSeconds(0.3), feed()))
                         .withTimeout(1),
                 Commands.deadline(
+                        stowChurro(),
                         pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
                         shooterCommands.kill(),
                         kickerCommands.kill()));

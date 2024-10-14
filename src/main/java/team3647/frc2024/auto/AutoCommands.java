@@ -165,7 +165,9 @@ public class AutoCommands implements AllianceObserver {
 
     public final AutonomousMode doNothing;
 
-    public final AutonomousMode preloadOnly;
+    public final AutonomousMode redPreloadOnly;
+
+    public final AutonomousMode bluePreloadOnly;
 
     public final AutonomousMode preloadMove;
 
@@ -299,8 +301,10 @@ public class AutoCommands implements AllianceObserver {
                 new AutonomousMode(testForward(), AllianceFlip.flipForPP(getInitial(s15_straight_forward)));
         this.doNothing = 
                 new AutonomousMode(Commands.none(), AllianceFlip.flipForPP(getInitial(s15_straight_forward), color == Alliance.Red));
-        this.preloadOnly = 
-                new AutonomousMode(preloadOnly(), AllianceFlip.flipForPP(getInitial(s15_straight_forward), color == Alliance.Red));
+        this.redPreloadOnly = 
+                new AutonomousMode(preloadOnly(), AllianceFlip.flipForPP(getInitial(s1_to_n1)), "red preload only");
+        this.bluePreloadOnly = 
+                new AutonomousMode(preloadOnly(), getInitial(s1_to_n1), "blue preload only");
         this.preloadMove = 
                 new AutonomousMode(preloadMove(), AllianceFlip.flipForPP(getInitial(s3_preload_move), color == Alliance.Red));
         
@@ -308,6 +312,7 @@ public class AutoCommands implements AllianceObserver {
         redAutoModes =
                 new ArrayList<AutonomousMode>(
                         Set.of(
+                                redPreloadOnly,
                                 redFullCenterS1,
                                 redFullCenterS3,
                                 redFour_S1F1F2F3,
@@ -315,12 +320,12 @@ public class AutoCommands implements AllianceObserver {
                                 redFour_S3F5F4F3,
                                 redSix_S1F1F2N1N2N3,
                                 redTwo_S2F3,
-                                doNothing,
-                                preloadOnly));
+                                doNothing));
 
         blueAutoModes =
                 new ArrayList<AutonomousMode>(
                         Set.of(
+                                bluePreloadOnly,
                                 blueFour_S1F1F2F3,
                                 blueFour_S1N1N2N3,
                                 blueFour_S3F5F4F3,
@@ -329,8 +334,7 @@ public class AutoCommands implements AllianceObserver {
                                 blueSix_S1F1F2N1N2N3,
                                 blueForwardTest,
                                 blueRightTest,
-                                doNothing,
-                                preloadOnly));
+                                doNothing));
         
     }
 
@@ -383,49 +387,57 @@ public class AutoCommands implements AllianceObserver {
     public Command getScoringSequenceF1F2(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverride(f1_to_shoot1, color),
+                target().withTimeout(0.5),
                 followChoreoPathWithOverrideFast(shoot1_to_f2, color));
     }
 
     public Command getScoringSequenceF2F3(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverride(f2_to_shoot1, color),
+                target().withTimeout(0.8),
                 followChoreoPathWithOverrideFast(shoot1_to_f3, color));
     }
 
     public Command getScoringSequenceF3F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverride(f3_to_shoot2, color),
+                target().withTimeout(0.8),
                 followChoreoPathWithOverrideFast(shoot2_to_f4, color));
     }
 
     public Command getScoringSequenceF4F5(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideLongTimer(f4_to_shoot2, color),
+                target().withTimeout(0.8),
                 followChoreoPathWithOverrideFast(shoot2_to_f5, color));
     }
 
     public Command getScoringSequenceF2F1(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverrideLongTimer(f2_to_shoot3, color),
+                target().withTimeout(0.8),
                 followChoreoPathWithOverrideFast(shoot3_to_f1, color));
     }
 
     public Command getScoringSequenceF3F2(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverride(f3_to_shoot3, color),
+                target().withTimeout(0.8),
                 followChoreoPathWithOverrideFast(shoot3_to_f2, color));
     }
 
     public Command getScoringSequenceF4F3(Alliance color) {
         return Commands.sequence(
-                followChoreoPathWithOverride(f4_to_shoot3, color),
+                followChoreoPathWithOverrideLongTimer(f4_to_shoot3, color),
+                target().withTimeout(0.8),
                 followChoreoPathWithOverrideFast(shoot3_to_f3, color));
     }
 
     public Command getScoringSequenceF5F4(Alliance color) {
         return Commands.sequence(
                 followChoreoPathWithOverride(f5_to_shoot3, color),
-                followChoreoPathWithOverrideFast(shoot3_to_f4, color));
+                target().withTimeout(0.8),
+                followChoreoPathWithOverrideNoverrideFast(shoot3_to_f4, color));
     }
 
     public Command testForward() {
@@ -452,7 +464,10 @@ public class AutoCommands implements AllianceObserver {
     }
 
     public Command preloadOnly(){
-        return scorePreload();
+        return Commands.parallel(
+            target().withTimeout(10),
+            scorePreload()
+        );
     }
 
     public Command preloadMove(){
@@ -547,8 +562,11 @@ public class AutoCommands implements AllianceObserver {
                 masterSuperstructureSequence(color),
                 Commands.sequence(
                         followChoreoPathWithOverride(s1_to_n1, color),
+                        target().withTimeout(1),
                         followChoreoPathWithOverride(n1_to_n2, color),
-                        followChoreoPathWithOverride(n2_to_n3, color)));
+                        target().withTimeout(1),
+                        followChoreoPathWithOverride(n2_to_n3, color),
+                        target().withTimeout(1)));
     }
 
     public Command pathToTrapTest() {
@@ -684,7 +702,7 @@ public class AutoCommands implements AllianceObserver {
 
     public Command masterSuperstructureSequence(Alliance color) {
         return Commands.sequence(
-                scorePreload(),
+                poopPreload(),
                 Commands.parallel(
                         // superstructure.spinUp(),
                         superstructure.prep(),
@@ -702,12 +720,20 @@ public class AutoCommands implements AllianceObserver {
         }
     }
 
-    public Command scorePreload() {
+    public Command poopPreload() {
         return Commands.parallel(
                         superstructure.spinUpPreload(),
                         superstructure.prep(),
                         Commands.sequence(Commands.waitSeconds(1), superstructure.feed()))
                 .withTimeout(1.4);
+    }
+
+    public Command scorePreload(){
+        return Commands.parallel(
+                        superstructure.spinUp(),
+                        superstructure.prep(),
+                        Commands.sequence(Commands.waitSeconds(1), superstructure.feed()))
+                .withTimeout(1.4);      
     }
 
     public Pose2d getInitial(String path) {
@@ -890,7 +916,7 @@ public class AutoCommands implements AllianceObserver {
                 .andThen(Commands.runOnce(() -> swerve.drive(0, 0, 0), swerve));
     }
 
-    public Command followChoreoPathWithOverrideNoverride(String path, Alliance color) {
+    public Command followChoreoPathWithOverrideNoverrideFast(String path, Alliance color) {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
@@ -911,13 +937,15 @@ public class AutoCommands implements AllianceObserver {
                                     var posexthresholdlow = color == Alliance.Blue ? 5 : FieldConstants.kFieldLength - 8.75;
                                     var posexThresholdHigh = color == Alliance.Blue ? 8.75 : FieldConstants.kFieldLength - 5;
 
-                                    if(!this.hasPiece && hasTarget.getAsBoolean()){
+                                    var isInPose = swerve.getOdoPose().getX() > posexthresholdlow && swerve.getOdoPose().getX() < posexThresholdHigh;
+
+                                    if(!this.hasPiece && hasTarget.getAsBoolean() && isInPose){
                                         motionXComponent = autoDriveVelocities.get().dx;
                                         motionYComponent = autoDriveVelocities.get().dy;
                                         motionRotComponent = autoDriveVelocities.get().dtheta;
                                     }
 
-                                    if(swerve.getOdoPose().getX() > posexthresholdlow && swerve.getOdoPose().getX() < posexThresholdHigh){
+                                    if(isInPose){
                                         motionRotComponent = speeds.omegaRadiansPerSecond;
                                     }
                                     swerve.drive(motionXComponent, motionYComponent, motionRotComponent);},

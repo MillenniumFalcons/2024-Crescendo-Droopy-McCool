@@ -45,7 +45,7 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
             Supplier<Pose2d> drivePose,
             Supplier<ChassisSpeeds> driveSpeeds,
             InterpolatingDoubleTreeMap shootSpeedMap) {
-        this.color = Alliance.Blue;
+        this.color = Alliance.Red;
 
         
         
