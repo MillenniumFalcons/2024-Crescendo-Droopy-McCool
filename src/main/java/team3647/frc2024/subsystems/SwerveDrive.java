@@ -211,6 +211,10 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
 
         // SmartDashboard.putNumber("characterization voltage", periodicIO.characterizationVoltage);
     }
+    @Override
+    public void simulationPeriodic() {
+        super.updateSimState(kDt, ModuleCount);
+    }
 
     @Override
     public void writePeriodicOutputs() {

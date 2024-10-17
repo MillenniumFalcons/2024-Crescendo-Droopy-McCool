@@ -5,13 +5,19 @@
 package team3647.frc2024.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
+import java.sql.Driver;
+
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -63,6 +69,7 @@ public class Robot extends LoggedRobot {
                     new WPILOGWriter(
                             LogFileUtil.addPathSuffix(
                                     logPath, "_sim"))); // Save outputs to a new log
+            Logger.addDataReceiver(new NT4Publisher());
         }
 
         // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
@@ -112,6 +119,8 @@ public class Robot extends LoggedRobot {
     public void disabledPeriodic() {
 
         robotContainer.allianceChecker.periodic();
+        
+        // DriverStation.reportError("BALABLBLBLBLBLBLBLBLBLBLBLBLBSLLSBLSBBSLLBS", false);
     }
 
     /**
@@ -156,4 +165,10 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically during test mode. */
     @Override
     public void testPeriodic() {}
+
+    @Override
+    public void simulationPeriodic() {
+        DriverStation.reportError("MONKEY", false);
+        VirtualSubsystem.periodicAll();
+    }
 }
