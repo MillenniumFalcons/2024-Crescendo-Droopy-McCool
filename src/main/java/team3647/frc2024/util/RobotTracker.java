@@ -7,6 +7,9 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.sql.Driver;
 import java.util.function.Supplier;
@@ -23,6 +26,8 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
     private Alliance color;
 
     private InterpolatingDoubleTreeMap shootSpeedMap;
+
+    private final Field2d smartDashboardField;
 
     Supplier<Pose2d> drivePose;
     Supplier<ChassisSpeeds> driveSpeeds;
@@ -50,19 +55,23 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
         
         
 
+        this.color = Alliance.Red;
+
         
-        this.speakerPose = speakerPose;
+        
+
+        
+        this.speakerPose = AllianceFlip.flipForPP(speakerPose, this.color == Alliance.Red);
         this.ampPose = this.color == Alliance.Red? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
-        this.feedPose = feedPose;
+        this.feedPose = AllianceFlip.flipForPP(feedPose, this.color == Alliance.Red);
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
         this.shootSpeedMap = shootSpeedMap;
-        
-        if(this.color == Alliance.Red){
-            this.speakerPose = AllianceFlip.flipForPP(speakerPose);
-            this.feedPose = AllianceFlip.flipForPP(feedPose);
-        }
+
+
+        this.smartDashboardField = new Field2d();
+        SmartDashboard.putData("Field", smartDashboardField);
     }
 
     @Override
@@ -76,6 +85,7 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
         Logger.recordOutput("field/speakerPose", this.speakerPose);
         Logger.recordOutput("field/ampPose", this.ampPose);
         Logger.recordOutput("field/feedpose", this.feedPose);
+        smartDashboardField.setRobotPose(periodicIO.pose);
         // Logger.recordOutput("Robot/Speeds", periodicIO.speeds.vxMetersPerSecond);
         // org.littletonrobotics.junction.Logger.recordOutput("speaker pose", speakerPose);
     }
@@ -161,14 +171,25 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
 
     @Override
     public void onAllianceFound(Alliance color) {
-        // for(int i = 0; i <5; i++){
-        //     DriverStation.reportError("METHODRUN" + DriverStation.getAlliance().isPresent(), false);
-        // }
-        // this.color = color;
-        // DriverStation.reportError(color.name(), false);
-        // this.ampPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(ampPose) : ampPose;
-        // this.speakerPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(speakerPose) : speakerPose;
-        // DriverStation.reportError(String.valueOf(speakerPose.getX()), false);
-        // this.feedPose = color.equals(Alliance.Red) ? AllianceFlip.flipForPP(feedPose) : feedPose;
+       //remove debug stmts
+        DriverStation.reportError("COLOLOR" + color.name(), false);
+        
+        DriverStation.reportError("SAMECHECK??" + this.color.equals(color), false);
+        DriverStation.reportError("SPEAKERPOSE " + speakerPose.getX(), false);
+        if(this.color == color){
+            return;
+        }
+        DriverStation.reportError("PASSED SAME CHECK", false);
+
+            speakerPose = AllianceFlip.flipForPP(speakerPose);
+            DriverStation.reportError("speaker flipped", false);
+            ampPose = AllianceFlip.flipForPP(ampPose);
+            DriverStation.reportError("amp flipped", false);
+            feedPose = AllianceFlip.flipForPP(feedPose);
+            DriverStation.reportError("feed flipped", false);
+        
+
+        
+        this.color = color;
     }
 }
