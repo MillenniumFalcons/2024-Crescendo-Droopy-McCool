@@ -67,6 +67,7 @@ public class Pivot extends TalonFXSubsystem {
         super.periodic();
         Logger.recordOutput("fornt tof", tofFront());
         Logger.recordOutput("back tof", tofFront());
+        Logger.recordOutput("pibotdimand", motionMagicExpoVoltage.Position * positionConversion);
 
         // Logger.recordOutput(
         //         "Pivot/Pose",

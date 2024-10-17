@@ -145,7 +145,7 @@ public class RobotContainer {
                         superstructure
                                 .stowFromShoot()
                                 .andThen(superstructure.ejectPiece())
-                                .unless(mainController.buttonY));
+                                .unless(coController.buttonY));
 
         mainController
                 .rightTrigger
@@ -155,7 +155,7 @@ public class RobotContainer {
                         superstructure
                                 .stowFromShoot()
                                 .andThen(superstructure.ejectPiece())
-                                .unless(mainController.buttonY));
+                                .unless(coController.buttonY));
         // coController
         //         .buttonX
         //         .whileTrue(autoCommands.pathToTrapTest())
@@ -169,7 +169,7 @@ public class RobotContainer {
                         superstructure
                                 .stowFromBatterShoot()
                                 .andThen(superstructure.ejectPiece())
-                                .unless(mainController.buttonY));
+                                .unless(coController.buttonY));
         mainController
                 .leftTrigger
                 .and(goodToAmp)
@@ -179,7 +179,7 @@ public class RobotContainer {
                         superstructure
                                 .stowFromAmpShoot()
                                 .andThen(superstructure.ejectPiece())
-                                .unless(mainController.buttonY));
+                                .unless(coController.buttonY));
         mainController.rightTrigger.onFalse(
                 Commands.sequence(Commands.waitSeconds(0.6), autoDrive.setMode(DriveMode.NONE)));
         mainController
@@ -263,7 +263,7 @@ public class RobotContainer {
         // mainController.dPadLeft.whileTrue(swerve.runDriveDynamTest(Direction.kForward));
         // mainController.dPadRight.whileTrue(swerve.runDriveDynamTest(Direction.kReverse));
 
-        // mainController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
+        // coController.buttonY.whileTrue(swerve.runSteerQuasiTest(Direction.kForward));
         // mainController.buttonA.whileTrue(swerve.runSteerQuasiTest(Direction.kReverse));
 
         // mainController.buttonX.whileTrue(swerve.runSteerDynamTest(Direction.kForward));
@@ -538,7 +538,7 @@ public class RobotContainer {
                     targetingUtil.exitVelocity(),
                     autoDrive::isFeed,
                     autoDrive::swerveAimed,
-                    mainController.buttonY);
+                    coController.buttonY);
 
     LEDTriggers ledTriggers = new LEDTriggers(superstructure, autoDrive::getMode);
 
