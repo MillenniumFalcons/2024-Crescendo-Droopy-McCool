@@ -24,7 +24,6 @@
 //     public static ArrayList<ButtonPress> presses = new ArrayList<ButtonPress>(10);
 //     public static ButtonHandler instance = new ButtonHandler();
 
-
 //     public ButtonHandler(){
 //         super();
 //     }
@@ -38,10 +37,9 @@
 //     }
 
 //     public Command addPress(String name){
-//         return Commands.runOnce(() -> presses.add(new ButtonPress(name, Timer.getFPGATimestamp())));
+//         return Commands.runOnce(() -> presses.add(new ButtonPress(name,
+// Timer.getFPGATimestamp())));
 //     }
-
-
 
 //     public Boolean getIsDoubleTap(ButtonPress press){
 
@@ -49,12 +47,11 @@
 //             if(p.name.equals(press.name) && Math.abs(p.timestamp - press.timestamp) < 0.35){
 //                 Logger.recordOutput("string", Math.abs(p.timestamp - press.timestamp));
 //                 return true;
-                
+
 //             }
 //         }
 //         return false;
 //     }
-
 
 //     public void periodic() {
 //         // if(Timer.getFPGATimestamp() - cacheTimer >= 2.0){
@@ -67,15 +64,14 @@
 //         DriverStation.reportError(String.valueOf(p.timestamp), false);
 //         DriverStation.reportError("types hit", false);
 //         DriverStation.reportError(getIsDoubleTap(p).toString(), false);
-        
+
 //       }
 //       DriverStation.reportError("looping",false );
-        
+
 //     }
 
 //     public static ButtonHandler getInstance(){
 //         return instance;
 //     }
-    
-    
+
 // }

@@ -172,24 +172,13 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
     @Override
     public void onAllianceFound(Alliance color) {
        //remove debug stmts
-        DriverStation.reportError("COLOLOR" + color.name(), false);
-        
-        DriverStation.reportError("SAMECHECK??" + this.color.equals(color), false);
-        DriverStation.reportError("SPEAKERPOSE " + speakerPose.getX(), false);
-        if(this.color == color){
-            return;
-        }
-        DriverStation.reportError("PASSED SAME CHECK", false);
-
-            speakerPose = AllianceFlip.flipForPP(speakerPose);
-            DriverStation.reportError("speaker flipped", false);
-            ampPose = AllianceFlip.flipForPP(ampPose);
-            DriverStation.reportError("amp flipped", false);
-            feedPose = AllianceFlip.flipForPP(feedPose);
-            DriverStation.reportError("feed flipped", false);
-        
-
-        
+       
         this.color = color;
+       
+        speakerPose = AllianceFlip.flipForPP(speakerPose/*,this.color == color*/);
+            
+        ampPose = AllianceFlip.flipForPP(ampPose);
+            
+        feedPose = AllianceFlip.flipForPP(feedPose);
     }
 }

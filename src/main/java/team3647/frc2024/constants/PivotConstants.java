@@ -11,7 +11,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -78,8 +77,7 @@ public class PivotConstants {
     public static final InterpolatingDoubleTreeMap kMasterTrapMap =
             new InterpolatingDoubleTreeMap();
 
-    public static final InterpolatingDoubleTreeMap feedmap = 
-        new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap feedmap = new InterpolatingDoubleTreeMap();
 
     static {
         // kMasterSpeakerMap.put(0.0, 60.0);

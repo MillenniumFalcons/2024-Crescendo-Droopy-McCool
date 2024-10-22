@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import java.util.function.BooleanSupplier;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
@@ -247,11 +246,12 @@ public class RobotContainer {
         climbing.onTrue(superstructure.setIsClimbing());
         climbing.onFalse(superstructure.setIsNotClimbing());
 
-        coController.leftJoyStickPress.and(coController.rightJoyStickPress)
-            .onTrue(superstructure.stowChurro());
+        coController
+                .leftJoyStickPress
+                .and(coController.rightJoyStickPress)
+                .onTrue(superstructure.stowChurro());
 
-        coController.leftTrigger.and(coController.rightTrigger)
-            .onTrue(superstructure.stowAll());
+        coController.leftTrigger.and(coController.rightTrigger).onTrue(superstructure.stowAll());
 
         // characterization
 
@@ -312,7 +312,7 @@ public class RobotContainer {
     void configTestCommands() {}
 
     public void configureSmartDashboardLogging() {
-        //logging offset for interp
+        // logging offset for interp
         printer.addDouble("offset", targetingUtil::getOffset);
         printer.addBoolean("note seen", () -> !autoCommands.noteNotSeen.getAsBoolean());
         // SmartDashboard.putNumber("pivot output", 0);
@@ -407,11 +407,14 @@ public class RobotContainer {
     public final Intake intake =
             new Intake(IntakeConstants.kMaster, 1, 1, IntakeConstants.kNominalVoltage, 0.02);
     private final Trigger isIntaking =
-            new Trigger(() -> mainController.leftBumper.getAsBoolean() && !DriverStation.isAutonomous());
+            new Trigger(
+                    () ->
+                            mainController.leftBumper.getAsBoolean()
+                                    && !DriverStation.isAutonomous());
 
-    private final Trigger isNotIntaking = 
+    private final Trigger isNotIntaking =
             new Trigger(() -> !isIntaking.getAsBoolean()).debounce(0.1);
-    
+
     public final Pivot pivot =
             new Pivot(
                     PivotConstants.kMaster,
@@ -483,8 +486,6 @@ public class RobotContainer {
     public final AprilTagPhotonVision zoom =
             new AprilTagPhotonVision(VisionConstants.zoom, VisionConstants.robotToZoom)
                     .withPriority(true);
-
-
 
     public AllianceChecker allianceChecker = new AllianceChecker();
 
@@ -566,8 +567,7 @@ public class RobotContainer {
 
     private final Trigger piece = new Trigger(() -> superstructure.getPiece());
 
-    private final Trigger climbing =
-            new Trigger(() ->  climbRight.getPosition() > 1);
+    private final Trigger climbing = new Trigger(() -> climbRight.getPosition() > 1);
 
     private final Trigger goodToAmp =
             new Trigger(
@@ -583,6 +583,4 @@ public class RobotContainer {
             new Trigger(() -> superstructure.current() && wrist.getAngle() < 5) // 41
                     .debounce(0.06)
                     .or(mainController.buttonB);
-
-
 }

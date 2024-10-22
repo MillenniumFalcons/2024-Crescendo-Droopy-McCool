@@ -1,10 +1,8 @@
 package team3647.frc2024.subsystems;
 
-
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class ShooterRight extends TalonFXSubsystem {
@@ -24,13 +22,13 @@ public class ShooterRight extends TalonFXSubsystem {
         this.ff = ff;
     }
 
-
     @Override
     public void periodic() {
         // TODO Auto-generated method stub
         super.periodic();
         Logger.recordOutput("realrightshootdemand", velocityVoltage.Velocity);
     }
+
     public boolean velocityGreater(double setpoint) {
         return super.getVelocity() > setpoint;
     }

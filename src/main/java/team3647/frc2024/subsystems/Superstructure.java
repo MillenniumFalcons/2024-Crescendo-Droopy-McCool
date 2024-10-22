@@ -42,7 +42,7 @@ public class Superstructure {
     private final double churroStowAngle = ChurroConstants.kInitialDegree;
     private final double shootSpeed;
     public double currentLimit = 49;
-    
+
     ;
     private boolean hasPiece = false;
     private boolean isClimbing;
@@ -169,7 +169,7 @@ public class Superstructure {
     }
 
     public Command setShootModeStationary() {
-        return Commands.runOnce(() -> this.wantedShootingMode= DriveMode.SHOOT_STATIONARY);
+        return Commands.runOnce(() -> this.wantedShootingMode = DriveMode.SHOOT_STATIONARY);
     }
 
     public Command setShootModeMoving() {
@@ -204,19 +204,17 @@ public class Superstructure {
         return hasPiece;
     }
 
-    public Command stowAll(){
+    public Command stowAll() {
         return Commands.parallel(
-             wristCommands
+                wristCommands
                         .setAngle(wristStowAngle)
                         .until(() -> wrist.angleReached(wristStowAngle, 5)),
                 Commands.parallel(
-                                pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
-                                shooterCommands.kill(),
-                                kickerCommands.kill(),
-                                intakeCommands.kill(),
-                                stowChurro())
-            
-        );
+                        pivotCommands.setAngle(() -> pivotAngleSupplier.getAsDouble()),
+                        shooterCommands.kill(),
+                        kickerCommands.kill(),
+                        intakeCommands.kill(),
+                        stowChurro()));
     }
 
     public boolean currentYes() {
@@ -249,20 +247,20 @@ public class Superstructure {
 
     public Command shoot() {
         return Commands.parallel(
-                        prep(), spinUp()
-                        // Commands.sequence(
-                        //         // Commands.waitSeconds(2.5),
-                        //         Commands.waitUntil(
-                        //                         () ->
-                        //                                 shooterLeft.velocityReached(30, 2)
-                        //                                         && pivot.angleReached(
-                        //
-                        // pivotAngleSupplier.getAsDouble(),
-                        // 5)
-                        //                                         && swerveAimed.getAsBoolean())
-                        //                 .withTimeout(1.2),
-                        //         feed())
-                        );
+                prep(), spinUp()
+                // Commands.sequence(
+                //         // Commands.waitSeconds(2.5),
+                //         Commands.waitUntil(
+                //                         () ->
+                //                                 shooterLeft.velocityReached(30, 2)
+                //                                         && pivot.angleReached(
+                //
+                // pivotAngleSupplier.getAsDouble(),
+                // 5)
+                //                                         && swerveAimed.getAsBoolean())
+                //                 .withTimeout(1.2),
+                //         feed())
+                );
     }
 
     public Command cleanShoot() {
