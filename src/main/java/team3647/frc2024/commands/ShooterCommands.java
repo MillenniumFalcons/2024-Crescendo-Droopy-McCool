@@ -100,8 +100,8 @@ public class ShooterCommands {
                     var b = linReg.intercept();
                     var kS = -b / a;
                     var kV = a;
-                    SmartDashboard.putNumber("shooter kS", kS);
-                    SmartDashboard.putNumber("shooter kV", kV);
+                    // SmartDashboard.putNumber("shooter kS", kS);
+                    // SmartDashboard.putNumber("shooter kV", kV);
                 },
                 shooterLeft);
     }

@@ -76,10 +76,14 @@ public class DrivetrainCommands {
                         var rotation = motionTurnComponent;
                         swerve.drive(translation.getX(), translation.getY(), rotation);
                     } else {
+                        
                         if (mode != DriveMode.NONE && enabeld) {
                             motionTurnComponent = autoDriveTwist2d.dtheta;
                         }
-                        SmartDashboard.putNumber("theta", autoDriveTwist2d.dtheta);
+                        if (mode == DriveMode.FEED && enabeld){
+                            motionTurnComponent = autoDriveTwist2d.dtheta + motionTurnComponent;
+                        }
+                        // SmartDashboard.putNumber("theta", autoDriveTwist2d.dtheta);
 
                         var translation = new Translation2d(motionXComponent, motionYComponent);
 

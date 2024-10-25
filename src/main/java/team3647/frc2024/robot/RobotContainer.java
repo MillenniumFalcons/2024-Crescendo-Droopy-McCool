@@ -347,8 +347,8 @@ public class RobotContainer {
         // printer.addBoolean("pivot ready", superstructure::pivotReady);
         // printer.addBoolean("swerve ready", superstructure::swerveReady);
         // printer.addDouble("tx", detector::getTX);
-        SmartDashboard.putNumber("left", 28);
-        SmartDashboard.putNumber("right", 18);
+        // SmartDashboard.putNumber("left", 28);
+        // SmartDashboard.putNumber("right", 18);
         // printer.addDouble("auto drive", () -> autoDrive.getVelocities().dtheta);
     }
 

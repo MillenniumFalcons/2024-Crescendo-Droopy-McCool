@@ -228,6 +228,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         Logger.recordOutput(
                 "Drive/Current",
                 this.Modules[0].getDriveMotor().getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput("Robot/Under stage", underStage());
         readPeriodicInputs();
         writePeriodicOutputs();
     }
