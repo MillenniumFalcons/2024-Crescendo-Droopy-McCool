@@ -316,11 +316,15 @@ public class AutoCommands implements AllianceObserver {
                         preloadMove(),
                         AllianceFlip.flipForPP(getInitial(s3_preload_move), color == Alliance.Red));
 
-        this.redFour_S2N1N2N3 = 
-                new AutonomousMode(four_S2N1N2N3(Alliance.Red), AllianceFlip.flipForPP(getInitial(s2_to_n1)));
+        this.redFour_S2N1N2N3 =
+                new AutonomousMode(
+                        four_S2N1N2N3(Alliance.Red),
+                        AllianceFlip.flipForPP(getInitial(s2_to_n1)),
+                        "red close 4 s2");
 
-        this.blueFour_S2N1N2N3 = 
-                new AutonomousMode(four_S2N1N2N3(Alliance.Blue), getInitial(s2_to_n1));
+        this.blueFour_S2N1N2N3 =
+                new AutonomousMode(
+                        four_S2N1N2N3(Alliance.Blue), getInitial(s2_to_n1), "blue close 4 s2");
 
         redAutoModes =
                 new ArrayList<AutonomousMode>(
@@ -330,6 +334,7 @@ public class AutoCommands implements AllianceObserver {
                                 redFullCenterS3,
                                 redFour_S1F1F2F3,
                                 redFour_S1N1N2N3,
+                                redFour_S2N1N2N3,
                                 redFour_S3F5F4F3,
                                 redSix_S1F1F2N1N2N3,
                                 redTwo_S2F3,
@@ -342,6 +347,7 @@ public class AutoCommands implements AllianceObserver {
                                 blueFour_S1F1F2F3,
                                 blueFour_S1N1N2N3,
                                 blueFour_S3F5F4F3,
+                                blueFour_S2N1N2N3,
                                 blueFullCenterS1,
                                 blueFullCenterS3,
                                 blueSix_S1F1F2N1N2N3,
@@ -579,6 +585,7 @@ public class AutoCommands implements AllianceObserver {
         return Commands.parallel(
                 close4SuperstructureSequence(color),
                 Commands.sequence(
+                        target().withTimeout(0.5),
                         followChoreoPathWithOverride(s2_to_n1, color),
                         target().withTimeout(1),
                         followChoreoPathWithOverride(n1_to_n2, color),
@@ -586,7 +593,6 @@ public class AutoCommands implements AllianceObserver {
                         followChoreoPathWithOverride(n2_to_n3, color),
                         target().withTimeout(1)));
     }
-
 
     public Command pathToTrapTest() {
         return Commands.sequence(
@@ -730,13 +736,16 @@ public class AutoCommands implements AllianceObserver {
                         superstructure.feed()));
     }
 
-    public Command close4SuperstructureSequence(Alliance color){
-        return Commands.parallel(
-                        // superstructure.spinUp(),
-                        superstructure.prep(),
-                        // superstructure.fastFeed(),
-                        continuouslyIntakeForShoot(color).repeatedly(),
-                        superstructure.feed());
+    public Command close4SuperstructureSequence(Alliance color) {
+        return scorePreload()
+                .withTimeout(0.5)
+                .andThen(
+                        Commands.parallel(
+                                // superstructure.spinUp(),
+                                superstructure.prep(),
+                                // superstructure.fastFeed(),
+                                continuouslyIntakeForShoot(color).repeatedly(),
+                                superstructure.feed()));
     }
 
     public boolean goodToGo(Alliance color) {

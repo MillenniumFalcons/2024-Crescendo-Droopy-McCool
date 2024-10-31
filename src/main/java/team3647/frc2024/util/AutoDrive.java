@@ -16,7 +16,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,6 +41,8 @@ public class AutoDrive extends VirtualSubsystem {
     private InterpolatingDoubleTreeMap shootSpeedMapLeft;
     private InterpolatingDoubleTreeMap shootSpeedMapRight;
     private InterpolatingDoubleTreeMap feedMap;
+
+    private double startingBatteryVoltage;
 
     private final ProfiledPIDController rotController =
             new ProfiledPIDController(
@@ -95,6 +96,7 @@ public class AutoDrive extends VirtualSubsystem {
         this.shootSpeedMapLeft = shootSpeedMapLeft;
         this.shootSpeedMapRight = shootSpeedMapRight;
         this.feedMap = feedSpeedMap;
+
         // rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -150,7 +152,14 @@ public class AutoDrive extends VirtualSubsystem {
     }
 
     public double flywheelThreshold() {
-        return getShootSpeedLeft() - (1 + MathUtil.clamp(RobotController.getBatteryVoltage()*0.75 - 2 * targeting.distance(), 0, 5));
+        return getShootSpeedLeft()
+                - MathUtil.clamp(
+                        (this.startingBatteryVoltage
+                                        / 8
+                                        * (RobotController.getBatteryVoltage() + 2))
+                                - 2 * targeting.distance(),
+                        0,
+                        5);
     }
 
     private void setTargetPose(Pose2d targetPose) {

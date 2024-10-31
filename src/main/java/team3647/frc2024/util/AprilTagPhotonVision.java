@@ -124,8 +124,10 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         final var stdDevs = baseStdDevs.times(targetDistance).times(8 / Math.pow(numTargets, 3));
         double ambiguityScore =
                 1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
-        final double priorityScore = this.hasPriority ? 50 : 0;
-        ambiguityScore += priorityScore;
+
+        // final double priorityScore = this.hasPriority ? 50 : 0;
+        // ambiguityScore += priorityScore;
+
         if (result.targets.stream().anyMatch(target -> target.getPoseAmbiguity() > 0.2)) {
             return Optional.empty();
         }

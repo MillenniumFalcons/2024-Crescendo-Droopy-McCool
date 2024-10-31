@@ -6,13 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.littletonrobotics.junction.Logger;
-
 public class AllianceChecker {
     private final List<AllianceObserver> observers = new ArrayList<>();
     private Optional<Alliance> alliance = DriverStation.getAlliance();
     private Alliance cachedColor = Alliance.Red;
-
 
     public void registerObserver(AllianceObserver observer) {
         observers.add(observer);
@@ -26,13 +23,14 @@ public class AllianceChecker {
 
     public void periodic() {
         alliance = DriverStation.getAlliance();
- 
-        alliance.ifPresent(color -> {
-            // DriverStation.reportError("Run method? " + (cachedColor != color), false);
-            if(cachedColor != color){
-                observers.forEach(observer -> observer.onAllianceFound(color));
-            }
-            cachedColor = color;
-        });
+
+        alliance.ifPresent(
+                color -> {
+                    // DriverStation.reportError("Run method? " + (cachedColor != color), false);
+                    if (cachedColor != color) {
+                        observers.forEach(observer -> observer.onAllianceFound(color));
+                    }
+                    cachedColor = color;
+                });
     }
 }

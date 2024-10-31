@@ -5,17 +5,12 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.sql.Driver;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import team3647.lib.team6328.VirtualSubsystem;
-import team3647.lib.team9442.AllianceChecker;
 import team3647.lib.team9442.AllianceObserver;
 
 public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
@@ -52,23 +47,15 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
             InterpolatingDoubleTreeMap shootSpeedMap) {
         this.color = Alliance.Red;
 
-        
-        
-
         this.color = Alliance.Red;
 
-        
-        
-
-        
         this.speakerPose = AllianceFlip.flipForPP(speakerPose, this.color == Alliance.Red);
-        this.ampPose = this.color == Alliance.Red? AllianceFlip.flipForPP(ampPose) : ampPose;
+        this.ampPose = this.color == Alliance.Red ? AllianceFlip.flipForPP(ampPose) : ampPose;
         this.robotToShooter = robotToShooter;
         this.feedPose = AllianceFlip.flipForPP(feedPose, this.color == Alliance.Red);
         this.drivePose = drivePose;
         this.driveSpeeds = driveSpeeds;
         this.shootSpeedMap = shootSpeedMap;
-
 
         this.smartDashboardField = new Field2d();
         SmartDashboard.putData("Field", smartDashboardField);
@@ -171,14 +158,14 @@ public class RobotTracker extends VirtualSubsystem implements AllianceObserver {
 
     @Override
     public void onAllianceFound(Alliance color) {
-       //remove debug stmts
-       
+        // remove debug stmts
+
         this.color = color;
-       
-        speakerPose = AllianceFlip.flipForPP(speakerPose/*,this.color == color*/);
-            
+
+        speakerPose = AllianceFlip.flipForPP(speakerPose /*,this.color == color*/);
+
         ampPose = AllianceFlip.flipForPP(ampPose);
-            
+
         feedPose = AllianceFlip.flipForPP(feedPose);
     }
 }
