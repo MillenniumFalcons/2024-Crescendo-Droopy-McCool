@@ -26,7 +26,6 @@ public class ShooterRight extends TalonFXSubsystem {
     public void periodic() {
         // TODO Auto-generated method stub
         super.periodic();
-        Logger.recordOutput("realrightshootdemand", velocityVoltage.Velocity);
     }
 
     public boolean velocityGreater(double setpoint) {

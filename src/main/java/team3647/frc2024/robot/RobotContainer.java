@@ -320,10 +320,10 @@ public class RobotContainer {
         // // printer.addDouble("wanted pivot", superstructure::getWantedPivot);
         // printer.addDouble("back tof", pivot::tofBack);
         // printer.addBoolean("front tof", pivot::frontPiece);
-        printer.addDouble("front tof", pivot::tofFront);
+        // printer.addDouble("front tof", pivot::tofFront);
         printer.addDouble("lef pos", climbLeft::getPosition);
         printer.addDouble("right pos", climbRight::getPosition);
-        printer.addDouble("current", () -> superstructure.currentLimit);
+        printer.addDouble("currentLimit", () -> superstructure.currentLimit);
         // // printer.addDouble("wrist", wrist::getAngle);
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addDouble("churo", churro::getAngle);

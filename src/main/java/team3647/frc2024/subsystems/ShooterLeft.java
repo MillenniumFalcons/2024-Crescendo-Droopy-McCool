@@ -75,13 +75,6 @@ public class ShooterLeft extends TalonFXSubsystem {
     }
 
     @Override
-    public void periodic() {
-        super.periodic();
-        Logger.recordOutput(
-                "real shoot demadn", super.velocityVoltage.Velocity * velocityConversion);
-    }
-
-    @Override
     public String getName() {
         return "Shooter Left";
     }
