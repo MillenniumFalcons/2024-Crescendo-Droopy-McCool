@@ -7,6 +7,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import org.littletonrobotics.junction.Logger;
+
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.auto.AutonomousMode;
 
@@ -25,7 +28,7 @@ public class AutoChooser extends SendableChooser<AutonomousMode> implements Alli
         onChange(
                 (mode) -> {
                     setStartPose.accept(getSelected().getPathplannerPose2d());
-                    // SmartDashboard.putString("sellected", getSelected().getName());
+                    Logger.recordOutput("sellected", getSelected().getName());
                 });
         autosList = autoCommands.redAutoModes;
         setDefaultOption("DEFAULT AUTO CHANE THIS red preload", autosList.get(0));
