@@ -28,7 +28,7 @@ public class AutoChooser extends SendableChooser<AutonomousMode> implements Alli
         onChange(
                 (mode) -> {
                     setStartPose.accept(getSelected().getPathplannerPose2d());
-                    Logger.recordOutput("sellected", getSelected().getName());
+                    // Logger.recordOutput("sellected", getSelected().getName());
                 });
         autosList = autoCommands.redAutoModes;
         setDefaultOption("DEFAULT AUTO CHANE THIS red preload", autosList.get(0));

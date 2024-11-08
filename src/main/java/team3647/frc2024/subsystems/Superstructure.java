@@ -43,7 +43,7 @@ public class Superstructure {
     private final double shootSpeed;
     public double currentLimit = 49;
 
-    ;
+    
     private boolean hasPiece = false;
     private boolean isClimbing;
     private boolean isIntaking = false;
@@ -165,7 +165,7 @@ public class Superstructure {
     }
 
     public Command spinUpAmp() {
-        return shooterCommands.setVelocity(() -> 6, () -> 1);
+        return shooterCommands.setVelocity(() -> 10, () -> 1);
     }
 
     public Command setShootModeStationary() {
@@ -460,7 +460,7 @@ public class Superstructure {
                         kickerCommands.kick(),
                         // pivotCommands.setAngle(() -> 20),
                         wristCommands.setAngle(() -> 110).until(() -> wrist.angleReached(110, 5)))
-                .withTimeout(0.3)
+                .withTimeout(0.4)
                 .andThen(shootThrough());
     }
 

@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import java.util.Optional;
+
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -125,11 +127,19 @@ public class AprilTagPhotonVision extends PhotonCamera implements AprilTagCamera
         double ambiguityScore =
                 1 / (numTargets * 100 + (1 - result.getBestTarget().getPoseAmbiguity()));
 
+        if(hasPriority){
+            Logger.recordOutput("Zoom ambiguity schore", ambiguityScore);
+        }
+
         // final double priorityScore = this.hasPriority ? 50 : 0;
         // ambiguityScore += priorityScore;
 
         if (result.targets.stream().anyMatch(target -> target.getPoseAmbiguity() > 0.2)) {
+            
             return Optional.empty();
+        }
+        if(hasPriority){
+            Logger.recordOutput("toomuchambiguity?", result.targets.stream().anyMatch(t -> t.getPoseAmbiguity() > 0.2));
         }
         VisionMeasurement measurement =
                 VisionMeasurement.fromEstimatedRobotPose(

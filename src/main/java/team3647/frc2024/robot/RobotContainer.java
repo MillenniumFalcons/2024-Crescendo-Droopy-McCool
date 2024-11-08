@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
+import team3647.frc2024.commands.IntakeCommands;
 import team3647.frc2024.constants.ChurroConstants;
 import team3647.frc2024.constants.ClimbConstants;
 import team3647.frc2024.constants.FieldConstants;
@@ -79,6 +80,7 @@ public class RobotContainer {
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
+        
         autoCommands.registerCommands();
         configAllianceChecker();
 
@@ -121,6 +123,8 @@ public class RobotContainer {
         coController.buttonA.onTrue(superstructure.setShootModeFeed());
         coController.buttonB.onTrue(superstructure.setShootModeStationary());
 
+
+        
         mainController.rightTrigger.whileTrue(
                 autoDrive.setMode(() -> superstructure.getWantedShootingMode()));
         mainController
@@ -235,8 +239,8 @@ public class RobotContainer {
         mainController.buttonA.onTrue(superstructure.ejectPiece());
         mainController.buttonA.onTrue(superstructure.setIsNotIntaking());
 
-        coController.dPadLeft.onTrue(targetingUtil.offsetUp());
-        coController.dPadRight.onTrue(targetingUtil.offsetDown());
+        coController.dPadLeft.onTrue(targetingUtil.offsetDown());
+        coController.dPadRight.onTrue(targetingUtil.offsetUp());
 
         mainController.dPadUp.and(goodToClimb).whileTrue(climbCommands.goUp());
         mainController.dPadUp.onFalse(climbCommands.kill());
@@ -251,7 +255,10 @@ public class RobotContainer {
                 .and(coController.rightJoyStickPress)
                 .onTrue(superstructure.stowChurro());
 
-        coController.leftTrigger.and(coController.rightTrigger).onTrue(superstructure.stowAll());
+        coController.leftTrigger.onTrue(superstructure.intakeCommands.intakespeeddown());
+        coController.rightTrigger.onTrue(superstructure.intakeCommands.intakespeedup());
+
+        coController.leftJoyStickPress.and(coController.rightJoyStickPress).onTrue(superstructure.stowAll());
 
         // characterization
 
@@ -324,6 +331,7 @@ public class RobotContainer {
         printer.addDouble("lef pos", climbLeft::getPosition);
         printer.addDouble("right pos", climbRight::getPosition);
         printer.addDouble("currentLimit", () -> superstructure.currentLimit);
+        printer.addBoolean("has note", () -> superstructure.hasPiece());
         // // printer.addDouble("wrist", wrist::getAngle);
         // printer.addDouble("pivot", pivot::getAngle);
         // printer.addDouble("churo", churro::getAngle);

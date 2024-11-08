@@ -15,7 +15,7 @@ public class ClimbCommands {
         return Commands.run(
                 () -> {
                     // climbLeft.openLoop(1);
-                    climbRight.openLoop(1);
+                    // climbRight.openLoop(1);
                 },
                 climbLeft,
                 climbRight);
@@ -25,7 +25,7 @@ public class ClimbCommands {
         return Commands.run(
                 () -> {
                     // climbLeft.openLoop(-1);
-                    climbRight.openLoop(-1);
+                    // climbRight.openLoop(-1);
                 },
                 climbLeft,
                 climbRight);

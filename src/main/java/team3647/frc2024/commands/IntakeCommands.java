@@ -32,7 +32,17 @@ public class IntakeCommands {
         return Commands.runOnce(() -> intake.openLoop(0), intake);
     }
 
+    public Command intakespeedup(){
+        return Commands.runOnce(() -> intakeSpeed +=0.5);
+    }
+
+    public Command intakespeeddown(){
+        return Commands.runOnce(() -> intakeSpeed -=0.5);
+    }
+
+
     private final Set<Subsystem> requirements;
+    private double intakeSpeed = 0.8;
 
     public IntakeCommands(Intake intake) {
         this.intake = intake;

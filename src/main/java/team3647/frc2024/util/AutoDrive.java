@@ -37,6 +37,7 @@ public class AutoDrive extends VirtualSubsystem {
     private double targetRot = 0;
     private double targetRotOnTheMove = 0;
     private boolean enabled = true;
+    private double feedOffset;
 
     private InterpolatingDoubleTreeMap shootSpeedMapLeft;
     private InterpolatingDoubleTreeMap shootSpeedMapRight;
@@ -96,6 +97,7 @@ public class AutoDrive extends VirtualSubsystem {
         this.shootSpeedMapLeft = shootSpeedMapLeft;
         this.shootSpeedMapRight = shootSpeedMapRight;
         this.feedMap = feedSpeedMap;
+        this.feedOffset = 0;
 
         // rotController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -118,7 +120,7 @@ public class AutoDrive extends VirtualSubsystem {
         // Logger.recordOutput("Robot/Compensated", targeting.compensatedPose());
         SmartDashboard.putNumber("rot amp", targeting.rotToAmp());
         Logger.recordOutput("offset", targeting.getOffset());
-        Logger.recordOutput("rot", targetRot);
+        // Logger.recordOutput("rot", targetRot);
         // Logger.recordOutput("shoot speed left demand", getShootSpeedLeft());
         // Logger.recordOutput("shoot speed right demand", getShootSpeedRight());
         targetRotOnTheMove = targeting.shootAtSpeakerOnTheMove().rotation;
@@ -151,12 +153,18 @@ public class AutoDrive extends VirtualSubsystem {
         return Math.abs(targetRot) < 0.035 * MathUtil.clamp(4 / targeting.distance(), 1, 10);
     }
 
+    public Command feedOffsetUp(){
+        return Commands.runOnce(() -> feedOffset += 2.0);
+    }
+
+    public Command feedOffsetDown(){
+        return Commands.runOnce(() -> feedOffset -= 2);
+    }
+
     public double flywheelThreshold() {
         return getShootSpeedLeft()
                 - MathUtil.clamp(
-                        (this.startingBatteryVoltage
-                                        / 8
-                                        * (RobotController.getBatteryVoltage() + 2))
+                        (8)
                                 - 2 * targeting.distance(),
                         0,
                         5);
@@ -216,7 +224,7 @@ public class AutoDrive extends VirtualSubsystem {
         }
         switch (mode) {
             case FEED:
-                return feedMap.get(targeting.getCompensatedDistance());
+                return feedMap.get(targeting.getCompensatedDistance()) + feedOffset;
             case SHOOT_STATIONARY:
                 return shootSpeedMapLeft.get(targeting.distance());
             case SHOOT_ON_THE_MOVE:
@@ -232,7 +240,7 @@ public class AutoDrive extends VirtualSubsystem {
         }
         switch (mode) {
             case FEED:
-                return feedMap.get(targeting.getCompensatedDistance()) * 4 / 5;
+                return feedMap.get(targeting.getCompensatedDistance()) * 4 / 5 + feedOffset;
             case SHOOT_STATIONARY:
                 return shootSpeedMapRight.get(targeting.distance());
             case SHOOT_ON_THE_MOVE:
@@ -330,7 +338,7 @@ public class AutoDrive extends VirtualSubsystem {
         if (Math.abs(k) < 0.5 && swerve.getChassisSpeeds().vyMetersPerSecond < 0.5) {
             k = 0.5 * Math.signum(k);
         }
-        Logger.recordOutput("k", k);
+        // Logger.recordOutput("k", k);
 
         double setpoint = Math.abs(targetRot) < 0.03 ? 0 : k;
         return setpoint;

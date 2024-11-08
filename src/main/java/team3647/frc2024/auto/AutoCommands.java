@@ -831,7 +831,7 @@ public class AutoCommands implements AllianceObserver {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
-        Logger.recordOutput("Autos/current path", path);
+        // Logger.recordOutput("Autos/current path", path);
         return customChoreoFolloweForOverride(
                         traj,
                         swerve::getOdoPose,
@@ -932,7 +932,7 @@ public class AutoCommands implements AllianceObserver {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
-        Logger.recordOutput("Autos/current path", path);
+        // Logger.recordOutput("Autos/current path", path);
         return customChoreoFolloweForOverrideSlow(
                         traj,
                         swerve::getOdoPose,
@@ -957,7 +957,7 @@ public class AutoCommands implements AllianceObserver {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
-        Logger.recordOutput("Autos/current path", path);
+        // Logger.recordOutput("Autos/current path", path);
         return customChoreoFolloweForOverrideSlow(
                         traj,
                         swerve::getOdoPose,
@@ -998,7 +998,7 @@ public class AutoCommands implements AllianceObserver {
         ChoreoTrajectory traj = Choreo.getTrajectory(path);
         boolean mirror = color == Alliance.Red;
         PathPlannerLogging.logActivePath(PathPlannerPath.fromChoreoTrajectory(path));
-        Logger.recordOutput("Autos/current path", path);
+        // Logger.recordOutput("Autos/current path", path);
         return customChoreoFolloweForOverrideLongTimer(
                         traj,
                         swerve::getOdoPose,
