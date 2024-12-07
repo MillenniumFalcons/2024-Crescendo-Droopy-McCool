@@ -62,18 +62,18 @@ public class ShooterConstants {
     public static final InterpolatingDoubleTreeMap kFeedMap = new InterpolatingDoubleTreeMap();
 
     static {
-        kLeftMap.put(0.0, 28.0 - 6.0-0.2);
-        kLeftMap.put(1.5, 28.0 - 6.0-0.2);
-        kLeftMap.put(2.0, 28.0 - 4.0-0.3);
+        kLeftMap.put(0.0, 28.0 - 6.0 - 0.2);
+        kLeftMap.put(1.5, 28.0 - 6.0 - 0.2);
+        kLeftMap.put(2.0, 28.0 - 4.0 - 0.3);
         kLeftMap.put(2.5, 28.0 - 2.0 - 0.2);
-        kLeftMap.put(3.0, 28.7-0.2);
+        kLeftMap.put(3.0, 28.7 - 0.2);
         kLeftMap.put(3.5, 1.13);
 
         kLeftMap.put(4.0, 28.0 + 2.2); //
         kLeftMap.put(4.5, 28.0); //
-        kLeftMap.put(5.0, 28.0 + 1.4+0.8); //
+        kLeftMap.put(5.0, 28.0 + 1.4 + 0.8); //
         kLeftMap.put(5.5, 28.0); //
-        kLeftMap.put(6.0, 28.0); //z
+        kLeftMap.put(6.0, 28.0); // z
         kLeftMap.put(6.5, 30.0); //
         kLeftMap.put(7.0, 32.0); //
         kLeftMap.put(7.5, 34.0); //

@@ -2,7 +2,6 @@ package team3647.frc2024.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import org.littletonrobotics.junction.Logger;
 import team3647.lib.TalonFXSubsystem;
 
 public class ShooterRight extends TalonFXSubsystem {

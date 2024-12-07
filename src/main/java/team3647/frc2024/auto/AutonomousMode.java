@@ -18,9 +18,10 @@ public class AutonomousMode {
         this(autoCommand, ppinitial, "no name");
         DriverStation.reportWarning("you have an unamed auto!", false);
         Elastic.sendAlert(
-            new ElasticNotification(
-                NotificationLevel.WARNING, "Unamed Auto!",
-                "One of your autos is Unamed! Object ID: " + this.toString()));
+                new ElasticNotification(
+                        NotificationLevel.WARNING,
+                        "Unamed Auto!",
+                        "One of your autos is Unamed! Object ID: " + this.toString()));
     }
 
     private final Command autoCommand;

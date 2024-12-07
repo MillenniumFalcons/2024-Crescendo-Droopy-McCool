@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import team3647.frc2024.auto.AutoCommands;
 import team3647.frc2024.commands.ClimbCommands;
 import team3647.frc2024.commands.DrivetrainCommands;
-import team3647.frc2024.commands.IntakeCommands;
 import team3647.frc2024.constants.ChurroConstants;
 import team3647.frc2024.constants.ClimbConstants;
 import team3647.frc2024.constants.FieldConstants;
@@ -80,7 +79,7 @@ public class RobotContainer {
         configureDefaultCommands();
         configureButtonBindings();
         configureSmartDashboardLogging();
-        
+
         autoCommands.registerCommands();
         configAllianceChecker();
 
@@ -123,8 +122,6 @@ public class RobotContainer {
         coController.buttonA.onTrue(superstructure.setShootModeFeed());
         coController.buttonB.onTrue(superstructure.setShootModeStationary());
 
-
-        
         mainController.rightTrigger.whileTrue(
                 autoDrive.setMode(() -> superstructure.getWantedShootingMode()));
         mainController
@@ -258,7 +255,10 @@ public class RobotContainer {
         coController.leftTrigger.onTrue(superstructure.intakeCommands.intakespeeddown());
         coController.rightTrigger.onTrue(superstructure.intakeCommands.intakespeedup());
 
-        coController.leftJoyStickPress.and(coController.rightJoyStickPress).onTrue(superstructure.stowAll());
+        coController
+                .leftJoyStickPress
+                .and(coController.rightJoyStickPress)
+                .onTrue(superstructure.stowAll());
 
         // characterization
 

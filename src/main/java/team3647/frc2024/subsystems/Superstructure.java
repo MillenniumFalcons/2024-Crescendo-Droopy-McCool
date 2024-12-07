@@ -43,7 +43,6 @@ public class Superstructure {
     private final double shootSpeed;
     public double currentLimit = 49;
 
-    
     private boolean hasPiece = false;
     private boolean isClimbing;
     private boolean isIntaking = false;

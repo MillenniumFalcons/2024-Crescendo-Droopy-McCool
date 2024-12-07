@@ -76,7 +76,8 @@ public class DrivetrainCommands {
                         swerve.drive(translation.getX(), translation.getY(), rotation);
                     } else if (mode == DriveMode.FEED && enabeld) {
                         motionTurnComponent = autoDriveTwist2d.dtheta + motionTurnComponent;
-                        swerve.driveFieldOriented(motionXComponent, motionYComponent, motionTurnComponent);
+                        swerve.driveFieldOriented(
+                                motionXComponent, motionYComponent, motionTurnComponent);
                     } else {
 
                         if (mode != DriveMode.NONE && enabeld) {

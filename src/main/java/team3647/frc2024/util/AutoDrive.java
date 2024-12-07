@@ -16,7 +16,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -153,21 +152,16 @@ public class AutoDrive extends VirtualSubsystem {
         return Math.abs(targetRot) < 0.035 * MathUtil.clamp(4 / targeting.distance(), 1, 10);
     }
 
-    public Command feedOffsetUp(){
+    public Command feedOffsetUp() {
         return Commands.runOnce(() -> feedOffset += 2.0);
     }
 
-    public Command feedOffsetDown(){
+    public Command feedOffsetDown() {
         return Commands.runOnce(() -> feedOffset -= 2);
     }
 
     public double flywheelThreshold() {
-        return getShootSpeedLeft()
-                - MathUtil.clamp(
-                        (8)
-                                - 2 * targeting.distance(),
-                        0,
-                        5);
+        return getShootSpeedLeft() - MathUtil.clamp((8) - 2 * targeting.distance(), 0, 5);
     }
 
     private void setTargetPose(Pose2d targetPose) {

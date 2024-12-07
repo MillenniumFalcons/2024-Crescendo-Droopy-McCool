@@ -224,10 +224,10 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         // Logger.recordOutput("is accel", getIsAccel());
         // Logger.recordOutput("Robot/Output", this.getOdoPose());
         // Logger.recordOutput(
-                // "Drive/Encoder", this.Modules[0].getDriveMotor().getPosition().getValueAsDouble());
+        // "Drive/Encoder", this.Modules[0].getDriveMotor().getPosition().getValueAsDouble());
         // Logger.recordOutput(
-                // "Drive/Current",
-                // this.Modules[0].getDriveMotor().getStatorCurrent().getValueAsDouble());
+        // "Drive/Current",
+        // this.Modules[0].getDriveMotor().getStatorCurrent().getValueAsDouble());
         Logger.recordOutput("Robot/Under stage", underStage());
         readPeriodicInputs();
         writePeriodicOutputs();
@@ -403,7 +403,7 @@ public class SwerveDrive extends SwerveDrivetrain implements PeriodicSubsystem {
         double angle =
                 measurement.pose.getRotation().minus(getOdoPose().getRotation()).getDegrees();
         return (distance < MathUtil.clamp(getVel(), 0.25, 1.5) && Math.abs(angle) < 15)
-                        || DriverStation.isAutonomous();
+                || DriverStation.isAutonomous();
     }
 
     public void addVisionData(VisionMeasurement data) {
